@@ -55,7 +55,7 @@ const Navbar = () => {
                 <DrawerBody>
                   <VStack align="start" spacing={4} mt={2}>
                     <Button variant="ghost" w="100%">Botón 1</Button>
-                    <Button variant="ghost" w="100%">Botón 2</Button>
+                    <Button variant="ghost" w="100%" onClick={() => handleNavigate('/createAsset')}>Crear Asset</Button>
                     <Button variant="ghost" w="100%" onClick={() => handleNavigate('/account')}>Mi cuenta</Button>
                     <Button colorScheme="red" w="100%" onClick={handleLogout}>
                       Cerrar sesión
