@@ -41,7 +41,7 @@ const AssetDetail = () => {
   const assetImage = "https://ipfsweb.raptoreum.com/ipfs/" + asset.referenceHash;
 
   return (
-    <Box maxW="600px" mx="auto" bg="red.50" flexDirection="column" display="flex" alignItems="center" justifyContent="center">
+    <Box maxW="600px" mx="auto" flexDirection="column" display="flex" alignItems="center" justifyContent="center">
       <Image src={assetImage} alt={asset.nombre} borderRadius="md" mb={4} maxW="400px" />
       <Heading>{asset.nombre}</Heading>
       {/* <Text mt={2}>{asset.description}</Text> */}

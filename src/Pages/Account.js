@@ -65,7 +65,7 @@ const Account = () => {
                             <Text fontWeight="bold" mb={1}>
                                 Dirección: {wallet.direccion}
                             </Text>
-                            <Text fontSize="sm" color="gray.500" mb={2}>Creada: {new Date(wallet.createdAt).toLocaleString()}</Text>
+                            <Text fontSize="sm" color="gray.500" mb={2}>Creada: {wallet.createdAt} </Text>
                             
                             {wallet.assets && wallet.assets.length > 0 ? (
                                 <List.Root spacing={1} mt={2}>

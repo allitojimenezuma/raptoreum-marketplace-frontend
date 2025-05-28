@@ -41,7 +41,12 @@ const CreateAsset = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+
+        if (isSubmitting) return; // Prevent multiple submissions
+
         setIsSubmitting(true);
+
+
 
         if (!nombre || !descripcion || !precio) {
             setError('Todos los campos son obligatorios');
@@ -74,6 +79,10 @@ const CreateAsset = () => {
             setPrecio('');
             setFoto(null);
             setPreview('');
+
+            const data = await response.json();
+            alert(data.message);
+
         } catch (err) {
             setError('No se pudo crear el asset');
         } finally {
