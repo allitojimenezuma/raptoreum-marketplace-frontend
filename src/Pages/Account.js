@@ -72,9 +72,12 @@ const Account = () => {
                                     {wallet.assets.map((asset) => (
                                         <List.Item key={asset.id} display="flex" alignItems="center">
                                             <Box>
-                                                <Text fontWeight="semibold">{asset.nombre}</Text>
+                                                <Text fontWeight="semibold">{asset.name || asset.nombre}</Text>
                                                 <Text fontSize="xs" color="gray.500">Asset ID: {asset.asset_id}</Text>
                                                 <Text fontSize="xs" color="gray.500">Hash: {asset.referenceHash}</Text>
+                                                {asset.price !== undefined && (
+                                                    <Text fontSize="sm" color="teal.600">Precio: {asset.price} RTM</Text>
+                                                )}
                                             </Box>
                                         </List.Item>
                                     ))}

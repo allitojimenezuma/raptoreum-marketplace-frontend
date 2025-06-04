@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Box,
   Flex,
@@ -12,7 +12,6 @@ import {
   DrawerBackdrop,
   DrawerPositioner,
   DrawerContent,
-  DrawerHeader,
   DrawerBody,
   DrawerCloseTrigger
 } from '@chakra-ui/react';
@@ -20,6 +19,15 @@ import { Link, useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    // Solo redirigir a login si NO estamos en /signup
+    if (!token && window.location.pathname !== '/signup') {
+      navigate('/login');
+    }
+  }, [navigate]);
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     window.location.reload();

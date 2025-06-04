@@ -38,13 +38,29 @@ const AssetDetail = () => {
 
   if (!asset) return <Text>Asset no encontrado</Text>;
 
-  const assetImage = "https://ipfsweb.raptoreum.com/ipfs/" + asset.referenceHash;
+  // Compatibilidad para diferentes nombres de campos
+  const nombre = asset.nombre || asset.name || 'Sin nombre';
+  const precio = asset.precio || asset.price || null;
+  const referenceHash = asset.referenceHash || asset.hash || null;
+  const assetImage = referenceHash
+    ? "https://ipfsweb.raptoreum.com/ipfs/" + referenceHash
+    : asset.image || '';
+  const descripcion = asset.description || asset.descripcion || '';
 
   return (
     <Box maxW="600px" mx="auto" flexDirection="column" display="flex" alignItems="center" justifyContent="center">
-      <Image src={assetImage} alt={asset.nombre} borderRadius="md" mb={4} maxW="400px" />
-      <Heading>{asset.nombre}</Heading>
-      {/* <Text mt={2}>{asset.description}</Text> */}
+      {assetImage && (
+        <Image src={assetImage} alt={nombre} borderRadius="md" mb={4} maxW="400px" />
+      )}
+      <Heading>{nombre}</Heading>
+      {precio && (
+        <Text color="teal.600" fontWeight="semibold" fontSize="xl" mt={2}>
+          Precio: {precio} RTM
+        </Text>
+      )}
+      {descripcion && (
+        <Text mt={2} fontSize="md" color="gray.700">{descripcion}</Text>
+      )}
     </Box>
   );
 };

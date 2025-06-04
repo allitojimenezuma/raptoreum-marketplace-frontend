@@ -6,23 +6,29 @@ const Signup = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async ({ email, password, name }) => {
-    const response = await fetch('http://localhost:3000/auth/signup', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password, name }),
-    });
-    console.log("Data", JSON.stringify({ email, password, name }));
-
-    if (response.ok) {
-      const data = await response.json();
-      console.log('Usuario creado:', data);
-      navigate('/login');
-    } else {
-      console.error('Error al crear el usuario', response.body.message,response.body.error );
+    if (!email || !password || !name) {
+      alert('Por favor, completa todos los campos');
+      return;
     }
-    
+    try {
+      const response = await fetch('http://localhost:3000/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, name }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Usuario creado:', data);
+        navigate('/login');
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        alert('Error al crear el usuario: ' + (errorData.message || 'Error desconocido'));
+      }
+    } catch (err) {
+      alert('Error de red o servidor.');
+    }
   }
 
   return (<Box maxW="400px" mx="auto" mt={8}>

@@ -36,7 +36,10 @@ const Login = () => {
       mt={4}
       variant="link"
       colorScheme="teal"
-      onClick={() => navigate('/signup')}
+      onClick={() => {
+        localStorage.removeItem('token');
+        navigate('/signup');
+      }}
       width="full"
     >
       ¿No tienes cuenta? Crear cuenta
