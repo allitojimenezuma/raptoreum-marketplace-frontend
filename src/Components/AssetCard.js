@@ -26,6 +26,12 @@ const AssetCard = ({ asset }) => {
         <LinkOverlay as={Link} to={`/asset/${asset.id}`}>
           <Text fontWeight="bold" fontSize="lg">{nombre}</Text>
         </LinkOverlay>
+        {/* Mostrar el nombre del usuario si está disponible */}
+        {asset.ownerName && (
+          <Text color="gray.600" fontSize="sm" mt={1}>
+            Usuario: {asset.ownerName}
+          </Text>
+        )}
         {/* Mostrar el precio debajo del nombre */}
         {precio && (
           <Text color="teal.600" fontWeight="semibold" fontSize="md" mt={1}>

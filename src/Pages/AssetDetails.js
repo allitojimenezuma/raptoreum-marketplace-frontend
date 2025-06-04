@@ -50,9 +50,15 @@ const AssetDetail = () => {
   return (
     <Box maxW="600px" mx="auto" flexDirection="column" display="flex" alignItems="center" justifyContent="center">
       {assetImage && (
-        <Image src={assetImage} alt={nombre} borderRadius="md" mb={4} maxW="400px" />
+        <Image src={assetImage} alt={nombre} borderRadius="md" mb={4} maxW="300px" />
       )}
       <Heading>{nombre}</Heading>
+      {/* Mostrar el nombre del dueño si está disponible */}
+      {asset.ownerName && (
+        <Text color="gray.600" fontSize="md" mt={1}>
+          Usuario: {asset.ownerName}
+        </Text>
+      )}
       {precio && (
         <Text color="teal.600" fontWeight="semibold" fontSize="xl" mt={2}>
           Precio: {precio} RTM
