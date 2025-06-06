@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { Box, Heading, Image, Text, Spinner, Center } from '@chakra-ui/react';
+import { Box, Heading, Image, Text, Spinner, Center, Button } from '@chakra-ui/react';
 
 const getAsset = async (id) => {
   try {
@@ -67,6 +67,49 @@ const AssetDetail = () => {
       {descripcion && (
         <Text mt={2} fontSize="md" color="gray.700">{descripcion}</Text>
       )}
+      {/* Botón para comprar el asset */}
+      <Button
+        colorScheme="teal"
+        mt={4}
+        onClick={async () => {
+          console.log('Intentando comprar asset con id:', asset.id);
+          try {
+            const token = localStorage.getItem('token');
+            console.log('Token recuperado:', token);
+            const url = `http://localhost:3000/assets/buy/${asset.id}`;
+            console.log('URL de compra:', url);
+            const response = await fetch(url, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({}), // Puedes añadir datos extra si es necesario
+            });
+            console.log('Respuesta recibida:', response);
+            if (response.ok) {
+              const data = await response.json();
+              console.log('Compra exitosa, respuesta backend:', data);
+              alert('¡Compra realizada con éxito!');
+              // Aquí podrías recargar el asset o redirigir
+            } else {
+              let errorData = {};
+              try {
+                errorData = await response.json();
+              } catch (e) {
+                console.log('No se pudo parsear el error JSON:', e);
+              }
+              console.log('Error en la compra, status:', response.status, 'errorData:', errorData);
+              alert('Error al realizar la compra: ' + (errorData.message || 'Error desconocido'));
+            }
+          } catch (err) {
+            console.log('Error de red o servidor al intentar comprar el asset:', err);
+            alert('Error de red o servidor al intentar comprar el asset.');
+          }
+        }}
+      >
+        Comprar Asset
+      </Button>
     </Box>
   );
 };
