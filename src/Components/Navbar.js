@@ -63,7 +63,7 @@ const Navbar = () => {
             <DrawerPositioner>
               <DrawerContent>
                 <Flex align="center" justify="space-between" p={4}>
-                  <Heading size="md">Menú</Heading>
+                  <Heading size="md" color="#003459">Menú</Heading>
                   <DrawerCloseTrigger asChild>
                     <CloseButton />
                   </DrawerCloseTrigger>
@@ -74,10 +74,10 @@ const Navbar = () => {
                       variant="ghost"
                       w="80%"
                       alignSelf="center"
-                      bg="#949494"
+                      bg="#e0e0e0"
                       color="#003459"
                       borderRadius="10px"
-                      _hover={{ bg: '#6d6d6d', color: 'white' }}
+                      _hover={{ bg: '#bdbdbd', color: 'white' }}
                     >
                       Botón 1
                     </Button>
@@ -86,10 +86,10 @@ const Navbar = () => {
                       w="80%"
                       alignSelf="center"
                       onClick={() => handleNavigate('/createAsset')}
-                      bg="#949494"
+                      bg="#e0e0e0"
                       color="#003459"
                       borderRadius="10px"
-                      _hover={{ bg: '#6d6d6d', color: 'white' }}
+                      _hover={{ bg: '#bdbdbd', color: 'white' }}
                     >
                       Crear Asset
                     </Button>
@@ -98,10 +98,10 @@ const Navbar = () => {
                       w="80%"
                       alignSelf="center"
                       onClick={() => handleNavigate('/account')}
-                      bg="#949494"
+                      bg="#e0e0e0"
                       color="#003459"
                       borderRadius="10px"
-                      _hover={{ bg: '#6d6d6d', color: 'white' }}
+                      _hover={{ bg: '#bdbdbd', color: 'white' }}
                     >
                       Mi cuenta
                     </Button>
