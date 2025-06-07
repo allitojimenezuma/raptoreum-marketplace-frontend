@@ -53,6 +53,7 @@ const Account = () => {
         <Box maxW="600px" mx="auto" mt={10} p={6} bg="white" borderRadius="10px" boxShadow="0 8px 32px 0 rgba(0,52,89,0.25), 0 3px 12px 0 #003459" color="#003459" style={{ border: '3px solid #003459' }}>
             <Heading mb={4}><b>Mi Cuenta</b></Heading>
             <VStack align="start" spacing={2} mb={4}>
+                <Text><b>Nombre:</b> {user.name}</Text>
                 <Text><b>Email:</b> {user.email}</Text>
                 <Text><b>ID:</b> {user.id}</Text>
             </VStack>
@@ -62,11 +63,16 @@ const Account = () => {
             {wallets && wallets.length > 0 ? (
                 <List.Root spacing={4} mb={4}>
                     {wallets.map((wallet) => (
-                        <List.Item key={wallet.id} p={3} borderWidth={1} borderRadius="md" bg="#f7fafc" boxShadow="md" borderColor="#003459">
-                            <Text fontWeight="bold" mb={1} color="#003459">
-                                Dirección: {wallet.direccion}
-                            </Text>
-                            <Text fontSize="sm" color="gray.500" mb={2}>Creada: {wallet.createdAt} </Text>
+                        <List.Item key={wallet.id} p={0} borderWidth={1} borderRadius="md" bg="#e2e8f0" boxShadow="md" borderColor="#003459">
+                            <Box p={3}>
+                                <Text fontWeight="bold" mb={1} color="#003459">
+                                    Dirección: {wallet.direccion}
+                                </Text>
+                                <Text fontSize="sm" color="gray.500" mb={2}>Creada: {wallet.createdAt} </Text>
+                                {!wallet.assets || wallet.assets.length === 0 ? (
+                                    <Text color="gray.500" fontSize="sm">No hay assets en esta wallet.</Text>
+                                ) : null}
+                            </Box>
                             {wallet.assets && wallet.assets.length > 0 ? (
                                 <List.Root spacing={1} mt={2}>
                                     {wallet.assets.map((asset) => (
@@ -82,9 +88,7 @@ const Account = () => {
                                         </List.Item>
                                     ))}
                                 </List.Root>
-                            ) : (
-                                <Text color="gray.500" fontSize="sm">No hay assets en esta wallet.</Text>
-                            )}
+                            ) : null}
                         </List.Item>
                     ))}
                 </List.Root>
