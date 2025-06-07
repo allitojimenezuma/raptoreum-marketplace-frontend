@@ -92,7 +92,7 @@ const CreateAsset = () => {
     };
 
     return (
-        <Box maxW="500px" mx="auto" mt={10} p={6} bg="white" borderRadius="10px" boxShadow="2xl" color="#003459">
+        <Box maxW="500px" mx="auto" mt={10} p={6} bg="white" borderRadius="10px" color="#003459" style={{ border: '3px solid #003459', boxShadow: '0 8px 32px 0 rgba(0,52,89,0.25), 0 3px 12px 0 #003459' }}>
             <Heading mb={6}><b>Crear Nuevo Asset</b></Heading>
             <form onSubmit={handleSubmit} encType="multipart/form-data">
                 <VStack spacing={4} align="stretch">
@@ -177,6 +177,7 @@ const CreateAsset = () => {
                         type="submit"
                         isLoading={isSubmitting}
                         loadingText="Creando..."
+                        _hover={{ bg: '#005080', color: 'white' }}
                     >
                         Crear Asset
                     </Button>

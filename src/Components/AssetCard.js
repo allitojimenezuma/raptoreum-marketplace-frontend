@@ -1,5 +1,5 @@
 import { Box, Text, LinkBox, LinkOverlay, Image } from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 
 const AssetCard = ({ asset }) => {
@@ -12,12 +12,20 @@ const AssetCard = ({ asset }) => {
     : asset.image || '';
 
   const [zoomed, setZoomed] = useState(false);
+  const navigate = useNavigate();
+
+  const handleCardClick = (e) => {
+    // Evita que el click en un link dentro de la tarjeta dispare doble navegación
+    if (e.target.tagName === 'A') return;
+    navigate(`/asset/${asset.id}`);
+  };
 
   return (
     <LinkBox
       className="asset-card"
       role="group"
-      style={{ border: '3px solid #003459', borderRadius: '24px', background: '#fff', boxShadow: '0 6px 32px 0 rgba(0,52,89,0.13), 0 2px 8px 0 #007ea7', transition: 'box-shadow 0.3s cubic-bezier(.25,.8,.25,1), transform 0.2s', padding: 0, margin: '10px', display: 'flex', flexDirection: 'column', alignItems: 'stretch', overflow: 'hidden' }}
+      style={{ border: '3px solid #003459', borderRadius: '24px', background: '#fff', boxShadow: '0 6px 32px 0 rgba(0,52,89,0.13), 0 2px 8px 0 #949494', transition: 'box-shadow 0.3s cubic-bezier(.25,.8,.25,1), transform 0.2s', padding: 0, margin: '10px', display: 'flex', flexDirection: 'column', alignItems: 'stretch', overflow: 'hidden', cursor: 'pointer' }}
+      onClick={handleCardClick}
     >
       <Box display="flex" alignItems="center" justifyContent="center" height="140px" width="100%" bg="#f7fafc" style={{ borderTopLeftRadius: '21px', borderTopRightRadius: '21px', overflow: 'visible', margin: 0, padding: 0, position: 'relative' }}>
         {assetImage && (
@@ -52,7 +60,7 @@ const AssetCard = ({ asset }) => {
         )}
       </Box>
       <Box p="4" textAlign="center" bg="#f7fafc" style={{ borderBottomLeftRadius: '21px', borderBottomRightRadius: '21px' }}>
-        <LinkOverlay as={Link} to={`/asset/${asset.id}`}>
+        <LinkOverlay as={Link} to={`/asset/${asset.id}`} onClick={e => e.stopPropagation()}>
           <Text fontWeight="bold" fontSize="lg" color="#003459">{nombre}</Text>
         </LinkOverlay>
         {/* Mostrar el nombre del usuario si está disponible */}

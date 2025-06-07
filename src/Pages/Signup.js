@@ -33,7 +33,7 @@ const Signup = () => {
   
 
   return (
-    <Box maxW="400px" mx="auto" mt={8} p={6} bg="white" borderRadius="10px" boxShadow="2xl" color="#003459">
+    <Box maxW="400px" mx="auto" mt={8} p={6} bg="white" borderRadius="10px" color="#003459" style={{ border: '3px solid #003459', boxShadow: '0 8px 32px 0 rgba(0,52,89,0.25), 0 3px 12px 0 #003459' }}>
       <AuthForm isSignup onAuth={handleSubmit} buttonProps={{ w: '60%', alignSelf: 'center', borderRadius: '10px' }} />
       <Box mt={4} textAlign="center">
         <span

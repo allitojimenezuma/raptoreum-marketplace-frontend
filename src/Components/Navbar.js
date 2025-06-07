@@ -66,7 +66,7 @@ const Navbar = () => {
                 className="menu-blue"
                 borderRadius="10px"
                 border="2px solid white"
-                _hover={{ bg: '#1976D2', color: 'white', borderColor: '#fff' }}
+                _hover={{ bg: '#005080', color: 'white', borderColor: '#fff' }}
               >
                 Menú
               </Button>
@@ -126,7 +126,7 @@ const Navbar = () => {
                         bg="#003459"
                         color="white"
                         borderRadius="10px"
-                        _hover={{ bg: '#001e36', color: 'white' }}
+                        _hover={{ bg: '#005080', color: 'white' }}
                       >
                         Cerrar sesión
                       </Button>

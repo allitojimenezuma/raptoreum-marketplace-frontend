@@ -50,7 +50,7 @@ const Account = () => {
     console.log('Wallets:', wallets);
 
     return (
-        <Box maxW="600px" mx="auto" mt={10} p={6} bg="white" borderRadius="10px" boxShadow="2xl" color="#003459">
+        <Box maxW="600px" mx="auto" mt={10} p={6} bg="white" borderRadius="10px" boxShadow="0 8px 32px 0 rgba(0,52,89,0.25), 0 3px 12px 0 #003459" color="#003459" style={{ border: '3px solid #003459' }}>
             <Heading mb={4}><b>Mi Cuenta</b></Heading>
             <VStack align="start" spacing={2} mb={4}>
                 <Text><b>Email:</b> {user.email}</Text>
@@ -62,7 +62,7 @@ const Account = () => {
             {wallets && wallets.length > 0 ? (
                 <List.Root spacing={4} mb={4}>
                     {wallets.map((wallet) => (
-                        <List.Item key={wallet.id} p={3} borderWidth={1} borderRadius="md" bg="#f7fafc" boxShadow="md" borderColor="#007ea7">
+                        <List.Item key={wallet.id} p={3} borderWidth={1} borderRadius="md" bg="#f7fafc" boxShadow="md" borderColor="#003459">
                             <Text fontWeight="bold" mb={1} color="#003459">
                                 Dirección: {wallet.direccion}
                             </Text>
