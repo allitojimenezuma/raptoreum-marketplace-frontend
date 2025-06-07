@@ -50,39 +50,37 @@ const Account = () => {
     console.log('Wallets:', wallets);
 
     return (
-        <Box maxW="600px" mx="auto" mt={10} p={6} bg="white" borderRadius="md" boxShadow="md">
-            <Heading mb={4}>Mi Cuenta</Heading>
+        <Box maxW="600px" mx="auto" mt={10} p={6} bg="white" borderRadius="10px" boxShadow="2xl" color="#003459">
+            <Heading mb={4}><b>Mi Cuenta</b></Heading>
             <VStack align="start" spacing={2} mb={4}>
                 <Text><b>Email:</b> {user.email}</Text>
                 <Text><b>ID:</b> {user.id}</Text>
             </VStack>
             <Box my={4} />
-            <Heading size="md" mb={2}>Mis Wallets</Heading>
+            <Heading size="md" mb={2} color="#003459">Mis Wallets</Heading>
 
             {wallets && wallets.length > 0 ? (
                 <List.Root spacing={4} mb={4}>
                     {wallets.map((wallet) => (
-                        <List.Item key={wallet.id} p={3} borderWidth={1} borderRadius="md">
-                            <Text fontWeight="bold" mb={1}>
+                        <List.Item key={wallet.id} p={3} borderWidth={1} borderRadius="md" bg="#f7fafc" boxShadow="md" borderColor="#007ea7">
+                            <Text fontWeight="bold" mb={1} color="#003459">
                                 Dirección: {wallet.direccion}
                             </Text>
                             <Text fontSize="sm" color="gray.500" mb={2}>Creada: {wallet.createdAt} </Text>
-                            
                             {wallet.assets && wallet.assets.length > 0 ? (
                                 <List.Root spacing={1} mt={2}>
                                     {wallet.assets.map((asset) => (
-                                        <List.Item key={asset.id} display="flex" alignItems="center">
+                                        <List.Item key={asset.id} display="flex" alignItems="center" bg="white" borderRadius="md" boxShadow="sm" p={2} mb={1}>
                                             <Box>
-                                                <Text fontWeight="semibold">{asset.name || asset.nombre}</Text>
+                                                <Text fontWeight="semibold" color="#003459">{asset.name || asset.nombre}</Text>
                                                 <Text fontSize="xs" color="gray.500">Asset ID: {asset.asset_id}</Text>
                                                 <Text fontSize="xs" color="gray.500">Hash: {asset.referenceHash}</Text>
                                                 {asset.price !== undefined && (
-                                                    <Text fontSize="sm" color="teal.600">Precio: {asset.price} RTM</Text>
+                                                    <Text fontSize="sm" color="#007ea7" fontWeight="bold">Precio: {asset.price} RTM</Text>
                                                 )}
                                             </Box>
                                         </List.Item>
                                     ))}
-                                    
                                 </List.Root>
                             ) : (
                                 <Text color="gray.500" fontSize="sm">No hay assets en esta wallet.</Text>
@@ -93,8 +91,6 @@ const Account = () => {
             ) : (
                 <Text color="gray.500" mb={4}>No tienes wallets asociadas.</Text>
             )}
-
-
         </Box>
     );
 };

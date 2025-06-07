@@ -1,4 +1,4 @@
-import { Box, Heading, Button } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 import AuthForm from '../Components/AuthForm';
 import { useNavigate } from 'react-router-dom';
 
@@ -32,19 +32,30 @@ const Signup = () => {
   }
   
 
-  return (<Box maxW="400px" mx="auto" mt={8}>
-    <AuthForm isSignup onAuth={handleSubmit} />
-    <Button
-      mt={4}
-      variant="link"
-      bg="#003459"
-      color="white"
-      onClick={() => navigate('/login')}
-      width="full"
-    >
-      ¿Ya tienes cuenta? Inicia sesión
-    </Button>
-  </Box>);
+  return (
+    <Box maxW="400px" mx="auto" mt={8} p={6} bg="white" borderRadius="10px" boxShadow="2xl" color="#003459">
+      <AuthForm isSignup onAuth={handleSubmit} buttonProps={{ w: '60%', alignSelf: 'center', borderRadius: '10px' }} />
+      <Box mt={4} textAlign="center">
+        <span
+          style={{
+            color: '#003459',
+            cursor: 'pointer',
+            fontWeight: 500,
+            borderRadius: '10px',
+            padding: '4px 0',
+            display: 'inline-block',
+            transition: 'color 0.2s',
+            textDecoration: 'none',
+          }}
+          onClick={() => navigate('/login')}
+          onMouseOver={e => (e.target.style.color = '#007ea7')}
+          onMouseOut={e => (e.target.style.color = '#003459')}
+        >
+          ¿Ya tienes cuenta? Inicia sesión
+        </span>
+      </Box>
+    </Box>
+  );
 };
 
 export default Signup;

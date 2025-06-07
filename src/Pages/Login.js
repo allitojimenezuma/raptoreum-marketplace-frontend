@@ -31,22 +31,33 @@ const Login = () => {
   }
 
 
-  return (<Box maxW="400px" mx="auto" mt={8}>
-    <AuthForm onAuth={handleSubmit} />
-    <Button
-      mt={4}
-      variant="link"
-      bg="#003459"
-      color="white"
-      onClick={() => {
-        localStorage.removeItem('token');
-        navigate('/signup');
-      }}
-      width="full"
-    >
-      ¿No tienes cuenta? Crear cuenta
-    </Button>
-  </Box>);
+  return (
+    <Box maxW="400px" mx="auto" mt={8} p={6} bg="white" borderRadius="10px" boxShadow="2xl" color="#003459">
+      <AuthForm onAuth={handleSubmit} buttonProps={{ w: '60%', alignSelf: 'center', borderRadius: '10px' }} />
+      <Box mt={4} textAlign="center">
+        <span
+          style={{
+            color: '#003459',
+            cursor: 'pointer',
+            fontWeight: 500,
+            borderRadius: '10px',
+            padding: '4px 0',
+            display: 'inline-block',
+            transition: 'color 0.2s',
+            textDecoration: 'none',
+          }}
+          onClick={() => {
+            localStorage.removeItem('token');
+            navigate('/signup');
+          }}
+          onMouseOver={e => (e.target.style.color = '#007ea7')}
+          onMouseOut={e => (e.target.style.color = '#003459')}
+        >
+          ¿No tienes cuenta? Crear cuenta
+        </span>
+      </Box>
+    </Box>
+  );
 };
 
 export default Login;

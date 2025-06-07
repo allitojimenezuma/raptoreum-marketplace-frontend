@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Box, Button, Input, Heading, FieldRoot, FieldLabel } from '@chakra-ui/react';
 
 
-const AuthForm = ({ isSignup, onAuth }) => {
+const AuthForm = ({ isSignup, onAuth, buttonProps }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -16,7 +16,7 @@ const AuthForm = ({ isSignup, onAuth }) => {
 
   return (
     <Box maxW="400px" mx="auto" p={4} borderWidth="1px" borderRadius="lg">
-      <Heading mb={4}>{isSignup ? 'Sign Up' : 'Log In'}</Heading>
+      <Heading mb={4}><b>{isSignup ? 'Sign Up' : 'Log In'}</b></Heading>
       <form onSubmit={handleSubmit}>
         {isSignup && (
           <FieldRoot mb={4} required>
@@ -51,7 +51,7 @@ const AuthForm = ({ isSignup, onAuth }) => {
             placeholder="Enter your password"
           />
         </FieldRoot>
-        <Button type="submit" width="full" bgColor="#003459" color="white" >
+        <Button type="submit" width="full" bgColor="#003459" color="white" {...buttonProps} style={{ display: 'block', margin: '0 auto' }}>
           {isSignup ? 'Crear Cuenta' : 'Iniciar Sesión'}
         </Button>
       </form>
