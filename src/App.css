@@ -1,3 +1,10 @@
+body {
+  background: linear-gradient(135deg, #003459 0%, #007ea7 100%);
+  min-height: 100vh;
+  font-family: 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  color: #1a202c;
+}
+
 .App {
   text-align: center;
 }
@@ -15,18 +22,8 @@
 }
 
 .App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
+  background: transparent;
+  color: #fff;
 }
 
 @keyframes App-logo-spin {
@@ -36,4 +33,138 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+/* Navbar elegante */
+.navbar-blue, .App-navbar, .chakra-box[bg="gray.800"] {
+  background: rgba(0,52,89,0.95) !important;
+  box-shadow: 0 2px 12px 0 rgba(0,52,89,0.15);
+  border-bottom: 2px solid #007ea7;
+}
+
+/* Botones principales */
+button, .chakra-button, .chakra-button[data-theme] {
+  background: linear-gradient(90deg, #003459 60%, #007ea7 100%) !important;
+  border: none !important;
+  color: #fff !important;
+  font-weight: 600;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 8px 0 rgba(0,52,89,0.10);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+button:hover, .chakra-button:hover {
+  box-shadow: 0 4px 16px 0 rgba(0,52,89,0.18);
+  transform: translateY(-2px) scale(1.03);
+}
+
+/* Botones secundarios */
+.chakra-button[variant="ghost"], .chakra-button[variant="link"] {
+  color: #007ea7 !important;
+  background: transparent !important;
+  font-weight: 500;
+}
+.chakra-button[variant="ghost"]:hover, .chakra-button[variant="link"]:hover {
+  color: #003459 !important;
+  text-decoration: underline;
+}
+
+/* AssetCard estilos personalizados */
+.asset-card {
+  border: 3px solid #003459 !important;
+  border-radius: 24px !important;
+  box-shadow: 0 6px 32px 0 rgba(0,52,89,0.13), 0 2px 8px 0 #007ea7;
+  background: #fff !important;
+  transition: box-shadow 0.3s cubic-bezier(.25,.8,.25,1), transform 0.2s;
+  padding: 0 !important;
+  margin: 16px 8px !important;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  position: relative;
+  overflow: visible !important;
+  cursor: pointer;
+}
+
+.asset-card:hover {
+  box-shadow: 0 12px 40px 0 rgba(0,52,89,0.22), 0 4px 16px 0 #007ea7;
+  transform: translateY(-4px) scale(1.03);
+}
+
+.asset-card .chakra-image {
+  border-radius: 20px 20px 0 0 !important;
+  box-shadow: 0 2px 8px 0 rgba(0,52,89,0.10);
+  background: #f7fafc !important;
+}
+
+.asset-card .chakra-box {
+  background: #f7fafc !important;
+  border-radius: 0 0 20px 20px !important;
+}
+
+/* Efecto de zoom en la imagen del asset */
+.asset-image-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.asset-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px 0 rgba(0,52,89,0.10);
+  background: #f7fafc;
+  transition: transform 0.35s cubic-bezier(.25,.8,.25,1), box-shadow 0.3s;
+  z-index: 1;
+  will-change: transform;
+  position: relative;
+  display: block;
+}
+
+.asset-image-wrapper:hover .asset-image,
+.asset-card:hover .asset-image {
+  transform: scale(1.4);
+  z-index: 10;
+  box-shadow: 0 16px 48px 0 rgba(0,52,89,0.30), 0 6px 24px 0 #003459;
+}
+
+/* Títulos y textos */
+h1, h2, h3, h4, h5, h6, .chakra-heading {
+  color: #003459;
+  font-family: 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-weight: 700;
+}
+
+.chakra-text, .chakra-box, .chakra-heading {
+  letter-spacing: 0.01em;
+}
+
+/* Links */
+a, .App-link {
+  color: #007ea7;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+a:hover, .App-link:hover {
+  color: #003459;
+  text-decoration: underline;
+}
+
+/* Formularios */
+.chakra-input, .chakra-textarea {
+  border: 2px solid #007ea7 !important;
+  border-radius: 10px !important;
+  background: #f7fafc !important;
+  color: #003459 !important;
+  font-weight: 500;
+  transition: border 0.2s;
+}
+.chakra-input:focus, .chakra-textarea:focus {
+  border: 2px solid #003459 !important;
+  box-shadow: 0 0 0 2px #007ea733;
 }

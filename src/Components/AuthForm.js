@@ -51,7 +51,7 @@ const AuthForm = ({ isSignup, onAuth }) => {
             placeholder="Enter your password"
           />
         </FieldRoot>
-        <Button type="submit" width="full" bgColor="teal.950" >
+        <Button type="submit" width="full" bgColor="#003459" color="white" >
           {isSignup ? 'Crear Cuenta' : 'Iniciar Sesión'}
         </Button>
       </form>

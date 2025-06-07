@@ -38,7 +38,7 @@ const Navbar = () => {
   }
 
   return (
-    <Box bg="gray.800" px={4} py={2} color="white">
+    <Box bg="#003459" px={4} py={2} color="white">
       <Flex align="center" justify="space-between">
         <Link to="/">
           <Heading size="md">Raptoreum Asset Marketplace</Heading>
@@ -46,7 +46,7 @@ const Navbar = () => {
 
         <DrawerRoot>
           <DrawerTrigger asChild>
-            <Button variant="ghost" color="black" bgColor="gray.200">
+            <Button variant="ghost" color="white" bgColor="#003459" className="menu-blue">
               Menú
             </Button>
           </DrawerTrigger>
@@ -62,10 +62,10 @@ const Navbar = () => {
                 </Flex>
                 <DrawerBody>
                   <VStack align="start" spacing={4} mt={2}>
-                    <Button variant="ghost" w="100%">Botón 1</Button>
-                    <Button variant="ghost" w="100%" onClick={() => handleNavigate('/createAsset')}>Crear Asset</Button>
-                    <Button variant="ghost" w="100%" onClick={() => handleNavigate('/account')}>Mi cuenta</Button>
-                    <Button colorScheme="red" w="100%" onClick={handleLogout}>
+                    <Button variant="ghost" w="100%" bg="#003459" color="white">Botón 1</Button>
+                    <Button variant="ghost" w="100%" onClick={() => handleNavigate('/createAsset')} bg="#003459" color="white">Crear Asset</Button>
+                    <Button variant="ghost" w="100%" onClick={() => handleNavigate('/account')} bg="#003459" color="white">Mi cuenta</Button>
+                    <Button colorScheme="red" w="100%" onClick={handleLogout} bg="#003459" color="white">
                       Cerrar sesión
                     </Button>
                   </VStack>

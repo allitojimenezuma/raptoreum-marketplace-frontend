@@ -135,8 +135,9 @@ const CreateAsset = () => {
                             <Box mt={2} position="relative" display="flex">
                                 <Image src={preview} alt="Preview" maxH="150px" borderRadius="md" />
                                 <Button
+                                    bg="#003459"
+                                    color="white"
                                     onClick={handleRemoveFoto}
-                                    bg="red.400"
                                 >
                                     Eliminar Foto
                                 </Button>
@@ -149,7 +150,8 @@ const CreateAsset = () => {
                         </Box>
                     )}
                     <Button
-                        colorScheme="teal"
+                        bg="#003459"
+                        color="white"
                         type="submit"
                         isLoading={isSubmitting}
                         loadingText="Creando..."

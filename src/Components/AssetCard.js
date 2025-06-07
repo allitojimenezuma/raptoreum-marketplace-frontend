@@ -1,4 +1,4 @@
-import { Box, Image, Text, LinkBox, LinkOverlay } from '@chakra-ui/react';
+import { Box, Text, LinkBox, LinkOverlay } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
 
 const AssetCard = ({ asset }) => {
@@ -13,17 +13,26 @@ const AssetCard = ({ asset }) => {
     
   return (
     <LinkBox
-      borderWidth="1px"
-      borderRadius="lg"
-      overflow="hidden"
-      _hover={{ boxShadow: 'lg' }}
+      className="asset-card"
+      style={{ border: '3px solid #003459', borderRadius: '24px', background: '#fff', boxShadow: '0 6px 32px 0 rgba(0,52,89,0.13), 0 2px 8px 0 #007ea7', transition: 'box-shadow 0.3s cubic-bezier(.25,.8,.25,1), transform 0.2s', padding: 0, margin: '10px', display: 'flex', flexDirection: 'column', alignItems: 'stretch', overflow: 'hidden' }}
     >
-      <Box display="flex" alignItems="center" justifyContent="center" height="200px" width="100%" bg="gray.50" >
+      <Box display="flex" alignItems="center" justifyContent="center" height="140px" width="100%" bg="#f7fafc" style={{ borderTopLeftRadius: '21px', borderTopRightRadius: '21px', overflow: 'hidden', margin: 0, padding: 0, position: 'relative' }}>
         {assetImage && (
-          <Image src={assetImage} alt={nombre} maxH="100%" maxW="100%" objectFit="contain" />
+          <Box
+            as="span"
+            className="asset-image-wrapper"
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '120px', height: '120px', margin: '0 auto', position: 'relative', overflow: 'hidden' }}
+          >
+            <img
+              src={assetImage}
+              alt={nombre}
+              className="asset-image"
+              style={{ width: '100%', height: '100%', borderRadius: '16px', transition: 'transform 0.35s cubic-bezier(.25,.8,.25,1), box-shadow 0.3s', boxShadow: '0 2px 8px 0 rgba(0,52,89,0.10)', background: '#f7fafc', display: 'block', objectFit: 'contain' }}
+            />
+          </Box>
         )}
       </Box>
-      <Box p="4" textAlign="center">
+      <Box p="4" textAlign="center" bg="#f7fafc" style={{ borderBottomLeftRadius: '21px', borderBottomRightRadius: '21px' }}>
         <LinkOverlay as={Link} to={`/asset/${asset.id}`}>
           <Text fontWeight="bold" fontSize="lg">{nombre}</Text>
         </LinkOverlay>
@@ -35,7 +44,7 @@ const AssetCard = ({ asset }) => {
         )}
         {/* Mostrar el precio debajo del nombre */}
         {precio && (
-          <Text color="teal.600" fontWeight="semibold" fontSize="md" mt={1}>
+          <Text style={{ color: '#007ea7', fontWeight: 'bold' }} fontSize="md" mt={1}>
             Precio: {precio} RTM
           </Text>
         )}

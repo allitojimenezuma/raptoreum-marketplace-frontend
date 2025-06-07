@@ -36,7 +36,8 @@ const Login = () => {
     <Button
       mt={4}
       variant="link"
-      colorScheme="teal"
+      bg="#003459"
+      color="white"
       onClick={() => {
         localStorage.removeItem('token');
         navigate('/signup');
