@@ -53,7 +53,7 @@ const AssetCard = ({ asset }) => {
       </Box>
       <Box p="4" textAlign="center" bg="#f7fafc" style={{ borderBottomLeftRadius: '21px', borderBottomRightRadius: '21px' }}>
         <LinkOverlay as={Link} to={`/asset/${asset.id}`}>
-          <Text fontWeight="bold" fontSize="lg">{nombre}</Text>
+          <Text fontWeight="bold" fontSize="lg" color="#003459">{nombre}</Text>
         </LinkOverlay>
         {/* Mostrar el nombre del usuario si está disponible */}
         {asset.ownerName && (

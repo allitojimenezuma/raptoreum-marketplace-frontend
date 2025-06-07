@@ -38,15 +38,23 @@ const Navbar = () => {
   }
 
   return (
-    <Box bg="#003459" px={4} py={2} color="white">
+    <Box bg="#003459" px={4} py={5} color="white">
       <Flex align="center" justify="space-between">
         <Link to="/">
-          <Heading size="md">Raptoreum Asset Marketplace</Heading>
+          <Heading size="3xl">Raptoreum Asset Marketplace</Heading>
         </Link>
 
         <DrawerRoot>
           <DrawerTrigger asChild>
-            <Button variant="ghost" color="white" bgColor="#003459" className="menu-blue">
+            <Button 
+              variant="ghost" 
+              color="white" 
+              bgColor="#003459" 
+              className="menu-blue"
+              borderRadius="10px"
+              border="2px solid white"
+              _hover={{ bg: '#1976D2', color: 'white', borderColor: '#fff' }}
+            >
               Menú
             </Button>
           </DrawerTrigger>
@@ -62,10 +70,51 @@ const Navbar = () => {
                 </Flex>
                 <DrawerBody>
                   <VStack align="start" spacing={4} mt={2}>
-                    <Button variant="ghost" w="100%" bg="#003459" color="white">Botón 1</Button>
-                    <Button variant="ghost" w="100%" onClick={() => handleNavigate('/createAsset')} bg="#003459" color="white">Crear Asset</Button>
-                    <Button variant="ghost" w="100%" onClick={() => handleNavigate('/account')} bg="#003459" color="white">Mi cuenta</Button>
-                    <Button colorScheme="red" w="100%" onClick={handleLogout} bg="#003459" color="white">
+                    <Button
+                      variant="ghost"
+                      w="80%"
+                      alignSelf="center"
+                      bg="#949494"
+                      color="#003459"
+                      borderRadius="10px"
+                      _hover={{ bg: '#6d6d6d', color: 'white' }}
+                    >
+                      Botón 1
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      w="80%"
+                      alignSelf="center"
+                      onClick={() => handleNavigate('/createAsset')}
+                      bg="#949494"
+                      color="#003459"
+                      borderRadius="10px"
+                      _hover={{ bg: '#6d6d6d', color: 'white' }}
+                    >
+                      Crear Asset
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      w="80%"
+                      alignSelf="center"
+                      onClick={() => handleNavigate('/account')}
+                      bg="#949494"
+                      color="#003459"
+                      borderRadius="10px"
+                      _hover={{ bg: '#6d6d6d', color: 'white' }}
+                    >
+                      Mi cuenta
+                    </Button>
+                    <Button
+                      colorScheme="red"
+                      w="80%"
+                      alignSelf="center"
+                      onClick={handleLogout}
+                      bg="#003459"
+                      color="white"
+                      borderRadius="10px"
+                      _hover={{ bg: '#001e36', color: 'white' }}
+                    >
                       Cerrar sesión
                     </Button>
                   </VStack>

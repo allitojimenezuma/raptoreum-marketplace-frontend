@@ -70,7 +70,7 @@ const AssetDetail = () => {
         </Box>
       )}
       <Box p={6} width="100%" textAlign="center" bg="#f7fafc" style={{ borderBottomLeftRadius: '21px', borderBottomRightRadius: '21px' }}>
-        <Heading>{nombre}</Heading>
+        <Heading color="#003459">{nombre}</Heading>
         {/* Mostrar el nombre del dueño si está disponible */}
         {asset.ownerName && (
           <Text color="gray.600" fontSize="md" mt={1}>
@@ -88,6 +88,7 @@ const AssetDetail = () => {
         <Button
           bg="#003459"
           color="#fff"
+          borderRadius="10px"
           mt={4}
           onClick={async () => {
             console.log('Intentando comprar asset con id:', asset.id);
