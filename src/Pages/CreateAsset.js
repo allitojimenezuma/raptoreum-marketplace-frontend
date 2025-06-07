@@ -92,8 +92,8 @@ const CreateAsset = () => {
     };
 
     return (
-        <Box maxW="500px" mx="auto" mt={10} p={6} bg="white" borderRadius="md" boxShadow="md">
-            <Heading mb={6}>Crear Nuevo Asset</Heading>
+        <Box maxW="500px" mx="auto" mt={10} p={6} bg="white" borderRadius="10px" boxShadow="2xl" color="#003459">
+            <Heading mb={6}><b>Crear Nuevo Asset</b></Heading>
             <form onSubmit={handleSubmit} encType="multipart/form-data">
                 <VStack spacing={4} align="stretch">
                     <FieldRoot>
@@ -125,18 +125,36 @@ const CreateAsset = () => {
                     </FieldRoot>
                     <FieldRoot>
                         <FieldLabel>Foto</FieldLabel>
-                        <Input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleFotoChange}
-                            disabled={!!foto}
-                        />
+                        <Box position="relative">
+                            <Input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleFotoChange}
+                                display="none"
+                                id="custom-file-input"
+                                disabled={!!foto}
+                            />
+                            <Button
+                                as="label"
+                                htmlFor="custom-file-input"
+                                bg="#949494"
+                                color="white"
+                                borderRadius="10px"
+                                cursor={!!foto ? 'not-allowed' : 'pointer'}
+                                _hover={{ bg: '#00263a' }}
+                                disabled={!!foto}
+                            >
+                                Seleccionar archivo
+                            </Button>
+                        </Box>
                         {preview && (
                             <Box mt={2} position="relative" display="flex">
                                 <Image src={preview} alt="Preview" maxH="150px" borderRadius="md" />
                                 <Button
-                                    bg="#003459"
+                                    bg="#949494"
                                     color="white"
+                                    borderRadius="10px"
+                                    _hover={{ bg: '#00263a' }}
                                     onClick={handleRemoveFoto}
                                 >
                                     Eliminar Foto
@@ -152,6 +170,10 @@ const CreateAsset = () => {
                     <Button
                         bg="#003459"
                         color="white"
+                        borderRadius="10px"
+                        w="50%"
+                        alignSelf="center"
+                        mt={6} // Separación de 15px aprox
                         type="submit"
                         isLoading={isSubmitting}
                         loadingText="Creando..."
