@@ -110,7 +110,7 @@ button:hover, .chakra-button:hover {
   height: 120px;
   margin: 0 auto;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .asset-image {
@@ -124,11 +124,11 @@ button:hover, .chakra-button:hover {
   will-change: transform;
   position: relative;
   display: block;
+  transform-origin: center top;
 }
 
-.asset-image-wrapper:hover .asset-image,
-.asset-card:hover .asset-image {
-  transform: scale(1.4);
+.asset-image-wrapper:hover .asset-image {
+  transform: scale(1.5) translateY(20px);
   z-index: 10;
   box-shadow: 0 16px 48px 0 rgba(0,52,89,0.30), 0 6px 24px 0 #003459;
 }

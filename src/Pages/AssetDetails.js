@@ -51,11 +51,21 @@ const AssetDetail = () => {
   return (
     <Box className="asset-card" style={{ border: '3px solid #003459', borderRadius: '24px', background: '#fff', boxShadow: '0 6px 32px 0 rgba(0,52,89,0.13), 0 2px 8px 0 #007ea7', transition: 'box-shadow 0.3s cubic-bezier(.25,.8,.25,1), transform 0.2s', padding: 0, margin: '32px auto', display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: '600px', overflow: 'hidden' }}>
       {assetImage && (
-        <Box display="flex" alignItems="center" justifyContent="center" height="220px" width="100%" bg="#f7fafc" style={{ borderTopLeftRadius: '21px', borderTopRightRadius: '21px', overflow: 'hidden', margin: 0, padding: 0, position: 'relative' }}>
-          <img
+        <Box display="flex" alignItems="center" justifyContent="center" height="320px" width="100%" bg="#f7fafc" style={{ borderTopLeftRadius: '21px', borderTopRightRadius: '21px', overflow: 'visible', margin: 0, padding: 0, position: 'relative' }}>
+          <Image
             src={assetImage}
             alt={nombre}
-            style={{ width: 'auto', height: '200px', maxWidth: '90%', borderRadius: '16px', boxShadow: '0 2px 8px 0 rgba(0,52,89,0.10)', background: '#f7fafc', display: 'block', objectFit: 'contain', margin: '0 auto' }}
+            width="auto"
+            height="300px"
+            maxW="100%"
+            borderRadius="16px"
+            boxShadow="0 2px 8px 0 rgba(0,52,89,0.10)"
+            background="#f7fafc"
+            display="block"
+            objectFit="contain"
+            transition="transform 0.35s cubic-bezier(.25,.8,.25,1), box-shadow 0.3s"
+            style={{ margin: '0 auto', position: 'relative', transformOrigin: 'center top' }}
+            _hover={{ transform: 'scale(1.5)', zIndex: 10, boxShadow: '0 8px 32px 0 rgba(0,52,89,0.25), 0 3px 12px 0 #003459' }}
           />
         </Box>
       )}
