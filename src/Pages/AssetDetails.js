@@ -38,6 +38,7 @@ const AssetDetail = () => {
 
   if (!asset) return <Text>Asset no encontrado</Text>;
 
+  
   // Compatibilidad para diferentes nombres de campos
   const nombre = asset.nombre || asset.name || 'Sin nombre';
   const precio = asset.precio || asset.price || null;

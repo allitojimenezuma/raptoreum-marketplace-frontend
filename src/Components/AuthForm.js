@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Box, Button, Input, Heading, FieldRoot, FieldLabel } from '@chakra-ui/react';
 
+
 const AuthForm = ({ isSignup, onAuth }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

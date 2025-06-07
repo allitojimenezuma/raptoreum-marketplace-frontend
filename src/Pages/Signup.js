@@ -30,6 +30,7 @@ const Signup = () => {
       alert('Error de red o servidor.');
     }
   }
+  
 
   return (<Box maxW="400px" mx="auto" mt={8}>
     <AuthForm isSignup onAuth={handleSubmit} />

@@ -22,6 +22,7 @@ const getUserData = async (token) => {
     }
 };
 
+
 const Account = () => {
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);

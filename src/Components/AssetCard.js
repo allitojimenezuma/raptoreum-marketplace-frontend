@@ -10,6 +10,7 @@ const AssetCard = ({ asset }) => {
     ? "https://ipfsweb.raptoreum.com/ipfs/" + referenceHash
     : asset.image || '';
 
+    
   return (
     <LinkBox
       borderWidth="1px"

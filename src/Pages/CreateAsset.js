@@ -54,6 +54,7 @@ const CreateAsset = () => {
             return;
         }
 
+        
         try {
             const token = localStorage.getItem('token');
             const assetData = {
