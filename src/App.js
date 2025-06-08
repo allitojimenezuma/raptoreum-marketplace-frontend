@@ -6,9 +6,11 @@ import Home from './Pages/Home';
 import AssetDetail from './Pages/AssetDetails';
 import Login from './Pages/Login';
 import Signup from './Pages/Signup';
-import { useState, useEffect } from 'react';
 import Account from './Pages/Account';
 import CreateAsset from './Pages/CreateAsset';
+import AssetDetails from './Pages/AssetDetails';
+import ResetPasswordPage from './Pages/ResetPasswordPage'; // Importar la nueva página
+import { useState, useEffect } from 'react';
 
 async function isTokenValid(token) {
   try {
@@ -115,6 +117,7 @@ function App() {
                 // </PrivateRoute>
               }
             />
+            <Route path="/reset-password/:token" element={<ResetPasswordPage />} /> {/* Añadir la nueva ruta */}
           </Routes>
         </Box>
       </Box>

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Heading, Text, VStack, List} from '@chakra-ui/react';
+import { Box, Heading, Text, VStack, List, Button, Flex} from '@chakra-ui/react';
 // import { AtSignIcon, StarIcon } from '@chakra-ui/icons';
 import { jwtDecode } from 'jwt-decode';
+import { InfoModal } from '../Components/PasswordModals'; // Asegúrate que la ruta es correcta
 
 const getUserData = async (token) => {
     try {
@@ -23,9 +24,11 @@ const getUserData = async (token) => {
 };
 
 
-const Account = () => {
+function Account() {
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [showInfoModal, setShowInfoModal] = React.useState(false);
+    const [infoMessage, setInfoMessage] = React.useState('');
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -34,6 +37,42 @@ const Account = () => {
             setLoading(false);
         });
     }, []);
+
+    const handleChangePassword = async () => {
+        try {
+            const userEmail = userData?.user?.email;
+            if (!userEmail) {
+                setInfoMessage("No se pudo obtener el email del usuario para el cambio de contraseña.");
+                setShowInfoModal(true);
+                return;
+            }
+
+            const response = await fetch('http://localhost:3000/user/request-password-change', { // URL CORREGIDA
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // Si tu endpoint está protegido y requiere autenticación (ej. JWT token):
+                    // 'Authorization': `Bearer ${localStorage.getItem('token')}`, 
+                },
+                body: JSON.stringify({ email: userEmail }),
+            });
+
+            if (!response.ok) {
+                // Intenta obtener un mensaje de error del cuerpo de la respuesta si está disponible
+                const errorData = await response.json().catch(() => ({ message: 'Error al solicitar el cambio de contraseña.' }));
+                throw new Error(errorData.message || 'Error al solicitar el cambio de contraseña');
+            }
+
+            // const data = await response.json(); // Descomenta si esperas datos específicos en la respuesta exitosa
+            setInfoMessage("Se ha enviado un enlace de cambio de contraseña a tu correo electrónico.");
+            setShowInfoModal(true);
+
+        } catch (error) {
+            console.error("Error en handleChangePassword:", error);
+            setInfoMessage(error.message || "Error al procesar la solicitud. Inténtalo de nuevo más tarde.");
+            setShowInfoModal(true);
+        }
+    };
 
     if (loading) {
         return <Text>Cargando...</Text>;
@@ -56,8 +95,18 @@ const Account = () => {
                 <Text><b>Nombre:</b> {user.name}</Text>
                 <Text><b>Email:</b> {user.email}</Text>
                 <Text><b>ID:</b> {user.id}</Text>
+                <Button
+                  bg="#003459"
+                  color="white"
+                  borderRadius="10px"
+                  _hover={{ bg: '#005080', color: 'white' }}
+                  onClick={handleChangePassword}
+                  mt={4}
+                  type="button"
+                >
+                  Cambiar contraseña
+                </Button>
             </VStack>
-            <Box my={4} />
             <Heading size="md" mb={2} color="#003459">Mis Wallets</Heading>
 
             {wallets && wallets.length > 0 ? (
@@ -68,7 +117,6 @@ const Account = () => {
                                 <Text fontWeight="bold" mb={1} color="#003459">
                                     Dirección: {wallet.direccion}
                                 </Text>
-                                <Text fontSize="sm" color="gray.500" mb={2}>Creada: {wallet.createdAt} </Text>
                                 {!wallet.assets || wallet.assets.length === 0 ? (
                                     <Text color="gray.500" fontSize="sm">No hay assets en esta wallet.</Text>
                                 ) : null}
@@ -95,8 +143,14 @@ const Account = () => {
             ) : (
                 <Text color="gray.500" mb={4}>No tienes wallets asociadas.</Text>
             )}
+            <InfoModal
+              isOpen={showInfoModal}
+              onClose={() => setShowInfoModal(false)}
+              title="Información"
+              message={infoMessage}
+            />
         </Box>
     );
-};
+}
 
 export default Account;
