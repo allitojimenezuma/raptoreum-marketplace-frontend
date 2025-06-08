@@ -58,7 +58,6 @@ const CreateAsset = () => {
         try {
             const token = localStorage.getItem('token');
             const assetData = {
-                token,
                 nombre,
                 descripcion,
                 precio,
@@ -69,6 +68,7 @@ const CreateAsset = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
                 },
                 body: JSON.stringify(assetData),
             });
