@@ -68,6 +68,7 @@ const Navbar = () => {
                   borderRadius="10px"
                   border="2px solid white"
                   _hover={{ bg: '#005080', color: 'white', borderColor: '#fff' }}
+                  style={{ marginRight: '15px' }} 
                 >
                   Menú
                 </Button>
