@@ -38,6 +38,13 @@ const CreateAsset = () => {
         setPreview('');
     };
 
+    const isNombreValido = (nombre) => {
+        // Solo letras mayúsculas, números y _ . /
+        // Longitud 3-30, no puede empezar/terminar con símbolo
+        const regex = /^(?![_.\/])[A-Z0-9_.\/]{3,30}(?<![_.\/])$/;
+        return regex.test(nombre);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -46,15 +53,18 @@ const CreateAsset = () => {
 
         setIsSubmitting(true);
 
-
-
         if (!nombre || !descripcion || !precio) {
             setError('Todos los campos son obligatorios');
             setIsSubmitting(false);
             return;
         }
 
-        
+        if (!isNombreValido(nombre)) {
+            setError('El nombre no es válido.');
+            setIsSubmitting(false);
+            return;
+        }
+
         try {
             const token = localStorage.getItem('token');
             const assetData = {
@@ -103,6 +113,9 @@ const CreateAsset = () => {
                             onChange={(e) => setNombre(e.target.value)}
                             placeholder="Nombre del asset"
                         />
+                        <Box color="gray.500" fontSize="sm" mt={1}>
+                            El nombre debe tener entre 3 y 30 caracteres, solo mayúsculas (A-Z), números (0-9), y los símbolos _ . y /. No puede contener espacios ni otros caracteres especiales, ni empezar o terminar con un símbolo.
+                        </Box>
                     </FieldRoot>
                     <FieldRoot>
                         <FieldLabel>Descripción</FieldLabel>
