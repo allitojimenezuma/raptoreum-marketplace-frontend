@@ -67,20 +67,21 @@ const CreateAsset = () => {
 
         try {
             const token = localStorage.getItem('token');
-            const assetData = {
-                nombre,
-                descripcion,
-                precio,
-                foto: preview, // Send the Base64 Data URL string
-            };
+            const formData = new FormData();
+            formData.append('nombre', nombre);
+            formData.append('descripcion', descripcion);
+            formData.append('precio', precio);
+            if (foto) {
+                formData.append('foto', foto); // archivo tal cual, no base64
+            }
 
             const response = await fetch('http://localhost:3000/assets/createAsset', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`,
+                    // No poner 'Content-Type': 'multipart/form-data'
                 },
-                body: JSON.stringify(assetData),
+                body: formData,
             });
 
             if (!response.ok) throw new Error('Error al crear el asset');
