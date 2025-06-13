@@ -11,8 +11,10 @@ const Login = () => {
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [infoMessage, setInfoMessage] = useState('');
+  const [loginError, setLoginError] = useState('');
 
   const handleSubmit = async ({ email, password }) => {
+    setLoginError(''); // Limpia errores previos
     const response = await fetch('http://localhost:3000/auth/login', {
       method: 'POST',
       headers: {
@@ -29,7 +31,17 @@ const Login = () => {
       navigate('/');
 
     } else {
-      console.error('Error al crear el usuario', response.body.message, response.body.error);
+      let errorMsg = 'Error al iniciar sesión. Verifica tus credenciales.';
+      try {
+        const errorData = await response.json();
+        if (errorData && errorData.message) {
+          errorMsg = errorData.message;
+        }
+      } catch (e) {
+        // Si no se puede parsear el error, usa el mensaje genérico
+      }
+      setLoginError(errorMsg);
+      console.error('Error al iniciar sesión:', errorMsg);
     }
 
   }
@@ -64,6 +76,11 @@ const Login = () => {
   return (
     <Box maxW="400px" mx="auto" mt={8} p={6} bg="white" borderRadius="10px" color="#003459" style={{ border: '3px solid #003459', boxShadow: '0 8px 32px 0 rgba(0,52,89,0.25), 0 3px 12px 0 #003459' }}>
       <AuthForm onAuth={handleSubmit} buttonProps={{ w: '60%', alignSelf: 'center', borderRadius: '10px' }} />
+      {loginError && (
+        <Box color="red.500" mt={2} mb={2} textAlign="center" fontWeight="bold">
+          {loginError}
+        </Box>
+      )}
       <Box mt={4} textAlign="center">
         <span
           style={{
