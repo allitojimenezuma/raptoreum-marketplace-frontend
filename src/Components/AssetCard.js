@@ -24,7 +24,7 @@ const AssetCard = ({ asset }) => {
     <LinkBox
       className="asset-card"
       role="group"
-      style={{ border: '3px solid #003459', borderRadius: '24px', background: '#fff', boxShadow: '0 6px 32px 0 rgba(0,52,89,0.13), 0 2px 8px 0 #949494', transition: 'box-shadow 0.3s cubic-bezier(.25,.8,.25,1), transform 0.2s', padding: 0, margin: '10px', display: 'flex', flexDirection: 'column', alignItems: 'stretch', overflow: 'hidden', cursor: 'pointer' }}
+      style={{ border: '3px solid #003459', borderRadius: '24px', background: '#fff', boxShadow: '0 8px 32px 0 rgba(0,52,89,0.25), 0 3px 12px 0 #003459', transition: 'box-shadow 0.3s cubic-bezier(.25,.8,.25,1), transform 0.2s', padding: 0, margin: '10px', display: 'flex', flexDirection: 'column', alignItems: 'stretch', overflow: 'hidden', cursor: 'pointer' }}
       onClick={handleCardClick}
     >
       <Box display="flex" alignItems="center" justifyContent="center" height="140px" width="100%" bg="#f7fafc" style={{ borderTopLeftRadius: '21px', borderTopRightRadius: '21px', overflow: 'visible', margin: 0, padding: 0, position: 'relative' }}>
