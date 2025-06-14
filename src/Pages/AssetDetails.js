@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { Box, Heading, Image, Text, Spinner, Center, Button } from '@chakra-ui/react';
+import { jwtDecode } from 'jwt-decode';
+import { Box, Heading, Image, Text, Spinner, Center, Button, Input, VStack } from '@chakra-ui/react';
 
 const getAsset = async (id) => {
   try {
@@ -15,18 +16,170 @@ const getAsset = async (id) => {
   }
 };
 
+
+
+
+
 const AssetDetail = () => {
   const { id } = useParams();
   const [asset, setAsset] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loggedInUserId, setLoggedInUserId] = useState(null);
+  const [destinationAddress, setDestinationAddress] = useState('');
+
+
+  const fetchLoggedInUser = async () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+        // Fetch user info to get the ID, similar to Account.js
+        const response = await fetch('http://localhost:3000/user/info', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email: decodedToken.email }),
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.user && data.user.id) {
+            setLoggedInUserId(data.user.id);
+          }
+        } else {
+          console.error('Failed to fetch user info for Home page');
+        }
+      } catch (error) {
+        console.error('Error fetching logged-in user ID for Home page:', error);
+      }
+    }
+  };
+
+  const sendAsset = async () => {
+    if (!destinationAddress.trim()) {
+      alert('Por favor, ingresa una dirección de destino válida.');
+      return;
+    }
+
+    // Ensure asset and asset.asset_id are available
+    if (!asset || !asset.asset_id) {
+      console.error('Asset data or asset_id is missing for sending.');
+      alert('No se pudo obtener la información necesaria del asset para el envío.');
+      return;
+    }
+
+    console.log('Intentando enviar asset (ticker):', asset.asset_id, 'a la dirección:', destinationAddress);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('No estás autenticado. Por favor, inicia sesión para enviar el asset.');
+        return;
+      }
+
+      const url = `http://localhost:3000/assets/send`;
+      console.log('URL de envío:', url);
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          assetTicker: asset.name, 
+          toAddress: destinationAddress,
+        }),
+      });
+
+
+      console.log('Respuesta recibida del envío:', response);
+      let responseData = {};
+      try {
+        responseData = await response.json();
+      } catch (e) {
+        console.error("Could not parse JSON response:", e);
+        if (!response.ok) {
+          const errorText = await response.text();
+          responseData = { message: errorText || "Error en la respuesta del servidor." };
+        }
+      }
+
+
+      if (response.ok) {
+        console.log('Envío exitoso, respuesta backend:', responseData);
+        alert('Envío exitoso: ' + (responseData.message || "El asset ha sido enviado correctamente. TXID: " + responseData.txid));
+        setDestinationAddress('');
+        getAsset(id).then(setAsset);
+
+
+
+      } else {
+        console.log('Error en el envío, status:', response.status, 'responseData:', responseData);
+        alert('Error en el envío: ' + (responseData.message || `Error ${response.status}`));
+      }
+    } catch (err) {
+      console.log('Error de red o servidor al intentar enviar el asset:', err);
+      alert('Error de red o servidor al intentar enviar el asset.');
+    }
+  };
+
+
+
+
+
+
+
+
+
+  const buyAsset = async () => {
+    console.log('Intentando comprar asset con id:', asset.id);
+    try {
+      const token = localStorage.getItem('token');
+      console.log('Token recuperado:', token);
+      const url = `http://localhost:3000/assets/buy/${asset.id}`;
+      console.log('URL de compra:', url);
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({}), // Puedes añadir datos extra si es necesario
+      });
+      console.log('Respuesta recibida:', response);
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Compra exitosa, respuesta backend:', data);
+        alert('¡Compra realizada con éxito!');
+      } else {
+        let errorData = {};
+        try {
+          errorData = await response.json();
+        } catch (e) {
+          console.log('No se pudo parsear el error JSON:', e);
+        }
+        console.log('Error en la compra, status:', response.status, 'errorData:', errorData);
+        alert('Error al realizar la compra: ' + (errorData.message || 'Error desconocido'));
+      }
+    } catch (err) {
+      console.log('Error de red o servidor al intentar comprar el asset:', err);
+      alert('Error de red o servidor al intentar comprar el asset.');
+    }
+  }
+
+
+
 
   useEffect(() => {
+    fetchLoggedInUser();
     setLoading(true);
+
     getAsset(id).then((data) => {
       setAsset(data);
       setLoading(false);
     });
   }, [id]);
+
+  const isOwner = loggedInUserId && asset && asset.Wallet && String(loggedInUserId) === String(asset.Wallet.UsuarioId);
 
   if (loading) {
     return (
@@ -38,7 +191,7 @@ const AssetDetail = () => {
 
   if (!asset) return <Text>Asset no encontrado</Text>;
 
-  
+
   // Compatibilidad para diferentes nombres de campos
   const nombre = asset.nombre || asset.name || 'Sin nombre';
   const precio = asset.precio || asset.price || null;
@@ -85,50 +238,57 @@ const AssetDetail = () => {
         {descripcion && (
           <Text mt={2} fontSize="md" color="gray.700">{descripcion}</Text>
         )}
-        <Button
-          bg="#003459"
-          color="#fff"
-          borderRadius="10px"
-          mt={4}
-          onClick={async () => {
-            console.log('Intentando comprar asset con id:', asset.id);
-            try {
-              const token = localStorage.getItem('token');
-              console.log('Token recuperado:', token);
-              const url = `http://localhost:3000/assets/buy/${asset.id}`;
-              console.log('URL de compra:', url);
-              const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({}), // Puedes añadir datos extra si es necesario
-              });
-              console.log('Respuesta recibida:', response);
-              if (response.ok) {
-                const data = await response.json();
-                console.log('Compra exitosa, respuesta backend:', data);
-                alert('¡Compra realizada con éxito!');
-                // Aquí podrías recargar el asset o redirigir
-              } else {
-                let errorData = {};
-                try {
-                  errorData = await response.json();
-                } catch (e) {
-                  console.log('No se pudo parsear el error JSON:', e);
-                }
-                console.log('Error en la compra, status:', response.status, 'errorData:', errorData);
-                alert('Error al realizar la compra: ' + (errorData.message || 'Error desconocido'));
-              }
-            } catch (err) {
-              console.log('Error de red o servidor al intentar comprar el asset:', err);
-              alert('Error de red o servidor al intentar comprar el asset.');
-            }
-          }}
-        >
-          Comprar Asset
-        </Button>
+        {!isOwner && (
+          <Button
+            bg="#003459"
+            color="#fff"
+            borderRadius="10px"
+            mt={4}
+            onClick={buyAsset}
+          >
+            Comprar Asset
+          </Button>
+        )}
+
+        {isOwner && (
+          <VStack spacing={4} mt={4} align="stretch">
+            <Text fontSize="md" color="green.600" fontWeight="bold" mb="6">¡Eres el dueño de este asset!</Text>
+            <Input
+              placeholder="Dirección de destino Raptoreum"
+              value={destinationAddress}
+              onChange={(e) => setDestinationAddress(e.target.value)}
+              borderColor="#003459"
+              focusBorderColor="#007ea7"
+            />
+            <Text fontSize="sm" color="red.600" fontWeight="bold">Si lo transfieres, el asset desaparecerá de la wallet del sistema</Text>
+            <Button
+              bg="#007ea7" // Different color for send action
+              color="#fff"
+              borderRadius="10px"
+              onClick={sendAsset}
+              _hover={{ bg: '#005080' }}
+            >
+              Enviar Asset
+            </Button>
+          </VStack>
+        )}
+        {!isOwner && asset && asset.Wallet && asset.Wallet.UsuarioId && ( // Ensure asset and owner info is loaded before showing buy
+          <Button
+            bg="#003459"
+            color="#fff"
+            borderRadius="10px"
+            mt={4}
+            onClick={buyAsset}
+            isDisabled={!asset} // Disable if asset data isn't loaded
+          >
+            Comprar Asset
+          </Button>
+        )}
+
+
+
+
+
       </Box>
     </Box>
   );

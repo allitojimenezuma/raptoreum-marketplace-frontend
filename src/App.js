@@ -88,33 +88,33 @@ function App() {
             <Route
               path="/"
               element={
-                //<PrivateRoute>
+                <PrivateRoute>
                   <Home />
-                //</PrivateRoute>
+                </PrivateRoute>
               }
             />
             <Route
               path="/asset/:id"
               element={
-                //<PrivateRoute>
+                <PrivateRoute>
                   <AssetDetail />
-                //</PrivateRoute>
+                </PrivateRoute>
               }
             />
             <Route
               path="/account"
               element={
-                //<PrivateRoute>
+                <PrivateRoute>
                   <Account />
-                //</PrivateRoute>
+                </PrivateRoute>
               }
             />
             <Route
               path="/createAsset"
               element={
-                // <PrivateRoute>
+                <PrivateRoute>
                   <CreateAsset />
-                // </PrivateRoute>
+                </PrivateRoute>
               }
             />
             <Route path="/reset-password/:token" element={<ResetPasswordPage />} /> {/* Añadir la nueva ruta */}

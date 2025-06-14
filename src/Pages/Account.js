@@ -3,6 +3,7 @@ import { Box, Heading, Text, VStack, List, Button, Flex} from '@chakra-ui/react'
 // import { AtSignIcon, StarIcon } from '@chakra-ui/icons';
 import { jwtDecode } from 'jwt-decode';
 import { InfoModal } from '../Components/PasswordModals'; // Asegúrate que la ruta es correcta
+import { useNavigate } from 'react-router-dom';
 
 const getUserData = async (token) => {
     try {
@@ -29,6 +30,7 @@ function Account() {
     const [loading, setLoading] = useState(true);
     const [showInfoModal, setShowInfoModal] = React.useState(false);
     const [infoMessage, setInfoMessage] = React.useState('');
+    const navigate = useNavigate();
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -124,7 +126,10 @@ function Account() {
                             {wallet.assets && wallet.assets.length > 0 ? (
                                 <List.Root spacing={1} mt={2}>
                                     {wallet.assets.map((asset) => (
-                                        <List.Item key={asset.id} display="flex" alignItems="center" bg="white" borderRadius="md" boxShadow="sm" p={2} mb={1}>
+                                        <List.Item key={asset.id} display="flex" alignItems="center" bg="white" borderRadius="md" boxShadow="sm" p={2} mb={1}
+                                            onClick={() => navigate(`/asset/${asset.id}`)} cursor="pointer"
+
+                                        >
                                             <Box>
                                                 <Text fontWeight="semibold" color="#003459">{asset.name || asset.nombre}</Text>
                                                 <Text fontSize="xs" color="gray.500">Asset ID: {asset.asset_id}</Text>
