@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   Box,
   Flex,
@@ -13,7 +13,8 @@ import {
   DrawerPositioner,
   DrawerContent,
   DrawerBody,
-  DrawerCloseTrigger
+  DrawerCloseTrigger,
+  useDisclosure
 } from '@chakra-ui/react';
 import { Link, useNavigate } from 'react-router-dom';
 import RaptoreumLogo from '../data/Raptoreum-rtm-logo.png';
@@ -21,6 +22,8 @@ import RaptoreumLogo from '../data/Raptoreum-rtm-logo.png';
 const Navbar = () => {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const closeBtnRef = useRef(null); // Referencia al botón de cierre
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -36,8 +39,16 @@ const Navbar = () => {
     window.location.reload();
   };
 
+  // Función para cerrar el Drawer desde cualquier botón
+  const closeDrawer = () => {
+    if (closeBtnRef.current) {
+      closeBtnRef.current.click();
+    }
+  };
+
   const handleNavigate = (path) => {
     navigate(path);
+    closeDrawer();
   }
 
   return (
@@ -69,6 +80,7 @@ const Navbar = () => {
                   border="2px solid white"
                   _hover={{ bg: '#005080', color: 'white', borderColor: '#fff' }}
                   style={{ marginRight: '15px' }} 
+                  onClick={onOpen}
                 >
                   Menú
                 </Button>
@@ -80,7 +92,7 @@ const Navbar = () => {
                     <Flex align="center" justify="space-between" p={4}>
                       <Heading size="md" color="#003459">Menú</Heading>
                       <DrawerCloseTrigger asChild>
-                        <CloseButton />
+                        <CloseButton ref={closeBtnRef} />
                       </DrawerCloseTrigger>
                     </Flex>
                     <DrawerBody>
@@ -93,6 +105,7 @@ const Navbar = () => {
                           color="#003459"
                           borderRadius="10px"
                           _hover={{ bg: '#bdbdbd', color: 'white' }}
+                          onClick={closeDrawer}
                         >
                           Botón 1
                         </Button>
@@ -124,7 +137,7 @@ const Navbar = () => {
                           colorScheme="red"
                           w="80%"
                           alignSelf="center"
-                          onClick={handleLogout}
+                          onClick={() => { handleLogout(); closeDrawer(); }}
                           bg="#003459"
                           color="white"
                           borderRadius="10px"
