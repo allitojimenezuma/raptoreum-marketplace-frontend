@@ -238,18 +238,6 @@ const AssetDetail = () => {
         {descripcion && (
           <Text mt={2} fontSize="md" color="gray.700">{descripcion}</Text>
         )}
-        {!isOwner && (
-          <Button
-            bg="#003459"
-            color="#fff"
-            borderRadius="10px"
-            mt={4}
-            onClick={buyAsset}
-          >
-            Comprar Asset
-          </Button>
-        )}
-
         {isOwner && (
           <VStack spacing={4} mt={4} align="stretch">
             <Text fontSize="md" color="green.600" fontWeight="bold" mb="6">¡Eres el dueño de este asset!</Text>
@@ -262,9 +250,11 @@ const AssetDetail = () => {
             />
             <Text fontSize="sm" color="red.600" fontWeight="bold">Si lo transfieres, el asset desaparecerá de la wallet del sistema</Text>
             <Button
-              bg="#007ea7" // Different color for send action
+              bg="#003459"
               color="#fff"
               borderRadius="10px"
+              width="50%"
+              alignSelf="center"
               onClick={sendAsset}
               _hover={{ bg: '#005080' }}
             >
@@ -272,17 +262,20 @@ const AssetDetail = () => {
             </Button>
           </VStack>
         )}
-        {!isOwner && asset && asset.Wallet && asset.Wallet.UsuarioId && ( // Ensure asset and owner info is loaded before showing buy
-          <Button
-            bg="#003459"
-            color="#fff"
-            borderRadius="10px"
-            mt={4}
-            onClick={buyAsset}
-            isDisabled={!asset} // Disable if asset data isn't loaded
-          >
-            Comprar Asset
-          </Button>
+        {!isOwner && (
+          <Center>
+            <Button
+              bg="#003459"
+              color="#fff"
+              borderRadius="10px"
+              mt={4}
+              onClick={buyAsset}
+              isDisabled={!asset}
+              _hover={{ bg: '#005080' }}
+            >
+              Comprar Asset
+            </Button>
+          </Center>
         )}
 
 
