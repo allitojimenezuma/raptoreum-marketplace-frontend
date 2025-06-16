@@ -133,6 +133,13 @@ const AssetDetail = () => {
   const buyAsset = async () => {
     console.log('Intentando comprar asset con id:', asset.id);
     try {
+      if (window.confirm(`¿Estás seguro de que deseas comprar este asset? Se descontará/n ${asset.price} RTM de tu balance.`)) {
+        console.log('Compra confirmada.');
+      } else {
+        console.log('Compra cancelada.');
+        return; 
+      }
+
       const token = localStorage.getItem('token');
       console.log('Token recuperado:', token);
       const url = `http://localhost:3000/assets/buy/${asset.id}`;
