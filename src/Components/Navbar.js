@@ -22,6 +22,7 @@ import RaptoreumLogo from '../data/Raptoreum-rtm-logo.png';
 const Navbar = () => {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [balance, setBalance] = useState(null); // Nuevo estado para el balance
   const closeBtnRef = useRef(null); // Referencia al botón de cierre
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -31,6 +32,23 @@ const Navbar = () => {
     // Solo redirigir a login si NO estamos en /signup
     if (!token && window.location.pathname !== '/signup') {
       navigate('/login');
+    }
+    // Si hay token, obtener el balance
+    if (token) {
+      fetch('http://localhost:3000/user/balance', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.balanceRTM !== undefined) {
+            setBalance(data.balanceRTM);
+          }
+        })
+        .catch(() => setBalance(null));
     }
   }, [navigate]);
 
@@ -67,6 +85,13 @@ const Navbar = () => {
               />
             </Box>
           </Flex>
+
+          {/* Balance en la parte superior derecha */}
+          {isLoggedIn && (
+            <Box mr={6} fontWeight="bold" color="white" fontSize="xl" minW="180px" textAlign="right">
+              Balance: {balance !== null ? `${balance} RTM` : '...'}
+            </Box>
+          )}
 
           {isLoggedIn && (
             <DrawerRoot>
