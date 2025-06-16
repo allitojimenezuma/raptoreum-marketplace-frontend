@@ -26,7 +26,8 @@ const AssetDetail = () => {
   const [loading, setLoading] = useState(true);
   const [loggedInUserId, setLoggedInUserId] = useState(null);
   const [destinationAddress, setDestinationAddress] = useState('');
-
+  const [userBalance, setUserBalance] = useState(null);
+  const [isCheckingBalance, setIsCheckingBalance] = useState(false);
 
   const fetchLoggedInUser = async () => {
     const token = localStorage.getItem('token');
@@ -85,7 +86,7 @@ const AssetDetail = () => {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          assetTicker: asset.name, 
+          assetTicker: asset.name,
           toAddress: destinationAddress,
         }),
       });
@@ -121,13 +122,6 @@ const AssetDetail = () => {
       alert('Error de red o servidor al intentar enviar el asset.');
     }
   };
-
-
-
-
-
-
-
 
 
   const buyAsset = async () => {
@@ -173,12 +167,48 @@ const AssetDetail = () => {
     }
   }
 
+  const fetchUserBalance = async () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      setIsCheckingBalance(true);
+      try {
+        const response = await fetch('http://localhost:3000/user/balance', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.balanceRTM !== undefined) {
+            setUserBalance(data.balanceRTM);
+          } else {
+            setUserBalance(null); // Or some error state
+            console.error('Balance RTM not found in response');
+          }
+        } else {
+          console.error('Failed to fetch user balance');
+          setUserBalance(null);
+        }
+      } catch (error) {
+        console.error('Error fetching user balance:', error);
+        setUserBalance(null);
+      } finally {
+        setIsCheckingBalance(false);
+      }
+    } else {
+      setUserBalance(null); // No token, no balance
+    }
+  };
+
 
 
 
   useEffect(() => {
-    fetchLoggedInUser();
     setLoading(true);
+    fetchLoggedInUser();
+    fetchUserBalance();
 
     getAsset(id).then((data) => {
       setAsset(data);
@@ -207,6 +237,8 @@ const AssetDetail = () => {
     ? "https://ipfsweb.raptoreum.com/ipfs/" + referenceHash
     : asset.image || '';
   const descripcion = asset.description || asset.descripcion || '';
+  const canAfford = userBalance !== null && precio !== null && userBalance >= parseFloat(precio);
+  const showInsufficientBalanceMessage = !isOwner && userBalance !== null && precio !== null && !canAfford;
 
   return (
     <Box className="asset-card" style={{ border: '3px solid #003459', borderRadius: '24px', background: '#fff', boxShadow: '0 8px 32px 0 rgba(0,52,89,0.25), 0 3px 12px 0 #003459', transition: 'box-shadow 0.3s cubic-bezier(.25,.8,.25,1), transform 0.2s', padding: 0, margin: '32px auto', display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: '600px', overflow: 'hidden' }}>
@@ -270,7 +302,7 @@ const AssetDetail = () => {
           </VStack>
         )}
         {!isOwner && (
-          <Center>
+          <Center flexDirection="column"> {/* Use flexDirection column for button and message */}
             <Button
               bg="#003459"
               color="#fff"
@@ -278,11 +310,21 @@ const AssetDetail = () => {
               width="50%"
               mt={4}
               onClick={buyAsset}
-              isDisabled={!asset}
+              isDisabled={!asset || isCheckingBalance || userBalance === null || precio === null || !canAfford}
               _hover={{ bg: '#005080' }}
             >
-              Comprar Asset
+              {isCheckingBalance ? <Spinner size="sm" /> : 'Comprar Asset'}
             </Button>
+            {showInsufficientBalanceMessage && (
+              <Text color="red.500" mt={2} fontWeight="bold">
+                No tienes saldo suficiente. (Tu saldo: {userBalance} RTM)
+              </Text>
+            )}
+            {userBalance === null && !isCheckingBalance && loggedInUserId && (
+              <Text color="orange.500" mt={2}>
+                No se pudo verificar tu saldo. Intenta recargar.
+              </Text>
+            )}
           </Center>
         )}
 
