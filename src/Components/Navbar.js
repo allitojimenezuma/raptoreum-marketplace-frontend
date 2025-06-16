@@ -130,9 +130,9 @@ const Navbar = () => {
                           color="#003459"
                           borderRadius="10px"
                           _hover={{ bg: '#bdbdbd', color: 'white' }}
-                          onClick={closeDrawer}
+                          onClick={() => handleNavigate('/importAsset')}
                         >
-                          Botón 1
+                          Importar Asset
                         </Button>
                         <Button
                           variant="ghost"

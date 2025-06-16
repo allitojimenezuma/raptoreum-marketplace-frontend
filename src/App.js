@@ -9,6 +9,7 @@ import Signup from './Pages/Signup';
 import Account from './Pages/Account';
 import CreateAsset from './Pages/CreateAsset';
 import AssetDetails from './Pages/AssetDetails';
+import ImportAsset from './Pages/ImportAsset';
 import ResetPasswordPage from './Pages/ResetPasswordPage'; // Importar la nueva página
 import { useState, useEffect } from 'react';
 
@@ -114,6 +115,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <CreateAsset />
+                </PrivateRoute>
+              }
+            />
+                        <Route
+              path="/importAsset"
+              element={
+                <PrivateRoute>
+                  <ImportAsset />
                 </PrivateRoute>
               }
             />
