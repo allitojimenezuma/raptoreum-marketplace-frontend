@@ -268,6 +268,7 @@ const AssetDetail = () => {
               bg="#003459"
               color="#fff"
               borderRadius="10px"
+              width="50%"
               mt={4}
               onClick={buyAsset}
               isDisabled={!asset}
