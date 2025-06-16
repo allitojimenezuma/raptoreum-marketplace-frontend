@@ -310,7 +310,7 @@ const AssetDetail = () => {
               width="50%"
               mt={4}
               onClick={buyAsset}
-              isDisabled={!asset || isCheckingBalance || userBalance === null || precio === null || !canAfford}
+              disabled={!asset || isCheckingBalance || userBalance === null || precio === null || !canAfford}
               _hover={{ bg: '#005080' }}
             >
               {isCheckingBalance ? <Spinner size="sm" /> : 'Comprar Asset'}
