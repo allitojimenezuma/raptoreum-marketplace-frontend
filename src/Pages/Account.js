@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Heading, Text, VStack, List, Button, Flex} from '@chakra-ui/react';
+// Updated Chakra UI imports for Toast
+import { Box, Heading, Text, VStack, List, Button, Flex, Spacer, createToaster } from '@chakra-ui/react';
 // import { AtSignIcon, StarIcon } from '@chakra-ui/icons';
 import { jwtDecode } from 'jwt-decode';
 import { InfoModal } from '../Components/PasswordModals'; // Asegúrate que la ruta es correcta
 import { useNavigate } from 'react-router-dom';
+import { toaster } from '../Components/ui/toaster'
 
 const getUserData = async (token) => {
     try {
@@ -20,6 +22,7 @@ const getUserData = async (token) => {
         if (!response.ok) throw new Error('No se pudo obtener el usuario');
         return await response.json();
     } catch (error) {
+        console.error("Error en getUserData:", error); // Added console.error for better debugging
         return null;
     }
 };
@@ -31,13 +34,20 @@ function Account() {
     const [showInfoModal, setShowInfoModal] = React.useState(false);
     const [infoMessage, setInfoMessage] = React.useState('');
     const navigate = useNavigate();
+    // const toast = useToast(); // This line is removed/replaced by the createToaster instance above
+    const [updatingAssetId, setUpdatingAssetId] = useState(null);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
-        getUserData(token).then((data) => {
-            setUserData(data);
-            setLoading(false);
-        });
+        if (token) {
+            getUserData(token).then((data) => {
+                setUserData(data);
+                setLoading(false);
+            });
+        } else {
+            setLoading(false); // No token, stop loading
+            // Optionally navigate to login or show a message
+        }
     }, []);
 
     const handleChangePassword = async () => {
@@ -76,22 +86,91 @@ function Account() {
         }
     };
 
+    const handleToggleListing = async (assetDbId, currentIsListed) => {
+        setUpdatingAssetId(assetDbId);
+        const token = localStorage.getItem('token');
+        if (!token) {
+            // Updated toast call
+            toaster.create({ 
+                title: "Por favor, inicia sesión.", 
+                type: "error",
+                duration: 5000 
+            });
+            setUpdatingAssetId(null);
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:3000/assets/${assetDbId}/toggle-listing`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({ isListed: !currentIsListed }),
+            });
+
+            const responseData = await response.json();
+
+            if (response.ok) {
+                // Updated toast call
+                toaster.create({ 
+                    title: "Estado de listado actualizado.", 
+                    type: "success",
+                    duration: 5000 
+                });
+                setUserData(prevUserData => {
+                    if (!prevUserData || !prevUserData.wallets) return prevUserData;
+                    const updatedWallets = prevUserData.wallets.map(wallet => ({
+                        ...wallet,
+                        assets: wallet.assets.map(asset => {
+                            if (asset.id === assetDbId) {
+                                return { ...asset, isListed: !currentIsListed };
+                            }
+                            return asset;
+                        }),
+                    }));
+                    return { ...prevUserData, wallets: updatedWallets };
+                });
+            } else {
+                throw new Error(responseData.message || 'Error al actualizar el estado de listado.');
+            }
+        } catch (error) {
+            console.error("Error en handleToggleListing:", error);
+            // Updated toast call
+            toaster.create({ 
+                title: "Error al actualizar el estado de listado.", 
+                type: "error",
+                duration: 5000 
+            });
+        } finally {
+            setUpdatingAssetId(null);
+        }
+    };
+
+
     if (loading) {
         return <Text>Cargando...</Text>;
     }
 
-    if (!userData) {
-        return <Text>No se pudo cargar la información del usuario.</Text>;
+    if (!userData || !userData.user) { // Check for user object as well
+        return <Text>No se pudo cargar la información del usuario. Por favor, inicia sesión.</Text>;
     }
 
     const { user, wallets } = userData;
 
 
-    console.log('User:', user);
-    console.log('Wallets:', wallets);
+    // console.log('User:', user);
+    // console.log('Wallets:', wallets);
 
     return (
-        <Box maxW="600px" mx="auto" mt={10} p={6} bg="white" borderRadius="10px" boxShadow="0 8px 32px 0 rgba(0,52,89,0.25), 0 3px 12px 0 #003459" color="#003459" style={{ border: '3px solid #003459' }}>
+        <Box maxW="800px" mx="auto" mt={10} p={6} bg="white" borderRadius="10px" boxShadow="0 8px 32px 0 rgba(0,52,89,0.25), 0 3px 12px 0 #003459" color="#003459" style={{ border: '3px solid #003459' }}>
+            {/* 
+              IMPORTANT: The <Toaster /> component needs to be rendered for toasts to appear.
+              It's usually placed once at the root of your application (e.g., in App.js or your main layout).
+              If you only need toasts on this page, you can place it here, but global placement is common.
+              For example: <Toaster position="top-right" />
+            */}
             <Heading mb={4}><b>Mi Cuenta</b></Heading>
             <VStack align="start" spacing={2} mb={4}>
                 <Text><b>Nombre:</b> {user.name}</Text>
@@ -109,7 +188,7 @@ function Account() {
                   Cambiar contraseña
                 </Button>
             </VStack>
-            <Heading size="md" mb={2} color="#003459">Mis Wallets</Heading>
+            <Heading size="md" mb={2} color="#003459">Mis Wallets y Assets</Heading>
 
             {wallets && wallets.length > 0 ? (
                 <List.Root spacing={4} mb={4}>
@@ -124,20 +203,44 @@ function Account() {
                                 ) : null}
                             </Box>
                             {wallet.assets && wallet.assets.length > 0 ? (
-                                <List.Root spacing={1} mt={2}>
+                                <List.Root spacing={1} mt={2} pl={3} pr={3} pb={3}>
                                     {wallet.assets.map((asset) => (
-                                        <List.Item key={asset.id} display="flex" alignItems="center" bg="white" borderRadius="md" boxShadow="sm" p={2} mb={1}
-                                            onClick={() => navigate(`/asset/${asset.id}`)} cursor="pointer"
-
+                                        <List.Item 
+                                          key={asset.id} 
+                                          display="flex" 
+                                          alignItems="center" 
+                                          bg="white" 
+                                          borderRadius="md" 
+                                          boxShadow="sm" 
+                                          p={2} 
+                                          mb={1}
                                         >
-                                            <Box>
+                                            <Box 
+                                                flexGrow={1} 
+                                                onClick={() => navigate(`/asset/${asset.id}`)} 
+                                                cursor="pointer"
+                                                _hover={{ bg: "gray.50" }} // Slight hover on the asset info part
+                                            >
                                                 <Text fontWeight="semibold" color="#003459">{asset.name || asset.nombre}</Text>
-                                                <Text fontSize="xs" color="gray.500">Asset ID: {asset.asset_id}</Text>
-                                                <Text fontSize="xs" color="gray.500">Hash: {asset.referenceHash}</Text>
+                                                <Text fontSize="xs" color="gray.500">Asset ID (Ticker): {asset.asset_id}</Text>
+                                                <Text fontSize="xs" color="gray.500">DB ID: {asset.id}</Text> 
+                                                <Text fontSize="xs" color={asset.isListed ? "green.500" : "red.500"} fontWeight="bold">
+                                                    Estado: {asset.isListed ? "Listado" : "No Listado"}
+                                                </Text>
                                                 {asset.price !== undefined && (
                                                     <Text fontSize="sm" color="#007ea7" fontWeight="bold">Precio: {asset.price} RTM</Text>
                                                 )}
                                             </Box>
+                                            <Button
+                                                ml={4}
+                                                size="sm"
+                                                colorScheme={asset.isListed ? "red" : "green"}
+                                                onClick={() => handleToggleListing(asset.id, asset.isListed)}
+                                                isLoading={updatingAssetId === asset.id}
+                                                isDisabled={updatingAssetId === asset.id}
+                                            >
+                                                {asset.isListed ? "Deslistar" : "Listar"}
+                                            </Button>
                                         </List.Item>
                                     ))}
                                 </List.Root>
@@ -146,7 +249,7 @@ function Account() {
                     ))}
                 </List.Root>
             ) : (
-                <Text color="gray.500" mb={4}>No tienes wallets asociadas.</Text>
+                <Text color="gray.500" mb={4}>No tienes wallets asociadas o no contienen assets.</Text>
             )}
             <InfoModal
               isOpen={showInfoModal}
