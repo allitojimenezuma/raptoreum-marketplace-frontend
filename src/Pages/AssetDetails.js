@@ -370,7 +370,7 @@ const AssetDetail = () => {
           </VStack>
         )}
         {!isOwner && (
-          <Center flexDirection="column">
+          <Center flexDirection="column" width="100%"> {/* Asegura que el Center ocupe todo el ancho del Box */}
             {message && (
               <Text color="blue.500" fontWeight="bold" mb={2} mt={5} whiteSpace="pre-line">
                 {message}
@@ -385,6 +385,7 @@ const AssetDetail = () => {
               onClick={buyAsset}
               disabled={message || !asset || isCheckingBalance || userBalance === null || precio === null || !canAfford}
               _hover={{ bg: '#005080' }}
+              alignSelf="center" // Centra el botón dentro del Center
             >
               {isCheckingBalance ? <Spinner size="sm" /> : 'Comprar Asset'}
             </Button>
