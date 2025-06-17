@@ -56,7 +56,7 @@ const Home = () => {
   return (
     <>
       <Heading mb={4} color="#003459" size="2xl">Assets en Raptoreum</Heading>
-      <SimpleGrid columns={[1, 2, 3, 4]} spacing={10} maxWidth="1200px" >
+      <SimpleGrid minChildWidth="250px" spacing={10} width="100%">
         {assets.map((asset) => (
           <Box key={asset.id} p="0" m="0">
             <AssetCard asset={asset} loggedInUserId={loggedInUserId} />
