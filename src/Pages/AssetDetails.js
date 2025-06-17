@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
-import { Box, Heading, Image, Text, Spinner, Center, Button, Input, VStack } from '@chakra-ui/react';
+import { Box, Heading, Image, Text, Spinner, Center, Button, Input, VStack, DialogRoot, DialogTrigger, DialogBackdrop, DialogPositioner, DialogContent, DialogHeader, DialogBody, DialogFooter, DialogCloseTrigger, DialogTitle } from '@chakra-ui/react';
 
 const getAsset = async (id) => {
   try {
@@ -16,10 +16,6 @@ const getAsset = async (id) => {
   }
 };
 
-
-
-
-
 const AssetDetail = () => {
   const { id } = useParams();
   const [asset, setAsset] = useState(null);
@@ -31,6 +27,10 @@ const AssetDetail = () => {
   const [message, setMessage] = useState('');
   const [rtmToUsdRate, setRtmToUsdRate] = useState(null); // State for RTM to USD rate
   const [isFetchingRate, setIsFetchingRate] = useState(false); // State for rate fetching
+  const [offerAmount, setOfferAmount] = useState('');
+  const [offerLoading, setOfferLoading] = useState(false);
+  const [offerMessage, setOfferMessage] = useState('');
+  const [isOfferDialogOpen, setIsOfferDialogOpen] = useState(false);
 
   const fetchLoggedInUser = async () => {
     const token = localStorage.getItem('token');
@@ -252,6 +252,39 @@ const AssetDetail = () => {
     }
   };
 
+  // Función para enviar la oferta (deberás implementar el endpoint en backend)
+  const handleSendOffer = async () => {
+    if (!offerAmount || isNaN(offerAmount) || Number(offerAmount) <= 0) {
+      setOfferMessage('Introduce una cantidad válida.');
+      return;
+    }
+    setOfferLoading(true);
+    setOfferMessage('');
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:3000/assets/offer/${asset.id}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ amount: offerAmount }),
+        }
+      );
+      if (response.ok) {
+        setOfferMessage('¡Oferta enviada correctamente! El propietario será notificado.');
+        setOfferAmount('');
+      } else {
+        const data = await response.json().catch(() => ({}));
+        setOfferMessage(data.message || 'Error al enviar la oferta.');
+      }
+    } catch (err) {
+      setOfferMessage('Error de red o servidor al enviar la oferta.');
+    } finally {
+      setOfferLoading(false);
+    }
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -370,7 +403,7 @@ const AssetDetail = () => {
           </VStack>
         )}
         {!isOwner && (
-          <Center flexDirection="column" width="100%"> {/* Asegura que el Center ocupe todo el ancho del Box */}
+          <Center flexDirection="column" width="100%">
             {message && (
               <Text color="blue.500" fontWeight="bold" mb={2} mt={5} whiteSpace="pre-line">
                 {message}
@@ -385,10 +418,61 @@ const AssetDetail = () => {
               onClick={buyAsset}
               disabled={message || !asset || isCheckingBalance || userBalance === null || precio === null || !canAfford}
               _hover={{ bg: '#005080' }}
-              alignSelf="center" // Centra el botón dentro del Center
+              alignSelf="center"
             >
               {isCheckingBalance ? <Spinner size="sm" /> : 'Comprar Asset'}
             </Button>
+            {/* Dialog para hacer oferta usando Chakra UI v3 */}
+            <DialogRoot open={isOfferDialogOpen} onOpenChange={setIsOfferDialogOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  bg="#003459"
+                  color="#fff"
+                  borderRadius="10px"
+                  width="50%"
+                  mt={2}
+                  onClick={() => setIsOfferDialogOpen(true)}
+                  _hover={{ bg: '#007ea7' }}
+                  alignSelf="center"
+                >
+                  Hacer Oferta
+                </Button>
+              </DialogTrigger>
+              <DialogBackdrop />
+              <DialogPositioner>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Hacer una Oferta</DialogTitle>
+                    <DialogCloseTrigger asChild>
+                      <Button variant="ghost" size="sm" float="right">Cerrar</Button>
+                    </DialogCloseTrigger>
+                  </DialogHeader>
+                  <DialogBody>
+                    <Box mb={3}>
+                      <label style={{ fontWeight: 'bold' }}>Cantidad ofertada (RTM)</label>
+                      <Input
+                        type="number"
+                        value={offerAmount}
+                        onChange={e => setOfferAmount(e.target.value)}
+                        placeholder="Introduce tu oferta"
+                        mt={2}
+                      />
+                    </Box>
+                    {offerMessage && (
+                      <Text color={offerMessage.startsWith('¡') ? 'green.500' : 'red.500'} mt={2}>{offerMessage}</Text>
+                    )}
+                  </DialogBody>
+                  <DialogFooter>
+                    <Button colorScheme="blue" mr={3} onClick={handleSendOffer} isLoading={offerLoading}>
+                      Enviar Oferta
+                    </Button>
+                    <DialogCloseTrigger asChild>
+                      <Button variant="ghost">Cancelar</Button>
+                    </DialogCloseTrigger>
+                  </DialogFooter>
+                </DialogContent>
+              </DialogPositioner>
+            </DialogRoot>
             {showInsufficientBalanceMessage && (
               <Text color="red.500" mt={2} fontWeight="bold">
                 No tienes saldo suficiente. (Tu saldo: {userBalance} RTM)

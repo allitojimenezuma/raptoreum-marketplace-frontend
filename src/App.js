@@ -11,6 +11,7 @@ import CreateAsset from './Pages/CreateAsset';
 import AssetDetails from './Pages/AssetDetails';
 import ImportAsset from './Pages/ImportAsset';
 import ResetPasswordPage from './Pages/ResetPasswordPage'; // Importar la nueva página
+import Offers from './Pages/Offers';
 import { useState, useEffect } from 'react';
 
 async function isTokenValid(token) {
@@ -127,6 +128,14 @@ function App() {
               }
             />
             <Route path="/reset-password/:token" element={<ResetPasswordPage />} /> {/* Añadir la nueva ruta */}
+            <Route
+              path="/offers"
+              element={
+                <PrivateRoute>
+                  <Offers />
+                </PrivateRoute>
+              }
+            />
           </Routes>
         </Box>
       </Box>

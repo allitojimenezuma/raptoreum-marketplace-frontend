@@ -162,6 +162,18 @@ const Navbar = () => {
                             variant="ghost"
                             w="80%"
                             alignSelf="center"
+                            onClick={() => handleNavigate('/offers')}
+                            bg="#e0e0e0"
+                            color="#003459"
+                            borderRadius="10px"
+                            _hover={{ bg: '#bdbdbd', color: 'white' }}
+                          >
+                            Ofertas Recibidas / Enviadas
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            w="80%"
+                            alignSelf="center"
                             onClick={() => handleNavigate('/account')}
                             bg="#e0e0e0"
                             color="#003459"
