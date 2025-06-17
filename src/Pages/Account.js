@@ -172,7 +172,7 @@ function Account() {
               If you only need toasts on this page, you can place it here, but global placement is common.
               For example: <Toaster position="top-right" />
             */}
-            <Heading mb={4}><b>Mi Cuenta</b></Heading>
+            <Heading mb={4} color="#003459" fontWeight="bold" fontSize="2xl" fontFamily="inherit">Mi Cuenta</Heading>
             <VStack align="start" spacing={2} mb={4}>
                 <Text><b>Nombre:</b> {user.name}</Text>
                 <Text><b>Email:</b> {user.email}</Text>
@@ -189,7 +189,7 @@ function Account() {
                   Cambiar contraseña
                 </Button>
             </VStack>
-            <Heading size="md" mb={2} color="#003459">Mis Wallets y Assets</Heading>
+            <Heading mb={4} color="#003459" fontWeight="bold" fontSize="2xl" fontFamily="inherit">Mis Wallets y Assets</Heading>
 
             {wallets && wallets.length > 0 ? (
                 <List.Root spacing={4} mb={4}>

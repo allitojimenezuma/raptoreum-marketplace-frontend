@@ -111,7 +111,7 @@ function ResetPasswordPage() {
 
   return (
     <Box maxW="450px" mx="auto" mt={10} p={8} borderWidth={1} borderRadius="lg" boxShadow="lg" bg="white" color="#003459" style={{ border: '3px solid #003459' }}>
-      <Heading mb={6} textAlign="center">Restablecer Contraseña</Heading>
+      <Heading mb={6} color="#003459" fontWeight="bold" fontSize="2xl" fontFamily="inherit">Restablecer Contraseña</Heading>
       <form onSubmit={handleSubmit}>
         <VStack spacing={4}>
           <FieldRoot> {/* Changed from Field */}

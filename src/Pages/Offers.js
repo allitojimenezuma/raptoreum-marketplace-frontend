@@ -6,12 +6,9 @@ import {
   Text,
   Button,
   VStack,
-  createToaster, // Import createToaster for Chakra UI toasts
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
-
-// Initialize Chakra UI toaster
-const toast = createToaster();
+import { toaster } from '../Components/ui/toaster';
 
 const Offers = () => {
   const [receivedOffers, setReceivedOffers] = useState([]);
@@ -26,7 +23,7 @@ const Offers = () => {
       setLoadingReceived(true);
       const token = localStorage.getItem('token');
       if (!token) {
-        toast.error("No autenticado. Por favor, inicia sesión.", { title: "Error" });
+        toaster.error("No autenticado. Por favor, inicia sesión.", { title: "Error" });
         setLoadingReceived(false);
         setReceivedOffers([]);
         return;
@@ -40,11 +37,11 @@ const Offers = () => {
           setReceivedOffers(data || []); // Backend returns an array directly
         } else {
           const errorData = await response.json().catch(() => ({ message: "Error al cargar ofertas recibidas." }));
-          toast.error(errorData.message, { title: "Error" });
+          toaster.error(errorData.message, { title: "Error" });
           setReceivedOffers([]);
         }
       } catch (err) {
-        toast.error("Error de red al cargar ofertas recibidas.", { title: "Error" });
+        toaster.error("Error de red al cargar ofertas recibidas.", { title: "Error" });
         setReceivedOffers([]);
       } finally {
         setLoadingReceived(false);
@@ -69,11 +66,11 @@ const Offers = () => {
           setSentOffers(data || []); // Backend returns an array directly
         } else {
           const errorData = await response.json().catch(() => ({ message: "Error al cargar ofertas enviadas." }));
-          toast.error(errorData.message, { title: "Error" });
+          toaster.error(errorData.message, { title: "Error" });
           setSentOffers([]);
         }
       } catch (err) {
-        toast.error("Error de red al cargar ofertas enviadas.", { title: "Error" });
+        toaster.error("Error de red al cargar ofertas enviadas.", { title: "Error" });
         setSentOffers([]);
       } finally {
         setLoadingSent(false);
@@ -88,7 +85,7 @@ const Offers = () => {
     setActionLoading(offerId); // Set loading state for the specific offer being actioned
     const token = localStorage.getItem('token');
     if (!token) {
-      toast.error("No autenticado. Por favor, inicia sesión.", { title: "Error" });
+      toaster.error("No autenticado. Por favor, inicia sesión.", { title: "Error" });
       setActionLoading(null);
       return;
     }
@@ -107,7 +104,7 @@ const Offers = () => {
       return response.json();
     });
 
-    toast.promise(apiCall, {
+    toaster.promise(apiCall, {
       loading: `Procesando oferta...`,
       success: (data) => {
         // Remove the offer from the list upon successful action
@@ -129,7 +126,7 @@ const Offers = () => {
   return (
     <Box className="asset-card" style={{ border: '3px solid #003459', borderRadius: '24px', background: '#fff', boxShadow: '0 8px 32px 0 rgba(0,52,89,0.25), 0 3px 12px 0 #003459', transition: 'box-shadow 0.3s cubic-bezier(.25,.8,.25,1), transform 0.2s', padding: 0, margin: '32px auto', display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: '800px', overflow: 'hidden' }}>
       <Box p={6} width="100%" textAlign="center" bg="#f7fafc" display="flex" flexDirection="column" alignContent="center" alignItems="center" gap="10px" style={{ borderBottomLeftRadius: '21px', borderBottomRightRadius: '21px' }}>
-        <Heading mb={6} color="#003459" fontSize="2xl">Ofertas Recibidas</Heading>
+        <Heading mb={4} color="#003459" fontWeight="bold" fontSize="2xl" fontFamily="inherit">Ofertas Recibidas</Heading>
         {loadingReceived ? (
           <Spinner size="xl" />
         ) : receivedOffers.length === 0 ? (
@@ -139,21 +136,47 @@ const Offers = () => {
             {receivedOffers.map(offer => (
               <Box key={offer.id} p={4} borderWidth={1} borderRadius="16px" borderColor="#00345933" bg="#fff" boxShadow="0 2px 8px 0 rgba(0,52,89,0.10)" display="flex" flexDirection="row" alignItems="center" justifyContent="space-between" gap="16px">
                 <Box textAlign="left">
-                  <Text fontWeight="bold">Asset: {offer.asset?.name || 'N/A'}</Text>
-                  <Text>Ofertante: {offer.offerer?.name || 'N/A'}</Text>
-                  <Text>Cantidad ofertada: <b>{offer.amount} RTM</b></Text>
+                  <Text fontWeight="bold" color="#003459">Asset: {offer.asset?.name || 'N/A'}</Text>
+                  <Text color="#003459">Ofertante: {offer.offerer?.name || 'N/A'}</Text>
+                  <Text color="#003459">Cantidad ofertada: <b>{Number(offer.offerPrice) % 1 === 0 ? Number(offer.offerPrice) : Number(offer.offerPrice).toFixed(2)} RTM</b></Text>
                 </Box>
                 <VStack spacing={2} align="end">
-                  <Button colorScheme="green" isLoading={actionLoading === offer.id} onClick={() => handleAction(offer.id, 'accept')}>Aceptar</Button>
-                  <Button colorScheme="red" isLoading={actionLoading === offer.id} onClick={() => handleAction(offer.id, 'reject')}>Rechazar</Button>
-                  <Button variant="ghost" onClick={() => navigate(`/asset/${offer.AssetId}`)}>Ver Asset</Button>
+                  <Button
+                    bg="green.500"
+                    color="#fff"
+                    borderRadius="10px"
+                    border="2px solid #003459"
+                    width="120px"
+                    isLoading={actionLoading === offer.id}
+                    onClick={() => handleAction(offer.id, 'accept')}
+                    _hover={{ bg: 'green.600' }}
+                  >Aceptar</Button>
+                  <Button
+                    bg="red.500"
+                    color="#fff"
+                    borderRadius="10px"
+                    border="2px solid #003459"
+                    width="120px"
+                    isLoading={actionLoading === offer.id}
+                    onClick={() => handleAction(offer.id, 'reject')}
+                    _hover={{ bg: 'red.600' }}
+                  >Rechazar</Button>
+                  <Button
+                    bg="#fff"
+                    color="#003459"
+                    borderRadius="10px"
+                    border="2px solid #003459"
+                    width="120px"
+                    onClick={() => navigate(`/asset/${offer.AssetId}`)}
+                    _hover={{ bg: '#e2e8f0' }}
+                  >Ver Asset</Button>
                 </VStack>
               </Box>
             ))}
           </VStack>
         )}
 
-        <Heading mt={10} mb={6} color="#003459" fontSize="2xl">Ofertas Enviadas</Heading>
+        <Heading mt={10} mb={6} color="#003459" fontWeight="bold" fontSize="2xl" fontFamily="inherit">Ofertas Enviadas</Heading>
         {loadingSent ? (
           <Spinner size="xl" />
         ) : sentOffers.length === 0 ? (
@@ -163,18 +186,20 @@ const Offers = () => {
             {sentOffers.map(offer => (
               <Box key={offer.id} p={4} borderWidth={1} borderRadius="16px" borderColor="#00345933" bg="#fff" boxShadow="0 2px 8px 0 rgba(0,52,89,0.10)" display="flex" flexDirection="row" alignItems="center" justifyContent="space-between" gap="16px">
                 <Box textAlign="left">
-                  <Text fontWeight="bold">Asset: {offer.asset?.name || 'N/A'}</Text>
-                  {/* 
-                    The owner of the asset at the time of the offer is in `offer.assetOwnerAtTimeOfOffer`.
-                    The *current* owner of the asset (if needed) would be in `offer.asset.Wallet.Usuario`.
-                    Choose which one you want to display. For "sent offers", `assetOwnerAtTimeOfOffer` is likely more relevant.
-                  */}
-                  <Text>Propietario (al ofertar): {offer.assetOwnerAtTimeOfOffer?.name || 'N/A'}</Text>
-                  <Text>Cantidad ofertada: <b>{offer.amount} RTM</b></Text>
-                  <Text>Estado: <b>{offer.status === 'pending' ? 'Pendiente' : offer.status === 'accepted' ? 'Aceptada' : offer.status === 'rejected' ? 'Rechazada' : offer.status}</b></Text>
+                  <Text fontWeight="bold" color="#003459">Asset: {offer.asset?.name || 'N/A'}</Text>
+                  <Text color="#003459">Propietario (al ofertar): {offer.assetOwnerAtTimeOfOffer?.name || 'N/A'}</Text>
+                  <Text color="#003459">Cantidad ofertada: <b>{Number(offer.offerPrice) % 1 === 0 ? Number(offer.offerPrice) : Number(offer.offerPrice).toFixed(2)} RTM</b></Text>
+                  <Text color="#003459">Estado: <b>{offer.status === 'pending' ? 'Pendiente' : offer.status === 'accepted' ? 'Aceptada' : offer.status === 'rejected' ? 'Rechazada' : offer.status}</b></Text>
                 </Box>
                 <VStack spacing={2} align="end">
-                  <Button variant="ghost" onClick={() => navigate(`/asset/${offer.AssetId}`)}>Ver Asset</Button>
+                  <Button
+                    variant="ghost"
+                    color="#003459"
+                    borderRadius="10px"
+                    width="120px"
+                    onClick={() => navigate(`/asset/${offer.AssetId}`)}
+                    _hover={{ bg: '#e2e8f0' }}
+                  >Ver Asset</Button>
                 </VStack>
               </Box>
             ))}

@@ -32,6 +32,8 @@ const AssetDetail = () => {
   const [offerLoading, setOfferLoading] = useState(false);
   const [offerMessage, setOfferMessage] = useState('');
   const [isOfferDialogOpen, setIsOfferDialogOpen] = useState(false);
+  const [isBuying, setIsBuying] = useState(false);
+  const [offerExpiresAt, setOfferExpiresAt] = useState('');
 
   const fetchLoggedInUser = async () => {
     const token = localStorage.getItem('token');
@@ -476,30 +478,46 @@ const AssetDetail = () => {
               <DialogPositioner>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Hacer una Oferta</DialogTitle>
-                    <DialogCloseTrigger >
-                      <Button variant="ghost" size="sm" float="right">Cerrar</Button>
+                    <DialogTitle style={{ color: '#003459' }}>Hacer una Oferta</DialogTitle>
+                    <DialogCloseTrigger>
+                      <Button variant="ghost" size="sm" float="right" color="#003459" _hover={{ bg: '#e2e8f0' }}>Cancelar</Button>
                     </DialogCloseTrigger>
                   </DialogHeader>
                   <DialogBody>
                     <Box mb={3}>
-                      <label style={{ fontWeight: 'bold' }}>Cantidad ofertada (RTM)</label>
+                      <label style={{ fontSize: '1.25rem', fontWeight: 'normal', color: '#003459' }}>Cantidad ofertada (RTM)</label>
                       <Input
                         type="number"
                         value={offerAmount}
                         onChange={e => setOfferAmount(e.target.value)}
                         placeholder="Introduce tu oferta"
                         mt={2}
+                        borderColor="#003459"
+                        focusBorderColor="#007ea7"
+                        color="#003459"
                       />
                     </Box>
                     {offerMessage && (
-                      <Text color={offerMessage.startsWith('¡') ? 'green.500' : 'red.500'} mt={2}>{offerMessage}</Text>
+                      <Text color={offerMessage.startsWith('¡') ? '#007ea7' : 'red.500'} mt={2} fontWeight={offerMessage.startsWith('¡') ? 'bold' : 'normal'}>
+                        {offerMessage}
+                      </Text>
                     )}
                   </DialogBody>
                   <DialogFooter>
-                    <Button colorScheme="blue" mr={3} onClick={handleSendOffer} isLoading={offerLoading}>
-                      Enviar Oferta
-                    </Button>
+                    <Box width="100%" display="flex" justifyContent="center">
+                      <Button
+                        bg="#003459"
+                        color="#fff"
+                        borderRadius="10px"
+                        width="50%"
+                        mr={3}
+                        onClick={handleSendOffer}
+                        isLoading={offerLoading}
+                        _hover={{ bg: '#005080' }}
+                      >
+                        Enviar Oferta
+                      </Button>
+                    </Box>
                   </DialogFooter>
                 </DialogContent>
               </DialogPositioner>

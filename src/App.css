@@ -135,12 +135,9 @@ button:hover, .chakra-button:hover {
 
 /* Títulos y textos */
 h1, h2, h3, h4, h5, h6, .chakra-heading {
-  color: #003459;
-  font-family: 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  font-weight: 700;
-}
-
-.chakra-text, .chakra-box, .chakra-heading {
+  color: #003459 !important;
+  font-family: 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif !important;
+  font-weight: 700 !important;
   letter-spacing: 0.01em;
 }
 

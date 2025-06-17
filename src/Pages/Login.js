@@ -1,20 +1,20 @@
 import { useState } from 'react';
-import { Box, Heading, Button } from '@chakra-ui/react';
-import AuthForm from '../Components/AuthForm';
+import { Box, Heading, Button, Input, FieldRoot, FieldLabel } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { RequestEmailModal, InfoModal } from '../Components/PasswordModals';
 
-
-
 const Login = () => {
   const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [infoMessage, setInfoMessage] = useState('');
   const [loginError, setLoginError] = useState('');
 
-  const handleSubmit = async ({ email, password }) => {
-    setLoginError(''); // Limpia errores previos
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoginError('');
     const response = await fetch('http://localhost:3000/auth/login', {
       method: 'POST',
       headers: {
@@ -22,14 +22,10 @@ const Login = () => {
       },
       body: JSON.stringify({ email, password }),
     });
-    console.log("Data", JSON.stringify({ email, password }));
-
     if (response.ok) {
       const data = await response.json();
       localStorage.setItem('token', data.token);
-      console.log('Sesión iniciada:', data);
       navigate('/');
-
     } else {
       let errorMsg = 'Error al iniciar sesión. Verifica tus credenciales.';
       try {
@@ -37,14 +33,10 @@ const Login = () => {
         if (errorData && errorData.message) {
           errorMsg = errorData.message;
         }
-      } catch (e) {
-        // Si no se puede parsear el error, usa el mensaje genérico
-      }
+      } catch (e) {}
       setLoginError(errorMsg);
-      console.error('Error al iniciar sesión:', errorMsg);
     }
-
-  }
+  };
 
   const handleForgotPassword = async (email) => {
     try {
@@ -55,18 +47,14 @@ const Login = () => {
         },
         body: JSON.stringify({ email }),
       });
-
       if (!response.ok) {
-        // Intenta obtener un mensaje de error del cuerpo de la respuesta si está disponible
         const errorData = await response.json().catch(() => ({ message: 'Error al solicitar el reseteo de contraseña.' }));
         throw new Error(errorData.message || 'Error al solicitar el reseteo de contraseña');
       }
-
-      setShowRequestModal(false); // Cierra el modal de solicitud de email
+      setShowRequestModal(false);
       setInfoMessage("Si el correo existe, se ha enviado un enlace de reseteo de contraseña.");
-      setShowInfoModal(true); // Muestra el modal de información
+      setShowInfoModal(true);
     } catch (error) {
-      console.error("Error en handleForgotPassword:", error);
       setShowRequestModal(false);
       setInfoMessage(error.message || "Error al procesar la solicitud. Inténtalo de nuevo más tarde.");
       setShowInfoModal(true);
@@ -75,7 +63,39 @@ const Login = () => {
 
   return (
     <Box maxW="400px" mx="auto" mt={8} p={6} bg="white" borderRadius="10px" color="#003459" style={{ border: '3px solid #003459', boxShadow: '0 8px 32px 0 rgba(0,52,89,0.25), 0 3px 12px 0 #003459' }}>
-      <AuthForm onAuth={handleSubmit} buttonProps={{ w: '60%', alignSelf: 'center', borderRadius: '10px' }} />
+      <Heading mb={6} color="#003459" fontWeight="bold" fontSize="2xl" fontFamily="inherit">Iniciar Sesión</Heading>
+      <form onSubmit={handleSubmit}>
+        <FieldRoot mb={4} required>
+          <FieldLabel style={{ fontWeight: 600, color: '#003459', fontSize: '1rem' }}>Email</FieldLabel>
+          <Input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Introduce tu email"
+          />
+        </FieldRoot>
+        <FieldRoot mb={4} required>
+          <FieldLabel style={{ fontWeight: 600, color: '#003459', fontSize: '1rem' }}>Password</FieldLabel>
+          <Input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Introduce tu contraseña"
+          />
+        </FieldRoot>
+        <Button
+          type="submit"
+          width="60%"
+          alignSelf="center"
+          borderRadius="10px"
+          bgColor="#003459"
+          color="white"
+          style={{ display: 'block', margin: '0 auto' }}
+          _hover={{ bg: '#005080', color: 'white' }}
+        >
+          Iniciar Sesión
+        </Button>
+      </form>
       {loginError && (
         <Box color="red.500" mt={2} mb={2} textAlign="center" fontWeight="bold">
           {loginError}
