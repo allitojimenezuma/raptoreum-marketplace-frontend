@@ -13,6 +13,8 @@ import ImportAsset from './Pages/ImportAsset';
 import ResetPasswordPage from './Pages/ResetPasswordPage'; // Importar la nueva página
 import Offers from './Pages/Offers';
 import { useState, useEffect } from 'react';
+import { Toaster } from './Components/ui/toaster'; // Adjust path as needed
+
 
 async function isTokenValid(token) {
   try {
@@ -32,7 +34,7 @@ async function isTokenValid(token) {
       const response = await fetch('http://localhost:3000/user/token', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json', 
+          'Content-Type': 'application/json',
         },
         body: body
       });
@@ -56,7 +58,6 @@ async function isTokenValid(token) {
     return false;
   }
 }
-
 
 function PrivateRoute({ children }) {
   const [isValid, setIsValid] = useState(null);
@@ -119,7 +120,7 @@ function App() {
                 </PrivateRoute>
               }
             />
-                        <Route
+            <Route
               path="/importAsset"
               element={
                 <PrivateRoute>
@@ -137,6 +138,8 @@ function App() {
               }
             />
           </Routes>
+          <Toaster position="top-right" />
+
         </Box>
       </Box>
     </Router>
