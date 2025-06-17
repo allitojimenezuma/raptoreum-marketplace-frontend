@@ -26,7 +26,7 @@ const Home = () => {
       if (token) {
         try {
           const decodedToken = jwtDecode(token);
-          // Fetch user info to get the ID, similar to Account.js
+          // Fetch user info to get the ID, similar to Account.
           const response = await fetch('http://localhost:3000/user/info', {
             method: 'POST',
             headers: {

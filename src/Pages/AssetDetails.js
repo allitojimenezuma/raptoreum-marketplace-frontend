@@ -28,6 +28,9 @@ const AssetDetail = () => {
   const [destinationAddress, setDestinationAddress] = useState('');
   const [userBalance, setUserBalance] = useState(null);
   const [isCheckingBalance, setIsCheckingBalance] = useState(false);
+  const [message, setMessage] = useState('');
+  const [rtmToUsdRate, setRtmToUsdRate] = useState(null); // State for RTM to USD rate
+  const [isFetchingRate, setIsFetchingRate] = useState(false); // State for rate fetching
 
   const fetchLoggedInUser = async () => {
     const token = localStorage.getItem('token');
@@ -123,17 +126,19 @@ const AssetDetail = () => {
     }
   };
 
-
   const buyAsset = async () => {
     console.log('Intentando comprar asset con id:', asset.id);
+    if (loading) return;
+
     try {
       if (window.confirm(`¿Estás seguro de que deseas comprar este asset? Se descontará/n ${asset.price} RTM de tu balance.`)) {
         console.log('Compra confirmada.');
       } else {
         console.log('Compra cancelada.');
-        return; 
+        return;
       }
 
+      setMessage("Proceso de compra en curso...\nEspere unos minutos antes de recargar la página.");
       const token = localStorage.getItem('token');
       console.log('Token recuperado:', token);
       const url = `http://localhost:3000/assets/buy/${asset.id}`;
@@ -161,9 +166,15 @@ const AssetDetail = () => {
         console.log('Error en la compra, status:', response.status, 'errorData:', errorData);
         alert('Error al realizar la compra: ' + (errorData.message || 'Error desconocido'));
       }
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Simula un retraso de 2 segundos para la compra
+
+
     } catch (err) {
       console.log('Error de red o servidor al intentar comprar el asset:', err);
+      setMessage("Error de red o servidor al intentar comprar el asset.");
       alert('Error de red o servidor al intentar comprar el asset.');
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -202,13 +213,51 @@ const AssetDetail = () => {
     }
   };
 
+  const fetchRtmToUsdRate = async () => {
+    setIsFetchingRate(true);
+    // Use your backend endpoint
+    const url = `http://localhost:3000/get-rtm-price`;
 
+    try {
+      // No API key or special headers needed for this call to your backend
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          // If your backend endpoint for getting the price requires authentication,
+          // you might need to add an Authorization header here, e.g.:
+          // 'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Expecting format: { "usd_price": 0.000288... }
+        if (data.usd_price !== undefined) {
+          setRtmToUsdRate(data.usd_price);
+        } else {
+          console.error('Could not find usd_price in backend response:', data);
+          setRtmToUsdRate(null);
+        }
+      } else {
+        const errorData = await response.json().catch(() => ({ message: 'Failed to fetch RTM to USD rate from backend and could not parse error response.' }));
+        console.error('Failed to fetch RTM to USD rate from backend:', response.status, errorData);
+        setRtmToUsdRate(null);
+      }
+    } catch (error) {
+      console.error('Error fetching RTM to USD rate from backend:', error);
+      setRtmToUsdRate(null);
+    } finally {
+      setIsFetchingRate(false);
+    }
+  };
 
 
   useEffect(() => {
     setLoading(true);
     fetchLoggedInUser();
     fetchUserBalance();
+    fetchRtmToUsdRate(); // Fetch conversion rate
 
     getAsset(id).then((data) => {
       setAsset(data);
@@ -240,10 +289,20 @@ const AssetDetail = () => {
   const canAfford = userBalance !== null && precio !== null && userBalance >= parseFloat(precio);
   const showInsufficientBalanceMessage = !isOwner && userBalance !== null && precio !== null && !canAfford;
 
+  let usdPrice = null;
+  if (precio && rtmToUsdRate) {
+    const calculatedUsdPrice = parseFloat(precio) * rtmToUsdRate;
+    if (calculatedUsdPrice < 5) {
+      usdPrice = calculatedUsdPrice.toFixed(4); // Show 4 decimal places if less than 5 USD
+    } else {
+      usdPrice = calculatedUsdPrice.toFixed(2); // Otherwise, show 2 decimal places
+    }
+  }
+
   return (
     <Box className="asset-card" style={{ border: '3px solid #003459', borderRadius: '24px', background: '#fff', boxShadow: '0 8px 32px 0 rgba(0,52,89,0.25), 0 3px 12px 0 #003459', transition: 'box-shadow 0.3s cubic-bezier(.25,.8,.25,1), transform 0.2s', padding: 0, margin: '32px auto', display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: '600px', overflow: 'hidden' }}>
       {assetImage && (
-        <Box display="flex" alignItems="center" justifyContent="center" height="320px" width="100%" bg="#f7fafc" style={{ borderTopLeftRadius: '21px', borderTopRightRadius: '21px', overflow: 'visible', margin: 0, padding: 0, position: 'relative' }}>
+        <Box display="flex" alignItems="center" justifyContent="center" gap="100px" height="320px" width="100%" bg="#f7fafc" style={{ borderTopLeftRadius: '21px', borderTopRightRadius: '21px', overflow: 'visible', margin: 0, padding: 0, position: 'relative' }}>
           <Image
             src={assetImage}
             alt={nombre}
@@ -261,17 +320,26 @@ const AssetDetail = () => {
           />
         </Box>
       )}
-      <Box p={6} width="100%" textAlign="center" bg="#f7fafc" style={{ borderBottomLeftRadius: '21px', borderBottomRightRadius: '21px' }}>
+      <Box p={6} width="100%" textAlign="center" bg="#f7fafc" display="flex" flexDirection="column" alignContent="center" alignItems="center" gap="10px" style={{ borderBottomLeftRadius: '21px', borderBottomRightRadius: '21px' }}>
         <Heading color="#003459">{nombre}</Heading>
-        {/* Mostrar el nombre del dueño si está disponible */}
-        {asset.ownerName && (
+        {asset.asset_id && (
+          <Text color="gray.500" fontSize="sm" mt={2}>
+            {asset.asset_id}
+          </Text>
+        )}
+        {asset.ownerName && asset.Wallet.direccion && (
           <Text color="gray.600" fontSize="md" mt={1}>
-            Usuario: {asset.ownerName}
+            Propietario: {asset.ownerName} -  {asset.Wallet.direccion}
           </Text>
         )}
         {precio && (
           <Text style={{ color: '#007ea7', fontWeight: 'bold' }} fontSize="xl" mt={2}>
             Precio: {precio} RTM
+            {isFetchingRate && <Spinner size="xs" ml={2} />}
+            {usdPrice && !isFetchingRate && ` (${usdPrice} USD)`}
+            {!rtmToUsdRate && !isFetchingRate && precio !== null && (
+              <Text as="span" fontSize="sm" color="gray.500" ml={1}>(No se pudo cargar precio en USD)</Text>
+            )}
           </Text>
         )}
         {descripcion && (
@@ -302,7 +370,12 @@ const AssetDetail = () => {
           </VStack>
         )}
         {!isOwner && (
-          <Center flexDirection="column"> {/* Use flexDirection column for button and message */}
+          <Center flexDirection="column">
+            {message && (
+              <Text color="blue.500" fontWeight="bold" mb={2} mt={5} whiteSpace="pre-line">
+                {message}
+              </Text>
+            )}
             <Button
               bg="#003459"
               color="#fff"
@@ -310,7 +383,7 @@ const AssetDetail = () => {
               width="50%"
               mt={4}
               onClick={buyAsset}
-              disabled={!asset || isCheckingBalance || userBalance === null || precio === null || !canAfford}
+              disabled={message || !asset || isCheckingBalance || userBalance === null || precio === null || !canAfford}
               _hover={{ bg: '#005080' }}
             >
               {isCheckingBalance ? <Spinner size="sm" /> : 'Comprar Asset'}
