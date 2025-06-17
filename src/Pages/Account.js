@@ -236,7 +236,7 @@ function Account() {
                                             cursor="pointer"
                                             _hover={{ bg: "gray.50" }}
                                           >
-                                            <Text fontWeight="semibold" color="#003459">{asset.name || asset.nombre}</Text>
+                                            <Text fontWeight="bold" color="#003459">Nombre: {asset.name || asset.nombre}</Text>
                                             <Text fontSize="xs" color="gray.500">Asset ID (Ticker): {asset.asset_id}</Text>
                                             <Text fontSize="xs" color="gray.500">DB ID: {asset.id}</Text> 
                                             <Text fontSize="xs" color={asset.isListed ? "green.500" : "red.500"} fontWeight="bold">

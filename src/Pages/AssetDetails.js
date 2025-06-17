@@ -2,6 +2,7 @@ import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { Box, Heading, Image, Text, Spinner, Center, Button, Input, VStack, DialogRoot, DialogTrigger, DialogBackdrop, DialogPositioner, DialogContent, DialogHeader, DialogBody, DialogFooter, DialogCloseTrigger, DialogTitle } from '@chakra-ui/react';
+import { toaster } from '../Components/ui/toaster';
 
 const getAsset = async (id) => {
   try {
@@ -31,6 +32,7 @@ const AssetDetail = () => {
   const [offerLoading, setOfferLoading] = useState(false);
   const [offerMessage, setOfferMessage] = useState('');
   const [isOfferDialogOpen, setIsOfferDialogOpen] = useState(false);
+  const [isBuying, setIsBuying] = useState(false); // Estado para controlar la compra
 
   const fetchLoggedInUser = async () => {
     const token = localStorage.getItem('token');
@@ -61,14 +63,14 @@ const AssetDetail = () => {
 
   const sendAsset = async () => {
     if (!destinationAddress.trim()) {
-      alert('Por favor, ingresa una dirección de destino válida.');
+      toaster.create({ title: 'Por favor, ingresa una dirección de destino válida.', type: 'error', duration: 10000 });
       return;
     }
 
     // Ensure asset and asset.asset_id are available
     if (!asset || !asset.asset_id) {
       console.error('Asset data or asset_id is missing for sending.');
-      alert('No se pudo obtener la información necesaria del asset para el envío.');
+      toaster.create({ title: 'No se pudo obtener la información necesaria del asset para el envío.', type: 'error', duration: 10000 });
       return;
     }
 
@@ -76,7 +78,7 @@ const AssetDetail = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        alert('No estás autenticado. Por favor, inicia sesión para enviar el asset.');
+        toaster.create({ title: 'No estás autenticado. Por favor, inicia sesión para enviar el asset.', type: 'error', duration: 10000 });
         return;
       }
 
@@ -110,7 +112,7 @@ const AssetDetail = () => {
 
       if (response.ok) {
         console.log('Envío exitoso, respuesta backend:', responseData);
-        alert('Envío exitoso: ' + (responseData.message || "El asset ha sido enviado correctamente. TXID: " + responseData.txid));
+        toaster.create({ title: 'Envío exitoso', description: responseData.message || `El asset ha sido enviado correctamente. TXID: ${responseData.txid}`, type: 'success', duration: 10000 });
         setDestinationAddress('');
         getAsset(id).then(setAsset);
 
@@ -118,27 +120,26 @@ const AssetDetail = () => {
 
       } else {
         console.log('Error en el envío, status:', response.status, 'responseData:', responseData);
-        alert('Error en el envío: ' + (responseData.message || `Error ${response.status}`));
+        toaster.create({ title: 'Error en el envío', description: responseData.message || `Error ${response.status}`, type: 'error', duration: 10000 });
       }
     } catch (err) {
       console.log('Error de red o servidor al intentar enviar el asset:', err);
-      alert('Error de red o servidor al intentar enviar el asset.');
+      toaster.create({ title: 'Error de red o servidor al intentar enviar el asset.', type: 'error', duration: 10000 });
     }
   };
 
   const buyAsset = async () => {
-    console.log('Intentando comprar asset con id:', asset.id);
-    if (loading) return;
-
+    if (loading || isBuying) return;
+    setIsBuying(true);
     try {
       if (window.confirm(`¿Estás seguro de que deseas comprar este asset? Se descontará/n ${asset.price} RTM de tu balance.`)) {
         console.log('Compra confirmada.');
       } else {
-        console.log('Compra cancelada.');
+        setIsBuying(false);
         return;
       }
-
-      setMessage("Proceso de compra en curso...\nEspere unos minutos antes de recargar la página.");
+      toaster.create({ title: 'Proceso de compra en curso', description: 'Espere unos minutos antes de recargar la página.', type: 'info', duration: 12000 });
+      // setMessage eliminado, solo toaster
       const token = localStorage.getItem('token');
       console.log('Token recuperado:', token);
       const url = `http://localhost:3000/assets/buy/${asset.id}`;
@@ -149,13 +150,13 @@ const AssetDetail = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({}), // Puedes añadir datos extra si es necesario
+        body: JSON.stringify({}),
       });
       console.log('Respuesta recibida:', response);
       if (response.ok) {
         const data = await response.json();
         console.log('Compra exitosa, respuesta backend:', data);
-        alert('¡Compra realizada con éxito!');
+        toaster.create({ title: '¡Compra realizada con éxito!', type: 'success', duration: 10000 });
       } else {
         let errorData = {};
         try {
@@ -164,7 +165,7 @@ const AssetDetail = () => {
           console.log('No se pudo parsear el error JSON:', e);
         }
         console.log('Error en la compra, status:', response.status, 'errorData:', errorData);
-        alert('Error al realizar la compra: ' + (errorData.message || 'Error desconocido'));
+        toaster.create({ title: 'Error al realizar la compra', description: errorData.message || 'Error desconocido', type: 'error', duration: 10000 });
       }
       await new Promise(resolve => setTimeout(resolve, 2000)); // Simula un retraso de 2 segundos para la compra
 
@@ -172,9 +173,10 @@ const AssetDetail = () => {
     } catch (err) {
       console.log('Error de red o servidor al intentar comprar el asset:', err);
       setMessage("Error de red o servidor al intentar comprar el asset.");
-      alert('Error de red o servidor al intentar comprar el asset.');
+      toaster.create({ title: 'Error de red o servidor al intentar comprar el asset.', type: 'error', duration: 10000 });
     } finally {
       setLoading(false);
+      setIsBuying(false);
     }
   }
 
@@ -416,11 +418,12 @@ const AssetDetail = () => {
               width="50%"
               mt={4}
               onClick={buyAsset}
-              disabled={message || !asset || isCheckingBalance || userBalance === null || precio === null || !canAfford}
+              disabled={isBuying || message || !asset || isCheckingBalance || userBalance === null || precio === null || !canAfford}
               _hover={{ bg: '#005080' }}
               alignSelf="center"
+              opacity={isBuying ? 0.6 : 1}
             >
-              {isCheckingBalance ? <Spinner size="sm" /> : 'Comprar Asset'}
+              {isBuying ? <Spinner size="sm" /> : isCheckingBalance ? <Spinner size="sm" /> : 'Comprar Asset'}
             </Button>
             {/* Dialog para hacer oferta usando Chakra UI v3 */}
             <DialogRoot open={isOfferDialogOpen} onOpenChange={setIsOfferDialogOpen}>
