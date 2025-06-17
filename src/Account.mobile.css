@@ -1,0 +1,20 @@
+@media (max-width: 600px) {
+  .asset-list-item {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+  .asset-list-item .asset-img-responsive {
+    width: 120px !important;
+    margin: 0 auto 12px auto !important;
+    display: block !important;
+  }
+  .asset-list-item .asset-action-btn {
+    margin-left: 0 !important;
+    margin-top: 8px !important;
+    width: 50% !important;
+    align-self: center !important;
+  }
+  .asset-list-item .chakra-box {
+    line-height: 2.1 !important;
+  }
+}

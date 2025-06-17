@@ -6,6 +6,7 @@ import { jwtDecode } from 'jwt-decode';
 import { InfoModal } from '../Components/PasswordModals'; // Asegúrate que la ruta es correcta
 import { useNavigate } from 'react-router-dom';
 import { toaster } from '../Components/ui/toaster'
+import "../Account.mobile.css";
 
 const getUserData = async (token) => {
     try {
@@ -204,9 +205,15 @@ function Account() {
                             </Box>
                             {wallet.assets && wallet.assets.length > 0 ? (
                                 <List.Root spacing={1} mt={2} pl={3} pr={3} pb={3}>
-                                    {wallet.assets.map((asset) => (
+                                    {wallet.assets.map((asset) => {
+                                      const referenceHash = asset.referenceHash || asset.hash || null;
+                                      const assetImage = referenceHash
+                                        ? "https://ipfsweb.raptoreum.com/ipfs/" + referenceHash
+                                        : null;
+                                      return (
                                         <List.Item 
                                           key={asset.id} 
+                                          className="asset-list-item"
                                           display="flex" 
                                           alignItems="center" 
                                           bg="white" 
@@ -215,34 +222,51 @@ function Account() {
                                           p={2} 
                                           mb={1}
                                         >
-                                            <Box 
-                                                flexGrow={1} 
-                                                onClick={() => navigate(`/asset/${asset.id}`)} 
-                                                cursor="pointer"
-                                                _hover={{ bg: "gray.50" }} // Slight hover on the asset info part
-                                            >
-                                                <Text fontWeight="semibold" color="#003459">{asset.name || asset.nombre}</Text>
-                                                <Text fontSize="xs" color="gray.500">Asset ID (Ticker): {asset.asset_id}</Text>
-                                                <Text fontSize="xs" color="gray.500">DB ID: {asset.id}</Text> 
-                                                <Text fontSize="xs" color={asset.isListed ? "green.500" : "red.500"} fontWeight="bold">
-                                                    Estado: {asset.isListed ? "Listado" : "No Listado"}
-                                                </Text>
-                                                {asset.price !== undefined && (
-                                                    <Text fontSize="sm" color="#007ea7" fontWeight="bold">Precio: {asset.price} RTM</Text>
-                                                )}
-                                            </Box>
-                                            <Button
-                                                ml={4}
-                                                size="sm"
-                                                colorScheme={asset.isListed ? "red" : "green"}
-                                                onClick={() => handleToggleListing(asset.id, asset.isListed)}
-                                                isLoading={updatingAssetId === asset.id}
-                                                isDisabled={updatingAssetId === asset.id}
-                                            >
-                                                {asset.isListed ? "Deslistar" : "Listar"}
-                                            </Button>
+                                          {assetImage && (
+                                            <img
+                                              src={assetImage}
+                                              alt={asset.name || asset.nombre}
+                                              className="asset-img-responsive"
+                                              style={{ width: 80, height: 'auto', marginRight: 16, borderRadius: 8, objectFit: 'contain' }}
+                                            />
+                                          )}
+                                          <Box 
+                                            flexGrow={1} 
+                                            onClick={() => navigate(`/asset/${asset.id}`)} 
+                                            cursor="pointer"
+                                            _hover={{ bg: "gray.50" }}
+                                          >
+                                            <Text fontWeight="semibold" color="#003459">{asset.name || asset.nombre}</Text>
+                                            <Text fontSize="xs" color="gray.500">Asset ID (Ticker): {asset.asset_id}</Text>
+                                            <Text fontSize="xs" color="gray.500">DB ID: {asset.id}</Text> 
+                                            <Text fontSize="xs" color={asset.isListed ? "green.500" : "red.500"} fontWeight="bold">
+                                              Estado: {asset.isListed ? "Listado" : "No Listado"}
+                                            </Text>
+                                            {asset.price !== undefined && (
+                                              <Text fontSize="sm" color="#007ea7" fontWeight="bold">Precio: {asset.price} RTM</Text>
+                                            )}
+                                          </Box>
+                                          <Button
+                                            className="asset-action-btn"
+                                            mt={{ base: 2, md: 0 }}
+                                            size="sm"
+                                            bg="#003459"
+                                            color="white"
+                                            borderRadius="10px"
+                                            _hover={{ bg: '#005080', color: 'white' }}
+                                            onClick={() => handleToggleListing(asset.id, asset.isListed)}
+                                            isLoading={updatingAssetId === asset.id}
+                                            isDisabled={updatingAssetId === asset.id}
+                                            width={{ base: '50%', md: 'auto' }}
+                                            alignSelf={{ base: 'center', md: 'center' }}
+                                            ml={{ base: 0, md: 4 }}
+                                            display="flex"
+                                          >
+                                            {asset.isListed ? "Deslistar" : "Listar"}
+                                          </Button>
                                         </List.Item>
-                                    ))}
+                                      );
+                                    })}
                                 </List.Root>
                             ) : null}
                         </List.Item>
