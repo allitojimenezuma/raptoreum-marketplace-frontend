@@ -32,7 +32,6 @@ const AssetDetail = () => {
   const [offerLoading, setOfferLoading] = useState(false);
   const [offerMessage, setOfferMessage] = useState('');
   const [isOfferDialogOpen, setIsOfferDialogOpen] = useState(false);
-  const [isBuying, setIsBuying] = useState(false); // Estado para controlar la compra
 
   const fetchLoggedInUser = async () => {
     const token = localStorage.getItem('token');
@@ -254,39 +253,67 @@ const AssetDetail = () => {
     }
   };
 
-  // Función para enviar la oferta (deberás implementar el endpoint en backend)
+
   const handleSendOffer = async () => {
     if (!offerAmount || isNaN(offerAmount) || Number(offerAmount) <= 0) {
-      setOfferMessage('Introduce una cantidad válida.');
+      // toast.error('Introduce una cantidad válida para la oferta.', { title: 'Error de Oferta' });
       return;
     }
-    setOfferLoading(true);
-    setOfferMessage('');
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3000/assets/offer/${asset.id}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ amount: offerAmount }),
-        }
-      );
-      if (response.ok) {
-        setOfferMessage('¡Oferta enviada correctamente! El propietario será notificado.');
-        setOfferAmount('');
-      } else {
-        const data = await response.json().catch(() => ({}));
-        setOfferMessage(data.message || 'Error al enviar la oferta.');
-      }
-    } catch (err) {
-      setOfferMessage('Error de red o servidor al enviar la oferta.');
-    } finally {
-      setOfferLoading(false);
+    if (!asset || !asset.id) {
+      // toast.error('No se pudo obtener la información del asset para la oferta.', { title: 'Error de Asset' });
+      return;
     }
+    const token = localStorage.getItem('token');
+    if (!token) {
+      // toast.error('No estás autenticado. Por favor, inicia sesión.', { title: 'Error de Autenticación' });
+      return;
+    }
+
+    const requestBody = {
+      assetId: asset.id, // Use the database ID of the asset
+      offerPrice: parseFloat(offerAmount),
+    };
+
+    if (offerExpiresAt) {
+      requestBody.expiresAt = offerExpiresAt;
+    }
+
+    setOfferLoading(true); // Keep this for the button's loading state
+
+
+    const apiCall = fetch(`http://localhost:3000/offers/makeOffer`, { // Updated endpoint
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(requestBody),
+    }).then(async (response) => {
+      const data = await response.json().catch(() => ({ message: "Error en la respuesta del servidor." }));
+      if (!response.ok) {
+        throw new Error(data.message || `Error ${response.status}`);
+      }
+      return data;
+    });
+
+    // toast.promise(apiCall, {
+    //   loading: 'Enviando oferta...',
+    //   success: (data) => {
+    //     setOfferAmount('');
+    //     setOfferExpiresAt(''); // Reset expiration date if you use it
+    //     setIsOfferDialogOpen(false); // Close the dialog on success
+    //     return data.message || '¡Oferta enviada correctamente!';
+    //   },
+    //   error: (err) => err.message || 'Error al enviar la oferta.',
+    // });
+
+    // The finally block for setOfferLoading is handled by the promise toast completion
+    apiCall.finally(() => {
+      setOfferLoading(false);
+    });
   };
+
+
 
   useEffect(() => {
     setLoading(true);
@@ -426,7 +453,9 @@ const AssetDetail = () => {
               {isBuying ? <Spinner size="sm" /> : isCheckingBalance ? <Spinner size="sm" /> : 'Comprar Asset'}
             </Button>
             {/* Dialog para hacer oferta usando Chakra UI v3 */}
-            <DialogRoot open={isOfferDialogOpen} onOpenChange={setIsOfferDialogOpen}>
+            <DialogRoot open={isOfferDialogOpen}
+              onOpenChange={(details) => setIsOfferDialogOpen(details.open)}
+            >
               <DialogTrigger asChild>
                 <Button
                   bg="#003459"
@@ -441,12 +470,14 @@ const AssetDetail = () => {
                   Hacer Oferta
                 </Button>
               </DialogTrigger>
+
               <DialogBackdrop />
+
               <DialogPositioner>
                 <DialogContent>
                   <DialogHeader>
                     <DialogTitle>Hacer una Oferta</DialogTitle>
-                    <DialogCloseTrigger asChild>
+                    <DialogCloseTrigger >
                       <Button variant="ghost" size="sm" float="right">Cerrar</Button>
                     </DialogCloseTrigger>
                   </DialogHeader>
@@ -469,9 +500,6 @@ const AssetDetail = () => {
                     <Button colorScheme="blue" mr={3} onClick={handleSendOffer} isLoading={offerLoading}>
                       Enviar Oferta
                     </Button>
-                    <DialogCloseTrigger asChild>
-                      <Button variant="ghost">Cancelar</Button>
-                    </DialogCloseTrigger>
                   </DialogFooter>
                 </DialogContent>
               </DialogPositioner>
@@ -492,23 +520,23 @@ const AssetDetail = () => {
         <Box mt={6} mb={2} display="flex" flexDirection="row" justifyContent="center" gap="22px" alignItems="center">
           <a href="https://www.unknowngravity.com/" target="_blank" rel="noopener noreferrer" title="Web">
             {/* Icono Web (globo) */}
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="14" stroke="#003459" strokeWidth="2.5"/><ellipse cx="16" cy="16" rx="6" ry="14" stroke="#003459" strokeWidth="2.5"/><path d="M2 16h28" stroke="#003459" strokeWidth="2.5"/></svg>
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="14" stroke="#003459" strokeWidth="2.5" /><ellipse cx="16" cy="16" rx="6" ry="14" stroke="#003459" strokeWidth="2.5" /><path d="M2 16h28" stroke="#003459" strokeWidth="2.5" /></svg>
           </a>
           <a href="https://www.linkedin.com/company/unknowngravity" target="_blank" rel="noopener noreferrer" title="LinkedIn">
             {/* Icono LinkedIn mejorado (cuadro + 'in') */}
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="4" y="4" width="24" height="24" rx="5" fill="#003459"/><text x="10" y="23" fontFamily="Arial, Helvetica, sans-serif" fontWeight="bold" fontSize="14" fill="#fff">in</text></svg>
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="4" y="4" width="24" height="24" rx="5" fill="#003459" /><text x="10" y="23" fontFamily="Arial, Helvetica, sans-serif" fontWeight="bold" fontSize="14" fill="#fff">in</text></svg>
           </a>
           <a href="https://twitter.com/unknowngravity_" target="_blank" rel="noopener noreferrer" title="Twitter">
             {/* Icono Twitter (pájaro) */}
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M28 10.5c-.8.4-1.6.7-2.4.8.9-.6 1.5-1.3 1.8-2.2-.9.5-1.8.9-2.7 1.1-1-1-2.3-1.3-3.6-.9-1.8.5-2.9 2.4-2.4 4.2-3.6-.1-6.8-1.9-9-4.6-.4.8-.5 1.7-.3 2.6.4.9 1.1 1.6 2 2-.7 0-1.4-.2-2-.5v.1c0 2 1.4 3.7 3.2 4.1-.5.2-1.1.2-1.6.1.4 1.4 1.8 2.4 3.3 2.4-1.3 1-2.9 1.6-4.5 1.6-.3 0-.6 0-.9-.1C8.7 25 11 25.7 13.5 25.7c8.2 0 12.7-6.7 12.7-12.7v-.5c1-.7 1.7-1.5 2.3-2.3z" fill="#003459"/></svg>
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M28 10.5c-.8.4-1.6.7-2.4.8.9-.6 1.5-1.3 1.8-2.2-.9.5-1.8.9-2.7 1.1-1-1-2.3-1.3-3.6-.9-1.8.5-2.9 2.4-2.4 4.2-3.6-.1-6.8-1.9-9-4.6-.4.8-.5 1.7-.3 2.6.4.9 1.1 1.6 2 2-.7 0-1.4-.2-2-.5v.1c0 2 1.4 3.7 3.2 4.1-.5.2-1.1.2-1.6.1.4 1.4 1.8 2.4 3.3 2.4-1.3 1-2.9 1.6-4.5 1.6-.3 0-.6 0-.9-.1C8.7 25 11 25.7 13.5 25.7c8.2 0 12.7-6.7 12.7-12.7v-.5c1-.7 1.7-1.5 2.3-2.3z" fill="#003459" /></svg>
           </a>
           <a href="https://www.instagram.com/unknown.gravity/" target="_blank" rel="noopener noreferrer" title="Instagram">
             {/* Icono Instagram (cámara) */}
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="4" y="4" width="24" height="24" rx="7" stroke="#003459" strokeWidth="2.5" fill="none"/><circle cx="16" cy="16" r="7" stroke="#003459" strokeWidth="2.5" fill="none"/><circle cx="23" cy="9" r="1.5" fill="#003459"/></svg>
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="4" y="4" width="24" height="24" rx="7" stroke="#003459" strokeWidth="2.5" fill="none" /><circle cx="16" cy="16" r="7" stroke="#003459" strokeWidth="2.5" fill="none" /><circle cx="23" cy="9" r="1.5" fill="#003459" /></svg>
           </a>
           <a href="https://www.tiktok.com/@unknown.gravity" target="_blank" rel="noopener noreferrer" title="TikTok">
             {/* Icono TikTok mejorado (nota musical doble trazo) */}
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="4" y="4" width="24" height="24" rx="7" fill="#003459"/><path d="M22 11v8a5 5 0 1 1-5-5" stroke="#fff" strokeWidth="2.5" fill="none"/><path d="M22 11c1.2 0 2.2-1 2.2-2.2S23.2 6.6 22 6.6" stroke="#fff" strokeWidth="1.2" fill="none"/><circle cx="22" cy="11" r="1.5" fill="#fff"/></svg>
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="4" y="4" width="24" height="24" rx="7" fill="#003459" /><path d="M22 11v8a5 5 0 1 1-5-5" stroke="#fff" strokeWidth="2.5" fill="none" /><path d="M22 11c1.2 0 2.2-1 2.2-2.2S23.2 6.6 22 6.6" stroke="#fff" strokeWidth="1.2" fill="none" /><circle cx="22" cy="11" r="1.5" fill="#fff" /></svg>
           </a>
         </Box>
       </Box>
