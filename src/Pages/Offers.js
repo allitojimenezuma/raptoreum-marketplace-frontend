@@ -90,9 +90,15 @@ const Offers = () => {
       return;
     }
 
-    // Assuming these endpoints exist on your backend:
-    // POST /offers/:offerId/accept
-    // POST /offers/:offerId/reject
+    if (action === 'accept') {
+      // Lógica de compra igual que buyAsset en AssetDetails.js
+      if (!window.confirm('¿Estás seguro de que deseas aceptar esta oferta? Se realizará la transacción en blockchain y el asset cambiará de propietario.')) {
+        setActionLoading(null);
+        return;
+      }
+      toaster.create({ title: 'Procesando compra en blockchain', description: 'Espere unos minutos antes de recargar la página.', type: 'info', duration: 12000 });
+    }
+
     const apiCall = fetch(`http://localhost:3000/offers/${offerId}/${action}`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
@@ -107,19 +113,76 @@ const Offers = () => {
     toaster.promise(apiCall, {
       loading: `Procesando oferta...`,
       success: (data) => {
-        // Remove the offer from the list upon successful action
         setReceivedOffers(prevOffers => prevOffers.filter(o => o.id !== offerId));
-        // Optionally, refresh sent offers if accepting/rejecting might change their status display
-        // fetchSentOffers(); 
-        return data.message || `Oferta ${action === 'accept' ? 'aceptada' : 'rechazada'} correctamente`;
+        if (action === 'accept') {
+          return { title: '¡Oferta aceptada y asset transferido correctamente!' };
+        }
+        return { title: data.message || `Oferta rechazada correctamente` };
       },
       error: (err) => {
-        return err.message || `Error al procesar la oferta.`;
+        return { title: err.message || `Error al procesar la oferta.` };
       },
     });
 
     apiCall.finally(() => {
       setActionLoading(null); // Clear loading state for the specific offer
+    });
+  };
+
+  // Handler para cancelar oferta enviada
+  const handleCancelSentOffer = async (offerId) => {
+    console.log('[Cancelar Oferta] Iniciando cancelación para offerId:', offerId);
+    setActionLoading(offerId);
+    const token = localStorage.getItem('token');
+    console.log('[Cancelar Oferta] Token obtenido:', token);
+    if (!token) {
+      toaster.error("No autenticado. Por favor, inicia sesión.", { title: "Error" });
+      setActionLoading(null);
+      return;
+    }
+    const offer = sentOffers.find(o => o.id === offerId);
+    console.log('[Cancelar Oferta] Objeto offer:', offer);
+    const apiCall = fetch(`http://localhost:3000/offers/${offerId}/cancel`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+      .then((response) => {
+        console.log('[Cancelar Oferta] Respuesta fetch:', response);
+        if (!response.ok) {
+          return response.json()
+            .then((errorData) => {
+              console.log('[Cancelar Oferta] Error en respuesta:', errorData);
+              throw new Error(errorData.message);
+            })
+            .catch(() => {
+              console.log('[Cancelar Oferta] Error en respuesta: sin JSON');
+              throw new Error('Error al cancelar la oferta.');
+            });
+        }
+        return response.json().then((data) => {
+          console.log('[Cancelar Oferta] Respuesta OK:', data);
+          return data;
+        });
+      })
+      .catch((err) => {
+        console.log('[Cancelar Oferta] Catch error:', err);
+        throw err;
+      });
+    toaster.promise(apiCall, {
+      loading: `Cancelando oferta...`,
+      success: (data) => {
+        setSentOffers(prevOffers => prevOffers.filter(o => o.id !== offerId));
+        return { title: data.message || `Oferta cancelada correctamente` };
+      },
+      error: (err) => {
+        return { title: err.message || `Error al cancelar la oferta.` };
+      },
+    });
+    apiCall.finally(() => {
+      setActionLoading(null);
+      console.log('[Cancelar Oferta] Finalizado');
     });
   };
 
@@ -139,6 +202,13 @@ const Offers = () => {
                   <Text fontWeight="bold" color="#003459">Asset: {offer.asset?.name || 'N/A'}</Text>
                   <Text color="#003459">Ofertante: {offer.offerer?.name || 'N/A'}</Text>
                   <Text color="#003459">Cantidad ofertada: <b>{Number(offer.offerPrice) % 1 === 0 ? Number(offer.offerPrice) : Number(offer.offerPrice).toFixed(2)} RTM</b></Text>
+                  {offer.expiresAt && (
+                    <Text color={offer.status === 'pending' && new Date(offer.expiresAt) < new Date() ? 'red.500' : '#949494'} fontSize="sm">
+                      {offer.status === 'pending' && new Date(offer.expiresAt) < new Date()
+                        ? 'Oferta Expirada'
+                        : `Expira: ${new Date(offer.expiresAt).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}`}
+                    </Text>
+                  )}
                 </Box>
                 <VStack spacing={2} align="end">
                   <Button
@@ -187,15 +257,35 @@ const Offers = () => {
               <Box key={offer.id} p={4} borderWidth={1} borderRadius="16px" borderColor="#00345933" bg="#fff" boxShadow="0 2px 8px 0 rgba(0,52,89,0.10)" display="flex" flexDirection="row" alignItems="center" justifyContent="space-between" gap="16px">
                 <Box textAlign="left">
                   <Text fontWeight="bold" color="#003459">Asset: {offer.asset?.name || 'N/A'}</Text>
-                  <Text color="#003459">Propietario (al ofertar): {offer.assetOwnerAtTimeOfOffer?.name || 'N/A'}</Text>
+                  <Text color="#003459">Propietario actual: {offer.assetOwnerAtTimeOfOffer?.name || 'N/A'}</Text>
                   <Text color="#003459">Cantidad ofertada: <b>{Number(offer.offerPrice) % 1 === 0 ? Number(offer.offerPrice) : Number(offer.offerPrice).toFixed(2)} RTM</b></Text>
                   <Text color="#003459">Estado: <b>{offer.status === 'pending' ? 'Pendiente' : offer.status === 'accepted' ? 'Aceptada' : offer.status === 'rejected' ? 'Rechazada' : offer.status}</b></Text>
+                  {offer.expiresAt && (
+                    <Text color={offer.status === 'pending' && new Date(offer.expiresAt) < new Date() ? 'red.500' : '#949494'} fontSize="sm">
+                      {offer.status === 'pending' && new Date(offer.expiresAt) < new Date()
+                        ? 'Oferta Expirada'
+                        : `Expira: ${new Date(offer.expiresAt).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}`}
+                    </Text>
+                  )}
                 </Box>
                 <VStack spacing={2} align="end">
+                  {offer.status === 'pending' && (
+                    <Button
+                      bg="red.500"
+                      color="#fff"
+                      borderRadius="10px"
+                      border="2px solid #003459"
+                      width="120px"
+                      isLoading={actionLoading === offer.id}
+                      onClick={() => handleCancelSentOffer(offer.id)}
+                      _hover={{ bg: 'red.600' }}
+                    >Cancelar</Button>
+                  )}
                   <Button
-                    variant="ghost"
+                    bg="#fff"
                     color="#003459"
                     borderRadius="10px"
+                    border="2px solid #003459"
                     width="120px"
                     onClick={() => navigate(`/asset/${offer.AssetId}`)}
                     _hover={{ bg: '#e2e8f0' }}

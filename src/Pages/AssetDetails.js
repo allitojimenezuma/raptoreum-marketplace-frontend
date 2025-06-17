@@ -30,7 +30,6 @@ const AssetDetail = () => {
   const [isFetchingRate, setIsFetchingRate] = useState(false); // State for rate fetching
   const [offerAmount, setOfferAmount] = useState('');
   const [offerLoading, setOfferLoading] = useState(false);
-  const [offerMessage, setOfferMessage] = useState('');
   const [isOfferDialogOpen, setIsOfferDialogOpen] = useState(false);
   const [isBuying, setIsBuying] = useState(false);
   const [offerExpiresAt, setOfferExpiresAt] = useState('');
@@ -276,8 +275,13 @@ const AssetDetail = () => {
       offerPrice: parseFloat(offerAmount),
     };
 
+    // Si el usuario no introduce fecha de expiración, se pone 24h desde ahora
     if (offerExpiresAt) {
       requestBody.expiresAt = offerExpiresAt;
+    } else {
+      // 24 horas desde ahora en formato ISO
+      const expires = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+      requestBody.expiresAt = expires;
     }
 
     setOfferLoading(true); // Keep this for the button's loading state
@@ -298,21 +302,23 @@ const AssetDetail = () => {
       return data;
     });
 
-    // toast.promise(apiCall, {
-    //   loading: 'Enviando oferta...',
-    //   success: (data) => {
-    //     setOfferAmount('');
-    //     setOfferExpiresAt(''); // Reset expiration date if you use it
-    //     setIsOfferDialogOpen(false); // Close the dialog on success
-    //     return data.message || '¡Oferta enviada correctamente!';
-    //   },
-    //   error: (err) => err.message || 'Error al enviar la oferta.',
-    // });
+    toaster.promise(apiCall, {
+      loading: 'Enviando oferta...',
+      success: (data) => {
+        setOfferAmount('');
+        setOfferExpiresAt('');
+        setIsOfferDialogOpen(false);
+        return { title: data.message || '¡Oferta enviada correctamente!' };
+      },
+      error: (err) => {
+        return { title: err.message || 'Error al enviar la oferta.' };
+      },
+    });
 
     // The finally block for setOfferLoading is handled by the promise toast completion
-    apiCall.finally(() => {
-      setOfferLoading(false);
-    });
+    // apiCall.finally(() => {
+    //   setOfferLoading(false);
+    // });
   };
 
 
@@ -497,11 +503,6 @@ const AssetDetail = () => {
                         color="#003459"
                       />
                     </Box>
-                    {offerMessage && (
-                      <Text color={offerMessage.startsWith('¡') ? '#007ea7' : 'red.500'} mt={2} fontWeight={offerMessage.startsWith('¡') ? 'bold' : 'normal'}>
-                        {offerMessage}
-                      </Text>
-                    )}
                   </DialogBody>
                   <DialogFooter>
                     <Box width="100%" display="flex" justifyContent="center">
