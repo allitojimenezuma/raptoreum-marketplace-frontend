@@ -33,6 +33,9 @@ const AssetDetail = () => {
   const [isOfferDialogOpen, setIsOfferDialogOpen] = useState(false);
   const [isBuying, setIsBuying] = useState(false);
   const [offerExpiresAt, setOfferExpiresAt] = useState('');
+  const [showEditPrice, setShowEditPrice] = useState(false);
+  const [newPrice, setNewPrice] = useState('');
+  const [isUpdatingPrice, setIsUpdatingPrice] = useState(false);
 
   const fetchLoggedInUser = async () => {
     const token = localStorage.getItem('token');
@@ -323,6 +326,38 @@ const AssetDetail = () => {
 
 
 
+  // Handler para actualizar el precio
+  const handleUpdatePrice = async () => {
+    if (!newPrice || isNaN(newPrice) || Number(newPrice) < 0) {
+      toaster.create({ title: 'Introduce un precio válido.', type: 'error', duration: 6000 });
+      return;
+    }
+    setIsUpdatingPrice(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:3000/assets/updatePrice/${asset.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ precio: newPrice }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.message || 'Error al actualizar el precio');
+      }
+      toaster.create({ title: data.message || 'Precio actualizado correctamente', type: 'success', duration: 6000 });
+      setShowEditPrice(false);
+      setAsset({ ...asset, precio: newPrice, price: newPrice });
+    } catch (err) {
+      toaster.create({ title: err.message || 'Error al actualizar el precio', type: 'error', duration: 6000 });
+    } finally {
+      setIsUpdatingPrice(false);
+    }
+  };
+
+
   useEffect(() => {
     setLoading(true);
     fetchLoggedInUser();
@@ -403,14 +438,70 @@ const AssetDetail = () => {
           </Text>
         )}
         {precio && (
-          <Text style={{ color: '#007ea7', fontWeight: 'bold' }} fontSize="xl" mt={2}>
-            Precio: {precio} RTM
-            {isFetchingRate && <Spinner size="xs" ml={2} />}
-            {usdPrice && !isFetchingRate && ` (${usdPrice} USD)`}
-            {!rtmToUsdRate && !isFetchingRate && precio !== null && (
-              <Text as="span" fontSize="sm" color="gray.500" ml={1}>(No se pudo cargar precio en USD)</Text>
+          <Box display="flex" alignItems="center" justifyContent="center" width="100%" mt={2}>
+            <Text style={{ color: '#007ea7', fontWeight: 'bold' }} fontSize="xl">
+              Precio: {precio} RTM
+              {isFetchingRate && <Spinner size="xs" ml={2} />}
+              {usdPrice && !isFetchingRate && ` (${usdPrice} USD)`}
+              {!rtmToUsdRate && !isFetchingRate && precio !== null && (
+                <Text as="span" fontSize="sm" color="gray.500" ml={1}>(No se pudo cargar precio en USD)</Text>
+              )}
+            </Text>
+            {isOwner && (
+              showEditPrice ? (
+                <Box display="flex" alignItems="center" ml={4}>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="any"
+                    value={newPrice}
+                    onChange={e => setNewPrice(e.target.value)}
+                    placeholder="Nuevo precio (RTM)"
+                    borderColor="#003459"
+                    focusBorderColor="#007ea7"
+                    color="#003459"
+                    width="110px"
+                    fontSize="md"
+                    mr={2}
+                  />
+                  <Button
+                    bg="#003459"
+                    color="#fff"
+                    borderRadius="10px"
+                    isLoading={isUpdatingPrice}
+                    onClick={handleUpdatePrice}
+                    _hover={{ bg: '#005080' }}
+                    width="70px"
+                    fontSize="sm"
+                    mr={1}
+                  >
+                    Guardar
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    color="#003459"
+                    onClick={() => { setShowEditPrice(false); setNewPrice(precio); }}
+                    fontSize="sm"
+                  >
+                    Cancelar
+                  </Button>
+                </Box>
+              ) : (
+                <Button
+                  bg="#003459"
+                  color="#fff"
+                  borderRadius="10px"
+                  ml={4}
+                  fontSize="sm"
+                  onClick={() => { setShowEditPrice(true); setNewPrice(precio); }}
+                  _hover={{ bg: '#005080' }}
+                  style={{ width: '120px', minWidth: '120px', maxWidth: '35%' }}
+                >
+                  Modificar precio
+                </Button>
+              )
             )}
-          </Text>
+          </Box>
         )}
         {descripcion && (
           <Text mt={2} fontSize="md" color="gray.700">{descripcion}</Text>
@@ -418,6 +509,7 @@ const AssetDetail = () => {
         {isOwner && (
           <VStack spacing={4} mt={4} align="stretch">
             <Text fontSize="md" color="green.600" fontWeight="bold" mb="6">¡Eres el dueño de este asset!</Text>
+            {/* Eliminar controles de precio duplicados aquí */}
             <Input
               placeholder="Dirección de destino Raptoreum"
               value={destinationAddress}
