@@ -111,7 +111,7 @@ const Offers = () => {
     });
 
     toaster.promise(apiCall, {
-      loading: `Procesando oferta...`,
+      loading: { title: "Procesando oferta...", description: "La transacción está en curso. Por favor, espere unos minutos." },
       success: (data) => {
         setReceivedOffers(prevOffers => prevOffers.filter(o => o.id !== offerId));
         if (action === 'accept') {
@@ -257,7 +257,7 @@ const Offers = () => {
               <Box key={offer.id} p={4} borderWidth={1} borderRadius="16px" borderColor="#00345933" bg="#fff" boxShadow="0 2px 8px 0 rgba(0,52,89,0.10)" display="flex" flexDirection="row" alignItems="center" justifyContent="space-between" gap="16px">
                 <Box textAlign="left">
                   <Text fontWeight="bold" color="#003459">Asset: {offer.asset?.name || 'N/A'}</Text>
-                  <Text color="#003459">Propietario actual: {offer.assetOwnerAtTimeOfOffer?.name || 'N/A'}</Text>
+                  <Text color="#003459">Propietario del Asset de la oferta: {offer.assetOwnerAtTimeOfOffer?.name || 'N/A'}</Text>
                   <Text color="#003459">Cantidad ofertada: <b>{Number(offer.offerPrice) % 1 === 0 ? Number(offer.offerPrice) : Number(offer.offerPrice).toFixed(2)} RTM</b></Text>
                   <Text color="#003459">Estado: <b>{offer.status === 'pending' ? 'Pendiente' : offer.status === 'accepted' ? 'Aceptada' : offer.status === 'rejected' ? 'Rechazada' : offer.status}</b></Text>
                   {offer.expiresAt && (

@@ -28,16 +28,27 @@ export const Toaster = () => {
           if (toast.type === 'success') {
             customToastRootProps = {
               ...customToastRootProps,
-              bg: '#003459', // Light grey background for success
-              borderColor: '#003459', // Optional: a slightly darker border
+              bg: '#003459',
+              borderColor: '#003459',
               borderWidth: '1px',
+              color: 'white', // Letra blanca
+            };
+          }
+          // Style modifications for loading toasts
+          if (toast.type === 'loading') {
+            customToastRootProps = {
+              ...customToastRootProps,
+              bg: '#003459',
+              borderColor: '#003459',
+              borderWidth: '1px',
+              color: 'white', // Letra blanca
             };
           }
 
           return (
             <Toast.Root {...toastRootBaseProps} {...customToastRootProps}>
               {toast.type === 'loading' ? (
-                <Spinner size='sm' color='blue.solid' />
+                <Spinner size='sm' color='white' />
               ) : (
                 <Toast.Indicator />
               )}
