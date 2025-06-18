@@ -27,6 +27,8 @@ const getUserData = async (token) => {
 };
 
 
+
+
 function Account() {
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -34,6 +36,7 @@ function Account() {
     const [infoMessage, setInfoMessage] = React.useState('');
     const navigate = useNavigate();
     const [updatingAssetId, setUpdatingAssetId] = useState(null);
+    const [isImporting, setIsImporting] = useState(false); // New state for import button
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -88,8 +91,8 @@ function Account() {
         const token = localStorage.getItem('token');
         if (!token) {
             // Updated toast call
-            toaster.create({ 
-                title: "Por favor, inicia sesión.", 
+            toaster.create({
+                title: "Por favor, inicia sesión.",
                 type: "error",
                 duration: 8000 
             });
@@ -111,8 +114,8 @@ function Account() {
 
             if (response.ok) {
                 // Updated toast call
-                toaster.create({ 
-                    title: "Estado de listado actualizado.", 
+                toaster.create({
+                    title: "Estado de listado actualizado.",
                     type: "success",
                     duration: 8000 
                 });
@@ -135,8 +138,8 @@ function Account() {
         } catch (error) {
             console.error("Error en handleToggleListing:", error);
             // Updated toast call
-            toaster.create({ 
-                title: "Error al actualizar el estado de listado.", 
+            toaster.create({
+                title: "Error al actualizar el estado de listado.",
                 type: "error",
                 duration: 8000 
             });
@@ -144,6 +147,93 @@ function Account() {
             setUpdatingAssetId(null);
         }
     };
+
+    const handleImportAssets = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            // Updated toast call
+            toaster.create({
+                title: "Por favor, inicia sesión.",
+                type: "error",
+                duration: 5000
+            });
+            setUpdatingAssetId(null);
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:3000/assets/missingAssets`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                }
+            });
+
+            const responseData = await response.json();
+            //{"message":"Se encontraron assets en su wallet que no están registrados en la plataforma.","missingAssets":[{"name":"RAPTOREUM_GOLD","balance":"100000000","assetId":"6374692e684ff30709a1f60f2fb49faf2f5611f3c1cdbb9e3d6c1ed14532425e","referenceHash":"QmeuniM6dGq91RngUGZgLiaY3YWFreAWV2H9QwtnYwAdzS"},{"name":"WATERFALL","balance":"100000000","assetId":"a78d5203ea684b3779c356214c2c7c987114471023d4e7c57c0c54fbbfce11d2","referenceHash":"QmZsxDpJm6N9DirQbtdEwpTpEnefJj5Dx4x8QUdbo2sKvu"}]}
+
+            if (response.ok) {
+                //confirmar que quiere importar los assets
+                if (responseData.missingAssets && responseData.missingAssets.length > 0) {
+                    const missingAssets = responseData.missingAssets.map(asset => `${asset.name}`).join(', ');
+                    const confirmImport = window.confirm(`Se encontraron los siguientes assets que no están registrados en la plataforma: ${missingAssets}. ¿Deseas importarlos?`);
+                    if (confirmImport) {
+                        // Step 2: If confirmed, call the import endpoint
+                        const importApiCall = fetch(`http://localhost:3000/assets/importMissingAssets`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`,
+                            }
+                        }).then(async (res) => {
+                            const data = await res.json();
+                            if (!res.ok) {
+                                throw new Error(data.message || 'Error al importar los assets.');
+                            }
+                            return data;
+                        });
+
+                        toaster.promise(importApiCall, {
+                            loading: 'Importando assets, por favor espera...',
+                            success: (data) => {
+                                // Refresh user data to show new assets
+                                getUserData(token).then((newUserData) => {
+                                    setUserData(newUserData);
+                                });
+                                return data.message || 'Proceso de importación finalizado.';
+                            },
+                            error: (err) => err.message || 'Ocurrió un error durante la importación.'
+                        });
+
+                        // Ensure loading state is reset after promise settles
+                        importApiCall.finally(() => setIsImporting(false));
+                    } else {
+                        // User cancelled the import
+                        toaster.create({
+                            title: "Importación cancelada.",
+                            type: "info",
+                            duration: 3000
+                        });
+                        setIsImporting(false);
+                    }
+                }
+            } else {
+                throw new Error(responseData.message || 'Error al actualizar el estado de listado.');
+            }
+        } catch (error) {
+            console.error("Error en handleToggleListing:", error);
+            // Updated toast call
+            toaster.create({
+                title: "Error al actualizar el estado de listado.",
+                type: "error",
+                duration: 5000
+            });
+            setIsImporting(false);
+        }
+
+    };
+
 
 
     if (loading) {
@@ -174,94 +264,110 @@ function Account() {
                 <Text><b>Email:</b> {user.email}</Text>
                 <Text><b>ID:</b> {user.id}</Text>
                 <Button
-                  bg="#003459"
-                  color="white"
-                  borderRadius="10px"
-                  _hover={{ bg: '#005080', color: 'white' }}
-                  onClick={handleChangePassword}
-                  mt={4}
-                  type="button"
+                    bg="#003459"
+                    color="white"
+                    borderRadius="10px"
+                    _hover={{ bg: '#005080', color: 'white' }}
+                    onClick={handleChangePassword}
+                    mt={4}
+                    type="button"
                 >
-                  Cambiar contraseña
+                    Cambiar contraseña
                 </Button>
             </VStack>
-            <Heading mb={4} color="#003459" fontWeight="bold" fontSize="2xl" fontFamily="inherit">Mis Wallets y Assets</Heading>
+            <Flex display="flex" alignItems="center" mb={4} justifyContent="space-between">
+                <Heading color="#003459" fontWeight="bold" fontSize="2xl" fontFamily="inherit">Mis Wallets y Assets</Heading>
+                <Button
+                    bg="#003459"
+                    color="white"
+                    borderRadius="10px"
+                    _hover={{ bg: '#005080', color: 'white' }}
+                    onClick={handleImportAssets}
+                    type="button"
+                >
+                    Importar Assets Externos
+
+                </Button>
+            </Flex>
 
             {wallets && wallets.length > 0 ? (
                 <List.Root spacing={4} mb={4}>
                     {wallets.map((wallet) => (
                         <List.Item key={wallet.id} p={0} borderWidth={1} borderRadius="md" bg="#e2e8f0" boxShadow="md" borderColor="#003459">
-                            <Box p={3}>
+                            <Box p={3} display="flex" alignItems="center" justifyContent="space-between">
                                 <Text fontWeight="bold" mb={1} color="#003459">
                                     Dirección: {wallet.direccion}
                                 </Text>
+
                                 {!wallet.assets || wallet.assets.length === 0 ? (
                                     <Text color="gray.500" fontSize="sm">No hay assets en esta wallet.</Text>
                                 ) : null}
+
+
                             </Box>
                             {wallet.assets && wallet.assets.length > 0 ? (
                                 <List.Root spacing={1} mt={2} pl={3} pr={3} pb={3}>
                                     {wallet.assets.map((asset) => {
-                                      const referenceHash = asset.referenceHash || asset.hash || null;
-                                      const assetImage = referenceHash
-                                        ? "https://ipfsweb.raptoreum.com/ipfs/" + referenceHash
-                                        : null;
-                                      return (
-                                        <List.Item 
-                                          key={asset.id} 
-                                          className="asset-list-item"
-                                          display="flex" 
-                                          alignItems="center" 
-                                          bg="white" 
-                                          borderRadius="md" 
-                                          boxShadow="sm" 
-                                          p={2} 
-                                          mb={1}
-                                        >
-                                          {assetImage && (
-                                            <img
-                                              src={assetImage}
-                                              alt={asset.name || asset.nombre}
-                                              className="asset-img-responsive"
-                                              style={{ width: 80, height: 'auto', marginRight: 16, borderRadius: 8, objectFit: 'contain' }}
-                                            />
-                                          )}
-                                          <Box 
-                                            flexGrow={1} 
-                                            onClick={() => navigate(`/asset/${asset.id}`)} 
-                                            cursor="pointer"
-                                            _hover={{ bg: "gray.50" }}
-                                          >
-                                            <Text fontWeight="bold" color="#003459">Nombre: {asset.name || asset.nombre}</Text>
-                                            <Text fontSize="xs" color="gray.500">Asset ID (Ticker): {asset.asset_id}</Text>
-                                            <Text fontSize="xs" color="gray.500">DB ID: {asset.id}</Text> 
-                                            <Text fontSize="xs" color={asset.isListed ? "green.500" : "red.500"} fontWeight="bold">
-                                              Estado: {asset.isListed ? "Listado" : "No Listado"}
-                                            </Text>
-                                            {asset.price !== undefined && (
-                                              <Text fontSize="sm" color="#007ea7" fontWeight="bold">Precio: {asset.price} RTM</Text>
-                                            )}
-                                          </Box>
-                                          <Button
-                                            className="asset-action-btn"
-                                            mt={{ base: 2, md: 0 }}
-                                            size="sm"
-                                            bg="#003459"
-                                            color="white"
-                                            borderRadius="10px"
-                                            _hover={{ bg: '#005080', color: 'white' }}
-                                            onClick={() => handleToggleListing(asset.id, asset.isListed)}
-                                            isLoading={updatingAssetId === asset.id}
-                                            isDisabled={updatingAssetId === asset.id}
-                                            width={{ base: '50%', md: 'auto' }}
-                                            alignSelf={{ base: 'center', md: 'center' }}
-                                            ml={{ base: 0, md: 4 }}
-                                            display="flex"
-                                          >
-                                            {asset.isListed ? "Deslistar" : "Listar"}
-                                          </Button>
-                                        </List.Item>
-                                      );
+                                        const referenceHash = asset.referenceHash || asset.hash || null;
+                                        const assetImage = referenceHash
+                                            ? "https://ipfsweb.raptoreum.com/ipfs/" + referenceHash
+                                            : null;
+                                        return (
+                                            <List.Item
+                                                key={asset.id}
+                                                className="asset-list-item"
+                                                display="flex"
+                                                alignItems="center"
+                                                bg="white"
+                                                borderRadius="md"
+                                                boxShadow="sm"
+                                                p={2}
+                                                mb={1}
+                                            >
+                                                {assetImage && (
+                                                    <img
+                                                        src={assetImage}
+                                                        alt={asset.name || asset.nombre}
+                                                        className="asset-img-responsive"
+                                                        style={{ width: 80, height: 'auto', marginRight: 16, borderRadius: 8, objectFit: 'contain' }}
+                                                    />
+                                                )}
+                                                <Box
+                                                    flexGrow={1}
+                                                    onClick={() => navigate(`/asset/${asset.id}`)}
+                                                    cursor="pointer"
+                                                    _hover={{ bg: "gray.50" }}
+                                                >
+                                                    <Text fontWeight="bold" color="#003459">Nombre: {asset.name || asset.nombre}</Text>
+                                                    <Text fontSize="xs" color="gray.500">Asset ID (Ticker): {asset.asset_id}</Text>
+                                                    <Text fontSize="xs" color="gray.500">DB ID: {asset.id}</Text>
+                                                    <Text fontSize="xs" color={asset.isListed ? "green.500" : "red.500"} fontWeight="bold">
+                                                        Estado: {asset.isListed ? "Listado" : "No Listado"}
+                                                    </Text>
+                                                    {asset.price !== undefined && (
+                                                        <Text fontSize="sm" color="#007ea7" fontWeight="bold">Precio: {asset.price} RTM</Text>
+                                                    )}
+                                                </Box>
+                                                <Button
+                                                    className="asset-action-btn"
+                                                    mt={{ base: 2, md: 0 }}
+                                                    size="sm"
+                                                    bg="#003459"
+                                                    color="white"
+                                                    borderRadius="10px"
+                                                    _hover={{ bg: '#005080', color: 'white' }}
+                                                    onClick={() => handleToggleListing(asset.id, asset.isListed)}
+                                                    isLoading={updatingAssetId === asset.id}
+                                                    isDisabled={updatingAssetId === asset.id}
+                                                    width={{ base: '50%', md: 'auto' }}
+                                                    alignSelf={{ base: 'center', md: 'center' }}
+                                                    ml={{ base: 0, md: 4 }}
+                                                    display="flex"
+                                                >
+                                                    {asset.isListed ? "Deslistar" : "Listar"}
+                                                </Button>
+                                            </List.Item>
+                                        );
                                     })}
                                 </List.Root>
                             ) : null}
@@ -272,10 +378,10 @@ function Account() {
                 <Text color="gray.500" mb={4}>No tienes wallets asociadas o no contienen assets.</Text>
             )}
             <InfoModal
-              isOpen={showInfoModal}
-              onClose={() => setShowInfoModal(false)}
-              title="Información"
-              message={infoMessage}
+                isOpen={showInfoModal}
+                onClose={() => setShowInfoModal(false)}
+                title="Información"
+                message={infoMessage}
             />
         </Box>
     );

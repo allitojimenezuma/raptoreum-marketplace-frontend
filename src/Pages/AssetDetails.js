@@ -1,7 +1,8 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
-import { Box, Heading, Image, Text, Spinner, Center, Button, Input, VStack, DialogRoot, DialogTrigger, DialogBackdrop, DialogPositioner, DialogContent, DialogHeader, DialogBody, DialogFooter, DialogCloseTrigger, DialogTitle } from '@chakra-ui/react';
+import { Box, Heading, Image, Text, Spinner, Center, Button, Input, VStack, DialogRoot, DialogTrigger, DialogBackdrop, DialogPositioner, DialogContent, DialogHeader, DialogBody, DialogFooter, DialogCloseTrigger, DialogTitle, Textarea, HStack, IconButton } from '@chakra-ui/react';
+
 import { toaster } from '../Components/ui/toaster';
 
 const getAsset = async (id) => {
@@ -37,6 +38,9 @@ const AssetDetail = () => {
   const [showEditPrice, setShowEditPrice] = useState(false);
   const [newPrice, setNewPrice] = useState('');
   const [isUpdatingPrice, setIsUpdatingPrice] = useState(false);
+  const [showEditDescription, setShowEditDescription] = useState(false);
+  const [newDescription, setNewDescription] = useState('');
+  const [isUpdatingDescription, setIsUpdatingDescription] = useState(false);
 
   const fetchLoggedInUser = async () => {
     const token = localStorage.getItem('token');
@@ -320,8 +324,6 @@ const AssetDetail = () => {
     // });
   };
 
-
-
   // Handler para actualizar el precio
   const handleUpdatePrice = async () => {
     if (!newPrice || isNaN(newPrice) || Number(newPrice) < 0) {
@@ -352,6 +354,40 @@ const AssetDetail = () => {
       setIsUpdatingPrice(false);
     }
   };
+
+  // Handler to update the description
+  const handleUpdateDescription = async () => {
+    if (newDescription.trim() === '') {
+      toaster.create({ title: 'La descripción no puede estar vacía.', type: 'error', duration: 6000 });
+      return;
+    }
+    setIsUpdatingDescription(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:3000/assets/updateDescription/${asset.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ description: newDescription }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.message || 'Error al actualizar la descripción');
+      }
+      toaster.create({ title: data.message || 'Descripción actualizada correctamente', type: 'success', duration: 6000 });
+      setShowEditDescription(false);
+      // Update local state to show the change immediately
+      setAsset({ ...asset, description: newDescription, descripcion: newDescription });
+    } catch (err) {
+      toaster.create({ title: err.message || 'Error al actualizar la descripción', type: 'error', duration: 6000 });
+    } finally {
+      setIsUpdatingDescription(false);
+    }
+  };
+
+
 
 
   useEffect(() => {
@@ -433,75 +469,129 @@ const AssetDetail = () => {
             Propietario: {asset.ownerName} -  {asset.Wallet.direccion}
           </Text>
         )}
-        {precio && (
-          <Box display="flex" alignItems="center" justifyContent="center" width="100%" mt={2}>
-            <Text style={{ color: '#007ea7', fontWeight: 'bold' }} fontSize="xl">
-              Precio: {precio} RTM
-              {isFetchingRate && <Spinner size="xs" ml={2} />}
-              {usdPrice && !isFetchingRate && ` (${usdPrice} USD)`}
-              {!rtmToUsdRate && !isFetchingRate && precio !== null && (
-                <Text as="span" fontSize="sm" color="gray.500" ml={1}>(No se pudo cargar precio en USD)</Text>
-              )}
-            </Text>
-            {isOwner && (
-              showEditPrice ? (
-                <Box display="flex" alignItems="center" ml={4}>
-                  <Input
-                    type="number"
-                    min="0"
-                    step="any"
-                    value={newPrice}
-                    onChange={e => setNewPrice(e.target.value)}
-                    placeholder="Nuevo precio (RTM)"
-                    borderColor="#003459"
-                    focusBorderColor="#007ea7"
-                    color="#003459"
-                    width="110px"
-                    fontSize="md"
-                    mr={2}
-                  />
-                  <Button
-                    bg="#003459"
-                    color="#fff"
-                    borderRadius="10px"
-                    isLoading={isUpdatingPrice}
-                    onClick={handleUpdatePrice}
-                    _hover={{ bg: '#005080' }}
-                    width="70px"
-                    fontSize="sm"
-                    mr={1}
-                  >
-                    Guardar
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    color="#003459"
-                    onClick={() => { setShowEditPrice(false); setNewPrice(precio); }}
-                    fontSize="sm"
-                  >
-                    Cancelar
-                  </Button>
-                </Box>
-              ) : (
+        <Box display="flex" alignItems="center" justifyContent="center" width="100%" mt={2}>
+          <Text style={{ color: '#007ea7', fontWeight: 'bold' }} fontSize="xl">
+            Precio: {precio} RTM
+            {isFetchingRate && <Spinner size="xs" ml={2} />}
+            {usdPrice && !isFetchingRate && ` (${usdPrice} USD)`}
+            {!rtmToUsdRate && !isFetchingRate && precio !== null && (
+              <Text as="span" fontSize="sm" color="gray.500" ml={1}>(No se pudo cargar precio en USD)</Text>
+            )}
+          </Text>
+          {isOwner && (
+            showEditPrice ? (
+              <Box display="flex" alignItems="center" ml={4}>
+                <Input
+                  type="number"
+                  min="0"
+                  step="any"
+                  value={newPrice}
+                  onChange={e => setNewPrice(e.target.value)}
+                  placeholder="Nuevo precio (RTM)"
+                  borderColor="#003459"
+                  focusBorderColor="#007ea7"
+                  color="#003459"
+                  width="110px"
+                  fontSize="md"
+                  mr={2}
+                />
                 <Button
                   bg="#003459"
                   color="#fff"
                   borderRadius="10px"
-                  ml={4}
-                  fontSize="sm"
-                  onClick={() => { setShowEditPrice(true); setNewPrice(precio); }}
+                  isLoading={isUpdatingPrice}
+                  onClick={handleUpdatePrice}
                   _hover={{ bg: '#005080' }}
-                  style={{ width: '120px', minWidth: '120px', maxWidth: '35%' }}
+                  width="70px"
+                  fontSize="sm"
+                  mr={1}
                 >
-                  Modificar precio
+                  Guardar
                 </Button>
-              )
-            )}
-          </Box>
+                <Button
+                  variant="ghost"
+                  color="#003459"
+                  onClick={() => { setShowEditPrice(false); setNewPrice(precio); }}
+                  fontSize="sm"
+                >
+                  Cancelar
+                </Button>
+              </Box>
+            ) : (
+              <Button
+                bg="#003459"
+                color="#fff"
+                borderRadius="10px"
+                ml={4}
+                fontSize="sm"
+                onClick={() => { setShowEditPrice(true); setNewPrice(precio); }}
+                _hover={{ bg: '#005080' }}
+                style={{ width: '120px', minWidth: '120px', maxWidth: '35%' }}
+              >
+                Modificar precio
+              </Button>
+            )
+          )}
+        </Box>
+
+        {/* Description editing section */}
+        {isOwner ? (
+          showEditDescription ? (
+            <VStack spacing={2} mt={4} align="stretch" width="100%">
+              <Textarea
+                value={newDescription}
+                onChange={(e) => setNewDescription(e.target.value)}
+                placeholder="Nueva descripción"
+                borderColor="#003459"
+                focusBorderColor="#007ea7"
+                color="#003459"
+              />
+              <HStack justifyContent="center">
+                <Button
+                  bg="#003459"
+                  color="#fff"
+                  borderRadius="10px"
+                  isLoading={isUpdatingDescription}
+                  onClick={handleUpdateDescription}
+                  _hover={{ bg: '#005080' }}
+                  size="sm"
+                >
+                  Guardar
+                </Button>
+                <Button
+                  variant="ghost"
+                  color="#003459"
+                  onClick={() => setShowEditDescription(false)}
+                  size="sm"
+                >
+                  Cancelar
+                </Button>
+              </HStack>
+            </VStack>
+                  ) : (
+            <HStack mt={2} align="center" justifyContent="center">
+              <Text fontSize="md" color="gray.700">{descripcion || 'Sin descripción.'}</Text>
+              <Button
+                bg="#003459"
+                color="#fff"
+                borderRadius="10px"
+                ml={4}
+                fontSize="sm"
+                onClick={() => {
+                  setShowEditDescription(true);
+                  setNewDescription(descripcion);
+                }}
+              >
+                Editar Descripción
+              </Button>
+            </HStack>
+          )
+        ) : (
+          descripcion && (
+            <Text mt={2} fontSize="md" color="gray.700">{descripcion}</Text>
+          )
         )}
-        {descripcion && (
-          <Text mt={2} fontSize="md" color="gray.700">{descripcion}</Text>
-        )}
+
         {isOwner && (
           <VStack spacing={4} mt={4} align="stretch">
             <Text fontSize="md" color="green.600" fontWeight="bold" mb="6">¡Eres el dueño de este asset!</Text>
@@ -623,6 +713,8 @@ const AssetDetail = () => {
             )}
           </Center>
         )}
+
+
         {/* Sección de enlaces a RRSS de Unknown Gravity con iconos mejorados y más reconocibles */}
         <Box mt={6} mb={2} display="flex" flexDirection="row" justifyContent="center" gap="22px" alignItems="center">
           <a href="https://www.unknowngravity.com/" target="_blank" rel="noopener noreferrer" title="Web">
