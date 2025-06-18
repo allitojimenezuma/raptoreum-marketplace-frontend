@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Box, Button, Input, Heading, FieldRoot, FieldLabel } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
+import { toaster } from '../Components/ui/toaster';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -10,10 +11,6 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email || !password || !name) {
-      alert('Por favor, completa todos los campos');
-      return;
-    }
     try {
       const response = await fetch('http://localhost:3000/auth/signup', {
         method: 'POST',
@@ -25,13 +22,32 @@ const Signup = () => {
       if (response.ok) {
         const data = await response.json();
         console.log('Usuario creado:', data);
-        navigate('/login');
+        toaster.create({
+          type: 'success',
+          title: 'Usuario creado',
+          description: '¡Registro realizado! Ahora confírmalo con el email recibido.',
+          duration: 12000,
+          closable: true,
+        });
+        setTimeout(() => navigate('/login'), 1200); // Pequeño delay para mostrar el toast
       } else {
         const errorData = await response.json().catch(() => ({}));
-        alert('Error al crear el usuario: ' + (errorData.message || 'Error desconocido'));
+        toaster.create({
+          type: 'success',
+          title: 'Error',
+          description: 'Error al crear el usuario: ' + (errorData.message || 'Error desconocido'),
+          duration: 12000,
+          closable: true,
+        });
       }
     } catch (err) {
-      alert('Error de red o servidor.');
+      toaster.create({
+        type: 'success',
+        title: 'Error',
+        description: 'Error de red o servidor.',
+        duration: 12000,
+        closable: true,
+      });
     }
   };
 
