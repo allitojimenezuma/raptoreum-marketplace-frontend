@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { Box, Heading, Image, Text, Spinner, Center, Button, Input, VStack, DialogRoot, DialogTrigger, DialogBackdrop, DialogPositioner, DialogContent, DialogHeader, DialogBody, DialogFooter, DialogCloseTrigger, DialogTitle } from '@chakra-ui/react';
@@ -19,6 +19,7 @@ const getAsset = async (id) => {
 
 const AssetDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate(); // <-- Añadido para redirección
   const [asset, setAsset] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loggedInUserId, setLoggedInUserId] = useState(null);
@@ -66,27 +67,28 @@ const AssetDetail = () => {
 
   const sendAsset = async () => {
     if (!destinationAddress.trim()) {
-      toaster.create({ title: 'Por favor, ingresa una dirección de destino válida.', type: 'error', duration: 10000 });
+      toaster.create({ title: 'Por favor, ingresa una dirección de destino válida.', type: 'error', duration: 10000, bg: '#003459', color: 'white', borderColor: '#003459', borderWidth: '1px' });
       return;
     }
 
-    // Ensure asset and asset.asset_id are available
     if (!asset || !asset.asset_id) {
       console.error('Asset data or asset_id is missing for sending.');
-      toaster.create({ title: 'No se pudo obtener la información necesaria del asset para el envío.', type: 'error', duration: 10000 });
+      toaster.create({ title: 'No se pudo obtener la información necesaria del asset para el envío.', type: 'error', duration: 10000, bg: '#003459', color: 'white', borderColor: '#003459', borderWidth: '1px' });
       return;
     }
 
-    console.log('Intentando enviar asset (ticker):', asset.asset_id, 'a la dirección:', destinationAddress);
+    // Guardar el id del toaster de loading
+    const loadingToastId = toaster.create({ title: 'Procesando transferencia...', description: 'Por favor, espera mientras se transfiere el asset.', type: 'loading', duration: 10000, bg: '#003459', color: 'white', borderColor: '#003459', borderWidth: '1px' });
+
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        toaster.create({ title: 'No estás autenticado. Por favor, inicia sesión para enviar el asset.', type: 'error', duration: 10000 });
+        toaster.create({ title: 'No estás autenticado. Por favor, inicia sesión para enviar el asset.', type: 'error', duration: 10000, bg: '#003459', color: 'white', borderColor: '#003459', borderWidth: '1px' });
+        toaster.dismiss(loadingToastId); // Cerrar loading si hay error
         return;
       }
 
       const url = `http://localhost:3000/assets/send`;
-      console.log('URL de envío:', url);
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -99,35 +101,29 @@ const AssetDetail = () => {
         }),
       });
 
-
-      console.log('Respuesta recibida del envío:', response);
       let responseData = {};
       try {
         responseData = await response.json();
       } catch (e) {
-        console.error("Could not parse JSON response:", e);
         if (!response.ok) {
           const errorText = await response.text();
           responseData = { message: errorText || "Error en la respuesta del servidor." };
         }
       }
 
+      toaster.dismiss(loadingToastId); // Cerrar loading al recibir respuesta
 
       if (response.ok) {
-        console.log('Envío exitoso, respuesta backend:', responseData);
-        toaster.create({ title: 'Envío exitoso', description: responseData.message || `El asset ha sido enviado correctamente. TXID: ${responseData.txid}`, type: 'success', duration: 10000 });
+        toaster.create({ title: 'Envío exitoso', description: responseData.message || `El asset ha sido enviado correctamente. TXID: ${responseData.txid}`, type: 'success', duration: 10000, bg: '#003459', color: 'white', borderColor: '#003459', borderWidth: '1px' });
         setDestinationAddress('');
-        getAsset(id).then(setAsset);
-
-
-
+        // Redirigir a Account.js tras un pequeño delay para que el usuario vea el toaster
+        setTimeout(() => navigate('/account'), 1500);
       } else {
-        console.log('Error en el envío, status:', response.status, 'responseData:', responseData);
-        toaster.create({ title: 'Error en el envío', description: responseData.message || `Error ${response.status}`, type: 'error', duration: 10000 });
+        toaster.create({ title: 'Error en el envío', description: responseData.message || `Error ${response.status}`, type: 'error', duration: 10000, bg: '#003459', color: 'white', borderColor: '#003459', borderWidth: '1px' });
       }
     } catch (err) {
-      console.log('Error de red o servidor al intentar enviar el asset:', err);
-      toaster.create({ title: 'Error de red o servidor al intentar enviar el asset.', type: 'error', duration: 10000 });
+      toaster.dismiss(loadingToastId); // Cerrar loading si hay error
+      toaster.create({ title: 'Error de red o servidor al intentar enviar el asset.', type: 'error', duration: 10000, bg: '#003459', color: 'white', borderColor: '#003459', borderWidth: '1px' });
     }
   };
 
