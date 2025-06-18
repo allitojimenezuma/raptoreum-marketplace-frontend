@@ -15,7 +15,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoginError('');
-    const response = await fetch('http://localhost:3000/auth/login', {
+    const response = await fetch('https://rtm.api.test.unknowngravity.com/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -40,7 +40,7 @@ const Login = () => {
 
   const handleForgotPassword = async (email) => {
     try {
-      const response = await fetch('http://localhost:3000/user/request-password-change', {
+      const response = await fetch('https://rtm.api.test.unknowngravity.com/user/request-password-change', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -16,7 +16,7 @@ const ImportAsset = () => {
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3000/assets/importAsset', {
+      const response = await fetch('https://rtm.api.test.unknowngravity.com/assets/importAsset', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -7,7 +7,7 @@ import { toaster } from '../Components/ui/toaster';
 
 const getAsset = async (id) => {
   try {
-    const response = await fetch('http://localhost:3000/asset/' + id);
+    const response = await fetch('https://rtm.api.test.unknowngravity.com/asset/' + id);
     if (!response.ok) {
       throw new Error('Error al obtener los activos');
     }
@@ -48,7 +48,7 @@ const AssetDetail = () => {
       try {
         const decodedToken = jwtDecode(token);
         // Fetch user info to get the ID, similar to Account.js
-        const response = await fetch('http://localhost:3000/user/info', {
+        const response = await fetch('https://rtm.api.test.unknowngravity.com/user/info', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -92,7 +92,7 @@ const AssetDetail = () => {
         return;
       }
 
-      const url = `http://localhost:3000/assets/send`;
+      const url = `https://rtm.api.test.unknowngravity.com/assets/send`;
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -145,7 +145,7 @@ const AssetDetail = () => {
       // setMessage eliminado, solo toaster
       const token = localStorage.getItem('token');
       console.log('Token recuperado:', token);
-      const url = `http://localhost:3000/assets/buy/${asset.id}`;
+      const url = `https://rtm.api.test.unknowngravity.com/assets/buy/${asset.id}`;
       console.log('URL de compra:', url);
       const response = await fetch(url, {
         method: 'POST',
@@ -188,7 +188,7 @@ const AssetDetail = () => {
     if (token) {
       setIsCheckingBalance(true);
       try {
-        const response = await fetch('http://localhost:3000/user/balance', {
+        const response = await fetch('https://rtm.api.test.unknowngravity.com/user/balance', {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -221,7 +221,7 @@ const AssetDetail = () => {
   const fetchRtmToUsdRate = async () => {
     setIsFetchingRate(true);
     // Use your backend endpoint
-    const url = `http://localhost:3000/get-rtm-price`;
+    const url = `https://rtm.api.test.unknowngravity.com/get-rtm-price`;
 
     try {
       // No API key or special headers needed for this call to your backend
@@ -290,7 +290,7 @@ const AssetDetail = () => {
     setOfferLoading(true); // Keep this for the button's loading state
 
 
-    const apiCall = fetch(`http://localhost:3000/offers/makeOffer`, { // Updated endpoint
+    const apiCall = fetch(`https://rtm.api.test.unknowngravity.com/offers/makeOffer`, { // Updated endpoint
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -333,7 +333,7 @@ const AssetDetail = () => {
     setIsUpdatingPrice(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3000/assets/updatePrice/${asset.id}`, {
+      const response = await fetch(`https://rtm.api.test.unknowngravity.com/assets/updatePrice/${asset.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -364,7 +364,7 @@ const AssetDetail = () => {
     setIsUpdatingDescription(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3000/assets/updateDescription/${asset.id}`, {
+      const response = await fetch(`https://rtm.api.test.unknowngravity.com/assets/updateDescription/${asset.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

@@ -35,7 +35,7 @@ const Navbar = () => {
     }
     // Si hay token, obtener el balance
     if (token) {
-      fetch('http://localhost:3000/user/balance', {
+      fetch('https://rtm.api.test.unknowngravity.com/user/balance', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,

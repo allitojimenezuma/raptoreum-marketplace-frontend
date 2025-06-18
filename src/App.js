@@ -33,7 +33,7 @@ async function isTokenValid(token) {
     const email = decoded.email;
     try {
       const body = JSON.stringify({ email: email });
-      const response = await fetch('http://localhost:3000/user/token', {
+      const response = await fetch('https://rtm.api.test.unknowngravity.com/user/token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

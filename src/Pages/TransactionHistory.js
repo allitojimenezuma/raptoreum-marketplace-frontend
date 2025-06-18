@@ -12,9 +12,9 @@ const TransactionHistory = ({ assetId }) => {
       setLoading(true);
       let url, headers = {};
       if (assetId) {
-        url = `http://localhost:3000/assets/${assetId}/history`;
+        url = `https://rtm.api.test.unknowngravity.com/assets/${assetId}/history`;
       } else {
-        url = 'http://localhost:3000/user/history';
+        url = 'https://rtm.api.test.unknowngravity.com/user/history';
         const token = localStorage.getItem('token');
         if (!token) {
           toaster.create({

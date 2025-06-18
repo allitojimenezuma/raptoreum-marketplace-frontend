@@ -10,7 +10,7 @@ const getUserData = async (token) => {
     try {
         const decoded = jwtDecode(token);
         const body = JSON.stringify({ email: decoded.email });
-        const response = await fetch('http://localhost:3000/user/info', {
+        const response = await fetch('https://rtm.api.test.unknowngravity.com/user/info', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -59,7 +59,7 @@ function Account() {
                 return;
             }
 
-            const response = await fetch('http://localhost:3000/user/request-password-change', { // URL CORREGIDA
+            const response = await fetch('https://rtm.api.test.unknowngravity.com/user/request-password-change', { // URL CORREGIDA
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -101,7 +101,7 @@ function Account() {
         }
 
         try {
-            const response = await fetch(`http://localhost:3000/assets/${assetDbId}/toggle-listing`, {
+            const response = await fetch(`https://rtm.api.test.unknowngravity.com/assets/${assetDbId}/toggle-listing`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -162,7 +162,7 @@ function Account() {
         }
 
         try {
-            const response = await fetch(`http://localhost:3000/assets/missingAssets`, {
+            const response = await fetch(`https://rtm.api.test.unknowngravity.com/assets/missingAssets`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -180,7 +180,7 @@ function Account() {
                     const confirmImport = window.confirm(`Se encontraron los siguientes assets que no están registrados en la plataforma: ${missingAssets}. ¿Deseas importarlos?`);
                     if (confirmImport) {
                         // Step 2: If confirmed, call the import endpoint
-                        const importApiCall = fetch(`http://localhost:3000/assets/importMissingAssets`, {
+                        const importApiCall = fetch(`https://rtm.api.test.unknowngravity.com/assets/importMissingAssets`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',

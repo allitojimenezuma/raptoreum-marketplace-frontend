@@ -29,7 +29,7 @@ const Offers = () => {
         return;
       }
       try {
-        const response = await fetch('http://localhost:3000/offers/my/received', { // Updated endpoint
+        const response = await fetch('https://rtm.api.test.unknowngravity.com/offers/my/received', { // Updated endpoint
           headers: { Authorization: `Bearer ${token}` },
         });
         if (response.ok) {
@@ -58,7 +58,7 @@ const Offers = () => {
         return;
       }
       try {
-        const response = await fetch('http://localhost:3000/offers/my/made', { // Updated endpoint
+        const response = await fetch('https://rtm.api.test.unknowngravity.com/offers/my/made', { // Updated endpoint
           headers: { Authorization: `Bearer ${token}` },
         });
         if (response.ok) {
@@ -99,7 +99,7 @@ const Offers = () => {
       toaster.create({ title: 'Procesando compra en blockchain', description: 'Espere unos minutos antes de recargar la página.', type: 'info', duration: 12000 });
     }
 
-    const apiCall = fetch(`http://localhost:3000/offers/${offerId}/${action}`, {
+    const apiCall = fetch(`https://rtm.api.test.unknowngravity.com/offers/${offerId}/${action}`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
     }).then(async (response) => {
@@ -142,7 +142,7 @@ const Offers = () => {
     }
     const offer = sentOffers.find(o => o.id === offerId);
     console.log('[Cancelar Oferta] Objeto offer:', offer);
-    const apiCall = fetch(`http://localhost:3000/offers/${offerId}/cancel`, {
+    const apiCall = fetch(`https://rtm.api.test.unknowngravity.com/offers/${offerId}/cancel`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`

@@ -5,7 +5,7 @@ import { jwtDecode } from 'jwt-decode'; // Import jwtDecode
 
 const getAssets = async () => {
   try {
-    const response = await fetch('http://localhost:3000/assets');
+    const response = await fetch('https://rtm.api.test.unknowngravity.com/assets');
     if (!response.ok) {
       throw new Error('Error al obtener los activos');
     }
@@ -27,7 +27,7 @@ const Home = () => {
         try {
           const decodedToken = jwtDecode(token);
           // Fetch user info to get the ID, similar to Account.
-          const response = await fetch('http://localhost:3000/user/info', {
+          const response = await fetch('https://rtm.api.test.unknowngravity.com/user/info', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

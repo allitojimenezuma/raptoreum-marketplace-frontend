@@ -96,7 +96,7 @@ const CreateAsset = () => {
                 formData.append('foto', foto); // archivo tal cual, no base64
             }
 
-            const response = await fetch('http://localhost:3000/assets/createAsset', {
+            const response = await fetch('https://rtm.api.test.unknowngravity.com/assets/createAsset', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
