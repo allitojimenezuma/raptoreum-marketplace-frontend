@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
-// Updated Chakra UI imports for Toast
 import { Box, Heading, Text, VStack, List, Button, Flex, Spacer, createToaster } from '@chakra-ui/react';
-// import { AtSignIcon, StarIcon } from '@chakra-ui/icons';
 import { jwtDecode } from 'jwt-decode';
 import { InfoModal } from '../Components/PasswordModals'; // Asegúrate que la ruta es correcta
 import { useNavigate } from 'react-router-dom';
@@ -23,7 +21,7 @@ const getUserData = async (token) => {
         if (!response.ok) throw new Error('No se pudo obtener el usuario');
         return await response.json();
     } catch (error) {
-        console.error("Error en getUserData:", error); // Added console.error for better debugging
+        console.error("Error en getUserData:", error); // Añadido console.error para depuración
         return null;
     }
 };
@@ -35,7 +33,6 @@ function Account() {
     const [showInfoModal, setShowInfoModal] = React.useState(false);
     const [infoMessage, setInfoMessage] = React.useState('');
     const navigate = useNavigate();
-    // const toast = useToast(); // This line is removed/replaced by the createToaster instance above
     const [updatingAssetId, setUpdatingAssetId] = useState(null);
 
     useEffect(() => {
@@ -47,7 +44,6 @@ function Account() {
             });
         } else {
             setLoading(false); // No token, stop loading
-            // Optionally navigate to login or show a message
         }
     }, []);
 
@@ -95,7 +91,7 @@ function Account() {
             toaster.create({ 
                 title: "Por favor, inicia sesión.", 
                 type: "error",
-                duration: 5000 
+                duration: 8000 
             });
             setUpdatingAssetId(null);
             return;
@@ -118,7 +114,7 @@ function Account() {
                 toaster.create({ 
                     title: "Estado de listado actualizado.", 
                     type: "success",
-                    duration: 5000 
+                    duration: 8000 
                 });
                 setUserData(prevUserData => {
                     if (!prevUserData || !prevUserData.wallets) return prevUserData;
@@ -142,7 +138,7 @@ function Account() {
             toaster.create({ 
                 title: "Error al actualizar el estado de listado.", 
                 type: "error",
-                duration: 5000 
+                duration: 8000 
             });
         } finally {
             setUpdatingAssetId(null);
