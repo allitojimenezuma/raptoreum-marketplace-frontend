@@ -94,7 +94,7 @@ function Account() {
             toaster.create({
                 title: "Por favor, inicia sesión.",
                 type: "error",
-                duration: 8000 
+                duration: 8000
             });
             setUpdatingAssetId(null);
             return;
@@ -117,7 +117,7 @@ function Account() {
                 toaster.create({
                     title: "Estado de listado actualizado.",
                     type: "success",
-                    duration: 8000 
+                    duration: 8000
                 });
                 setUserData(prevUserData => {
                     if (!prevUserData || !prevUserData.wallets) return prevUserData;
@@ -141,7 +141,7 @@ function Account() {
             toaster.create({
                 title: "Error al actualizar el estado de listado.",
                 type: "error",
-                duration: 8000 
+                duration: 8000
             });
         } finally {
             setUpdatingAssetId(null);
@@ -247,33 +247,39 @@ function Account() {
     const { user, wallets } = userData;
 
 
-    // console.log('User:', user);
-    // console.log('Wallets:', wallets);
-
     return (
         <Box maxW="800px" mx="auto" mt={10} p={6} bg="white" borderRadius="10px" boxShadow="0 8px 32px 0 rgba(0,52,89,0.25), 0 3px 12px 0 #003459" color="#003459" style={{ border: '3px solid #003459' }}>
-            {/* 
-              IMPORTANT: The <Toaster /> component needs to be rendered for toasts to appear.
-              It's usually placed once at the root of your application (e.g., in App.js or your main layout).
-              If you only need toasts on this page, you can place it here, but global placement is common.
-              For example: <Toaster position="top-right" />
-            */}
             <Heading mb={4} color="#003459" fontWeight="bold" fontSize="2xl" fontFamily="inherit">Mi Cuenta</Heading>
-            <VStack align="start" spacing={2} mb={4}>
+            <VStack align="start" spacing={2} mb={10}>
                 <Text><b>Nombre:</b> {user.name}</Text>
                 <Text><b>Email:</b> {user.email}</Text>
                 <Text><b>ID:</b> {user.id}</Text>
-                <Button
-                    bg="#003459"
-                    color="white"
-                    borderRadius="10px"
-                    _hover={{ bg: '#005080', color: 'white' }}
-                    onClick={handleChangePassword}
-                    mt={4}
-                    type="button"
-                >
-                    Cambiar contraseña
-                </Button>
+                <Flex width="100%" alignItems="center" justifyContent="space-between">
+
+                    <Button
+                        bg="#003459"
+                        color="white"
+                        borderRadius="10px"
+                        _hover={{ bg: '#005080', color: 'white' }}
+                        onClick={handleChangePassword}
+                        type="button"
+                    >
+                        Cambiar contraseña
+                    </Button>
+
+                     <Button
+                        bg="#003459"
+                        color="white"
+                        borderRadius="10px"
+                        _hover={{ bg: '#005080', color: 'white' }}
+                        onClick={ () => navigate('/history') }
+                        type="button"
+                    >
+                        Ver historial de la cuenta
+                    </Button>
+
+                </Flex>
+
             </VStack>
             <Flex display="flex" alignItems="center" mb={4} justifyContent="space-between">
                 <Heading color="#003459" fontWeight="bold" fontSize="2xl" fontFamily="inherit">Mis Wallets y Assets</Heading>

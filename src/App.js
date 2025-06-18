@@ -7,6 +7,8 @@ import AssetDetail from './Pages/AssetDetails';
 import Login from './Pages/Login';
 import Signup from './Pages/Signup';
 import Account from './Pages/Account';
+import TransactionHistory from './Pages/TransactionHistory'; // Import the new page
+import AssetHistoryWrapper from './Components/AssetHistoryWrapper'; // Import the wrapper component
 import CreateAsset from './Pages/CreateAsset';
 import AssetDetails from './Pages/AssetDetails';
 import ImportAsset from './Pages/ImportAsset';
@@ -134,6 +136,22 @@ function App() {
               element={
                 <PrivateRoute>
                   <Offers />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/history"
+              element={
+                <PrivateRoute>
+                  <TransactionHistory />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/asset/:id/history"
+              element={
+                <PrivateRoute>
+                  <AssetHistoryWrapper />
                 </PrivateRoute>
               }
             />

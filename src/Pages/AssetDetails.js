@@ -568,7 +568,7 @@ const AssetDetail = () => {
                 </Button>
               </HStack>
             </VStack>
-                  ) : (
+          ) : (
             <HStack mt={2} align="center" justifyContent="center">
               <Text fontSize="md" color="gray.700">{descripcion || 'Sin descripción.'}</Text>
               <Button
@@ -713,6 +713,21 @@ const AssetDetail = () => {
             )}
           </Center>
         )}
+        <Center flexDirection="column" width="100%">
+
+          <Button
+            bg="#003459"
+            color="#fff"
+            borderRadius="10px"
+            width="50%"
+            onClick={() => navigate(`/asset/${asset.asset_id}/history`)}
+            isLoading={offerLoading}
+            _hover={{ bg: '#005080' }}
+          >
+            Ver historial de este asset
+          </Button>
+
+        </Center>
 
 
         {/* Sección de enlaces a RRSS de Unknown Gravity con iconos mejorados y más reconocibles */}
