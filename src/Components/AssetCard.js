@@ -116,7 +116,7 @@ const AssetCard = ({ asset, loggedInUserId }) => {
         {/* Mostrar el precio debajo del nombre */}
         {precio && (
           <Text style={{ color: '#007ea7', fontWeight: 'bold' }} fontSize="md" mt={1}>
-            Precio: {precio} RTM
+            Precio: {Number(precio) % 1 === 0 ? Number(precio) : Number(precio).toFixed(2)} RTM
           </Text>
         )}
       </Box>
