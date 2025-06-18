@@ -11,6 +11,7 @@ import {
     Image,
     For
 } from '@chakra-ui/react';
+import { toaster } from '../Components/ui/toaster';
 
 const CreateAsset = () => {
     const [nombre, setNombre] = useState('');
@@ -53,17 +54,37 @@ const CreateAsset = () => {
 
         setIsSubmitting(true);
 
+        // Solo mostrar el toaster de "Procesando" si los datos son válidos
         if (!nombre || !descripcion || !precio) {
-            setError('Todos los campos son obligatorios');
+            toaster.error({
+                title: 'Campos obligatorios',
+                description: 'Todos los campos son obligatorios',
+                duration: 4000,
+            });
             setIsSubmitting(false);
             return;
         }
 
         if (!isNombreValido(nombre)) {
-            setError('El nombre no es válido.');
+            toaster.error({
+                title: 'Nombre inválido',
+                description: 'El nombre no es válido.',
+                duration: 10000,
+            });
             setIsSubmitting(false);
             return;
         }
+
+        toaster.info({
+            title: 'Procesando',
+            description: 'Enviando datos para crear el asset... Por favor, espera.',
+            duration: 10000,
+        });
+        const loadingToast = toaster.loading({
+            title: 'Creando asset',
+            description: 'El asset se está creando, por favor espera...',
+            duration: null,
+        });
 
         try {
             const token = localStorage.getItem('token');
@@ -93,12 +114,23 @@ const CreateAsset = () => {
             setPreview('');
 
             const data = await response.json();
-            alert(data.message);
+            toaster.dismiss(loadingToast);
+            toaster.success({
+                title: '¡Asset creado!',
+                description: data.message,
+                duration: 7000,
+            });
 
         } catch (err) {
-            setError('No se pudo crear el asset');
+            toaster.dismiss(loadingToast);
+            toaster.error({
+                title: 'Error',
+                description: 'No se pudo crear el asset',
+                duration: 7000,
+            });
         } finally {
             setIsSubmitting(false);
+            toaster.dismiss(loadingToast); // Dismiss the loading toast
         }
     };
 
@@ -176,11 +208,11 @@ const CreateAsset = () => {
                             </Box>
                         )}
                     </FieldRoot>
-                    {error && (
+                    {/* {error && (
                         <Box color="red.500" fontSize="sm" mt={-2}>
                             {error}
                         </Box>
-                    )}
+                    )} */}
                     <Button
                         bg="#003459"
                         color="white"
