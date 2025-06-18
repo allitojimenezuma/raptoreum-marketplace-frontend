@@ -1,6 +1,7 @@
 import { Box, Text, LinkBox, LinkOverlay, Image } from '@chakra-ui/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { useFitText } from './useFitText';
 
 const AssetCard = ({ asset, loggedInUserId }) => {
   // Compatibilidad para assets que vienen con diferentes nombres de campos
@@ -14,14 +15,14 @@ const AssetCard = ({ asset, loggedInUserId }) => {
   const [zoomed, setZoomed] = useState(false);
   const ownerId = asset.Wallet.UsuarioId;
   const navigate = useNavigate();
+  const isOwner = loggedInUserId && ownerId && String(loggedInUserId) === String(ownerId);
+  const [fitRef, fitFontSize] = useFitText(24, 12); // Tamaño máximo y mínimo
 
   const handleCardClick = (e) => {
     // Evita que el click en un link dentro de la tarjeta dispare doble navegación
     if (e.target.tagName === 'A') return;
     navigate(`/asset/${asset.id}`);
   };
-
-  const isOwner = loggedInUserId && ownerId && String(loggedInUserId) === String(ownerId);
 
   return (
     <LinkBox
@@ -88,7 +89,23 @@ const AssetCard = ({ asset, loggedInUserId }) => {
       </Box>
       <Box p="4" textAlign="center" bg="#f7fafc" style={{ borderBottomLeftRadius: '21px', borderBottomRightRadius: '21px' }}>
         <LinkOverlay as={Link} to={`/asset/${asset.id}`} onClick={e => e.stopPropagation()}>
-          <Text fontWeight="bold" fontSize="lg" color="#003459">{nombre}</Text>
+          <Text
+            ref={fitRef}
+            fontWeight="bold"
+            color="#003459"
+            fontSize={fitFontSize}
+            maxWidth="220px"
+            width="100%"
+            minHeight="32px" // fuerza altura mínima para alinear
+            lineHeight="1.2"
+            whiteSpace="nowrap"
+            overflow="hidden"
+            textOverflow="ellipsis"
+            display="block"
+            margin="0 auto"
+          >
+            {nombre}
+          </Text>
         </LinkOverlay>
         {/* Mostrar el nombre del usuario si está disponible */}
         {asset.ownerName && (
@@ -104,7 +121,7 @@ const AssetCard = ({ asset, loggedInUserId }) => {
         )}
       </Box>
     </LinkBox>
-  )
+  );
 };
 
 export default AssetCard;
