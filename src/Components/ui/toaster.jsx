@@ -44,6 +44,26 @@ export const Toaster = () => {
               color: 'white', // Letra blanca
             };
           }
+          // Style modifications for info toasts
+          if (toast.type === 'info') {
+            customToastRootProps = {
+              ...customToastRootProps,
+              bg: '#003459',
+              borderColor: '#003459',
+              borderWidth: '1px',
+              color: 'white', // Letra blanca
+            };
+          }
+          // Style modifications for error toasts
+          if (toast.type === 'error') {
+            customToastRootProps = {
+              ...customToastRootProps,
+              bg: '#003459',
+              borderColor: '#003459',
+              borderWidth: '1px',
+              color: 'white', // Letra blanca
+            };
+          }
 
           return (
             <Toast.Root {...toastRootBaseProps} {...customToastRootProps}>
