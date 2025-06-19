@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
-import { Box, Heading, Image, Text, Spinner, Center, Button, Input, VStack, DialogRoot, DialogTrigger, DialogBackdrop, DialogPositioner, DialogContent, DialogHeader, DialogBody, DialogFooter, DialogCloseTrigger, DialogTitle, Textarea, HStack, IconButton } from '@chakra-ui/react';
+import { Box, Heading, Image, Text, Spinner, Center, Button, Input, VStack, DialogRoot, DialogTrigger, DialogBackdrop, DialogPositioner, DialogContent, DialogHeader, DialogBody, DialogFooter, DialogCloseTrigger, DialogTitle, Textarea, HStack, IconButton, Grid } from '@chakra-ui/react';
 
 import { toaster } from '../Components/ui/toaster';
 
@@ -471,37 +471,42 @@ const AssetDetail = () => {
             Propietario: {asset.ownerName} -  {asset.Wallet.direccion}
           </Text>
         )}
-        <Box width="100%" mt={2}
-          display={isOwner && !showEditPrice ? "flex" : "block"}
-          alignItems={isOwner && !showEditPrice ? "center" : undefined}
-          justifyContent={isOwner && !showEditPrice ? "center" : undefined}
-        >
-          <Text style={{ color: '#007ea7', fontWeight: 'bold' }} fontSize="xl" mr={isOwner && !showEditPrice ? 4 : 0} mb={isOwner && !showEditPrice ? 0 : 2}>
-            Precio: {precio} RTM
-            {isFetchingRate && <Spinner size="xs" ml={2} />}
-            {usdPrice && !isFetchingRate && ` (${usdPrice} USD)`}
-            {!rtmToUsdRate && !isFetchingRate && precio !== null && (
-              <Text as="span" fontSize="sm" color="gray.500" ml={1}>(No se pudo cargar precio en USD)</Text>
-            )}
-          </Text>
-          {isOwner && (
-            showEditPrice ? (
-              <VStack spacing={2} mt={2} align="center" width="100%">
-                <Input
-                  type="number"
-                  min="0"
-                  step="any"
-                  value={newPrice}
-                  onChange={e => setNewPrice(e.target.value)}
-                  placeholder="Nuevo precio (RTM)"
-                  borderColor="#003459"
-                  focusBorderColor="#007ea7"
-                  color="#003459"
-                  width="110px"
-                  fontSize="md"
-                  textAlign="center"
-                />
-                <HStack justifyContent="center">
+        {/* Grid SIEMPRE visible, 3 filas x 2 columnas, cada celda cambia según estado */}
+        <Box width="100%" mt={2}>
+          <Grid templateColumns="1fr 180px" gap={2} alignItems="center" width="100%">
+            {/* Fila 1: Precio y Modificar Precio */}
+            <Box textAlign="center">
+              {showEditPrice ? (
+                <VStack spacing={2} align="center" width="100%">
+                  <Input
+                    type="number"
+                    min="0"
+                    step="any"
+                    value={newPrice}
+                    onChange={e => setNewPrice(e.target.value)}
+                    placeholder="Nuevo precio (RTM)"
+                    borderColor="#003459"
+                    focusBorderColor="#007ea7"
+                    color="#003459"
+                    width="110px"
+                    fontSize="md"
+                    textAlign="center"
+                  />
+                </VStack>
+              ) : (
+                <Text style={{ color: '#007ea7', fontWeight: 'bold' }} fontSize="xl">
+                  Precio: {precio} RTM
+                  {isFetchingRate && <Spinner size="xs" ml={2} />}
+                  {usdPrice && !isFetchingRate && ` (${usdPrice} USD)`}
+                  {!rtmToUsdRate && !isFetchingRate && precio !== null && (
+                    <Text as="span" fontSize="sm" color="gray.500" ml={1}>(No se pudo cargar precio en USD)</Text>
+                  )}
+                </Text>
+              )}
+            </Box>
+            <Box>
+              {showEditPrice ? (
+                <HStack>
                   <Button
                     bg="#003459"
                     color="#fff"
@@ -530,134 +535,52 @@ const AssetDetail = () => {
                     Cancelar
                   </Button>
                 </HStack>
-              </VStack>
-            ) : (
-              <Button
-                bg="#003459"
-                color="#fff"
-                borderRadius="10px"
-                ml={4}
-                fontSize="sm"
-                width="180px"
-                height="40px"
-                onClick={() => { setShowEditPrice(true); setNewPrice(precio); }}
-                _hover={{ bg: '#005080' }}
-              >
-                Modificar Precio
-              </Button>
-            )
-          )}
-        </Box>
-
-        {/* Description editing section */}
-        {isOwner ? (
-          showEditDescription ? (
-            <VStack spacing={2} mt={4} align="stretch" width="100%">
-              <Textarea
-                value={newDescription}
-                onChange={(e) => setNewDescription(e.target.value)}
-                placeholder="Nueva descripción"
-                borderColor="#003459"
-                focusBorderColor="#007ea7"
-                color="#003459"
-              />
-              <HStack justifyContent="center">
-                <Button
+              ) : (
+                isOwner && <Button
                   bg="#003459"
                   color="#fff"
                   borderRadius="10px"
-                  isLoading={isUpdatingDescription}
-                  onClick={handleUpdateDescription}
+                  fontSize="sm"
+                  width="160px"
+                  height="40px"
+                  mb={2}
+                  onClick={() => { setShowEditPrice(true); setNewPrice(precio); }}
                   _hover={{ bg: '#005080' }}
-                  size="sm"
-                  height="40px"
-                  width="120px"
                 >
-                  Guardar
-                </Button>
-                <Button
-                  variant="ghost"
-                  color="#003459"
-                  borderRadius="10px"
-                  bg="#fff"
-                  border="1px solid #003459"
-                  onClick={() => setShowEditDescription(false)}
-                  size="sm"
-                  height="40px"
-                  width="120px"
-                  _hover={{ bg: '#e2e8f0' }}
-                >
-                  Cancelar
-                </Button>
-              </HStack>
-            </VStack>
-          ) : (
-            <HStack mt={2} align="center" justifyContent="center">
-              <Text fontSize="md" color="gray.700">{descripcion || 'Sin descripción.'}</Text>
-              <Button
-                bg="#003459"
-                color="#fff"
-                borderRadius="10px"
-                ml={4}
-                fontSize="sm"
-                width="180px"
-                height="40px"
-                onClick={() => {
-                  setShowEditDescription(true);
-                  setNewDescription(descripcion);
-                }}
-                _hover={{ bg: '#005080' }}
-              >
-                Editar Descripción
-              </Button>
-            </HStack>
-          )
-        ) : (
-          descripcion && (
-            <Text mt={2} fontSize="md" color="gray.700">{descripcion}</Text>
-          )
-        )}
-
-        {isOwner && (
-          <>
-            <HStack width="100%" justifyContent="center" alignItems="center" mb={showSendFields ? 0 : 6}>
-              <Text fontSize="md" color="green.600" fontWeight="bold">¡Eres el dueño de este asset!</Text>
-              {!showSendFields && (
-                <Button
-                  bg="#003459"
-                  color="#fff"
-                  borderRadius="10px"
-                  ml={4}
-                  onClick={() => setShowSendFields(true)}
-                  _hover={{ bg: '#005080' }}
-                  height="40px"
-                >
-                  Enviar Asset
+                  Modificar Precio
                 </Button>
               )}
-            </HStack>
-            {showSendFields && (
-              <Box width="100%" display="flex" flexDirection="column" alignItems="center" gap={2}>
-                <Input
-                  placeholder="Dirección de destino Raptoreum"
-                  value={destinationAddress}
-                  onChange={(e) => setDestinationAddress(e.target.value)}
+            </Box>
+            {/* Fila 2: Descripción y Editar Descripción */}
+            <Box textAlign="center">
+              {showEditDescription ? (
+                <Textarea
+                  value={newDescription}
+                  onChange={(e) => setNewDescription(e.target.value)}
+                  placeholder="Nueva descripción"
                   borderColor="#003459"
                   focusBorderColor="#007ea7"
-                  mb={2}
+                  color="#003459"
                 />
-                <Text fontSize="sm" color="red.600" fontWeight="bold">Si lo transfieres, el asset desaparecerá de la wallet del sistema</Text>
-                <HStack mt={2} width="100%" justifyContent="center">
+              ) : (
+                <Text fontSize="md" color="gray.700">{descripcion || 'Sin descripción.'}</Text>
+              )}
+            </Box>
+            <Box>
+              {showEditDescription ? (
+                <HStack>
                   <Button
                     bg="#003459"
                     color="#fff"
                     borderRadius="10px"
-                    width="120px"
-                    onClick={() => setShowConfirmDialog(true)}
+                    isLoading={isUpdatingDescription}
+                    onClick={handleUpdateDescription}
                     _hover={{ bg: '#005080' }}
+                    size="sm"
                     height="40px"
+                    width="120px"
                   >
-                    Confirmar
+                    Guardar
                   </Button>
                   <Button
                     variant="ghost"
@@ -665,60 +588,140 @@ const AssetDetail = () => {
                     borderRadius="10px"
                     bg="#fff"
                     border="1px solid #003459"
-                    width="120px"
-                    onClick={() => { setShowSendFields(false); setDestinationAddress(''); }}
+                    onClick={() => setShowEditDescription(false)}
+                    size="sm"
                     height="40px"
+                    width="120px"
                     _hover={{ bg: '#e2e8f0' }}
                   >
                     Cancelar
                   </Button>
                 </HStack>
-                {/* Dialog de confirmación usando Chakra UI v3 */}
-                <DialogRoot open={showConfirmDialog} onOpenChange={(details) => setShowConfirmDialog(details.open)}>
-                  <DialogPositioner>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle style={{ color: '#003459' }}>¿Confirmar envío?</DialogTitle>
-                      </DialogHeader>
-                      <DialogBody>
-                        <Text>¿Estás seguro de que deseas transferir este asset a la dirección indicada?</Text>
-                        <Text fontWeight="bold" color="#003459" mt={2}>{destinationAddress}</Text>
-                      </DialogBody>
-                      <DialogFooter>
-                        <Button
-                          bg="#003459"
-                          color="#fff"
-                          borderRadius="10px"
-                          mr={3}
-                          onClick={() => { setShowConfirmDialog(false); sendAsset(); }}
-                          _hover={{ bg: '#005080' }}
-                          height="40px"
-                          width="120px"
-                        >
-                          Sí, enviar
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          color="#003459"
-                          borderRadius="10px"
-                          bg="#fff"
-                          border="1px solid #003459"
-                          borderRadius="10px"
-                          onClick={() => setShowConfirmDialog(false)}
-                          height="40px"
-                          width="120px"
-                          _hover={{ bg: '#e2e8f0' }}
-                        >
-                          Cancelar
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </DialogPositioner>
-                </DialogRoot>
-              </Box>
-            )}
-          </>
-        )}
+              ) : (
+                isOwner && <Button
+                  bg="#003459"
+                  color="#fff"
+                  borderRadius="10px"
+                  fontSize="sm"
+                  width="160px"
+                  height="40px"
+                  mb={2}
+                  onClick={() => {
+                    setShowEditDescription(true);
+                    setNewDescription(descripcion);
+                  }}
+                  _hover={{ bg: '#005080' }}
+                >
+                  Editar Descripción
+                </Button>
+              )}
+            </Box>
+            {/* Fila 3: Mensaje de dueño y Enviar Asset */}
+            <Box textAlign="center">
+              {showSendFields ? (
+                <Box width="100%" display="flex" flexDirection="column" alignItems="center" gap={2}>
+                  <Input
+                    placeholder="Dirección de destino Raptoreum"
+                    value={destinationAddress}
+                    onChange={(e) => setDestinationAddress(e.target.value)}
+                    borderColor="#003459"
+                    focusBorderColor="#007ea7"
+                    mb={2}
+                  />
+                  <Text fontSize="sm" color="red.600" fontWeight="bold">Si lo transfieres, el asset desaparecerá de la wallet del sistema</Text>
+                </Box>
+              ) : (
+                <Text fontSize="md" color="green.600" fontWeight="bold">¡Eres el dueño de este asset!</Text>
+              )}
+            </Box>
+            <Box>
+              {showSendFields ? (
+                <>
+                  <HStack mt={2} width="100%" justifyContent="center">
+                    <Button
+                      bg="#003459"
+                      color="#fff"
+                      borderRadius="10px"
+                      width="120px"
+                      onClick={() => setShowConfirmDialog(true)}
+                      _hover={{ bg: '#005080' }}
+                      height="40px"
+                    >
+                      Confirmar
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      color="#003459"
+                      borderRadius="10px"
+                      bg="#fff"
+                      border="1px solid #003459"
+                      width="120px"
+                      onClick={() => { setShowSendFields(false); setDestinationAddress(''); }}
+                      height="40px"
+                      _hover={{ bg: '#e2e8f0' }}
+                    >
+                      Cancelar
+                    </Button>
+                  </HStack>
+                  {/* Dialog de confirmación usando Chakra UI v3 */}
+                  <DialogRoot open={showConfirmDialog} onOpenChange={(details) => setShowConfirmDialog(details.open)}>
+                    <DialogPositioner>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle style={{ color: '#003459' }}>¿Confirmar envío?</DialogTitle>
+                        </DialogHeader>
+                        <DialogBody>
+                          <Text>¿Estás seguro de que deseas transferir este asset a la dirección indicada?</Text>
+                          <Text fontWeight="bold" color="#003459" mt={2}>{destinationAddress}</Text>
+                        </DialogBody>
+                        <DialogFooter>
+                          <Button
+                            bg="#003459"
+                            color="#fff"
+                            borderRadius="10px"
+                            mr={3}
+                            onClick={() => { setShowConfirmDialog(false); sendAsset(); }}
+                            _hover={{ bg: '#005080' }}
+                            height="40px"
+                            width="120px"
+                          >
+                            Sí, enviar
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            color="#003459"
+                            borderRadius="10px"
+                            bg="#fff"
+                            border="1px solid #003459"
+                            borderRadius="10px"
+                            onClick={() => setShowConfirmDialog(false)}
+                            height="40px"
+                            width="120px"
+                            _hover={{ bg: '#e2e8f0' }}
+                          >
+                            Cancelar
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </DialogPositioner>
+                  </DialogRoot>
+                </>
+              ) : (
+                isOwner && <Button
+                  bg="#003459"
+                  color="#fff"
+                  borderRadius="10px"
+                  width="160px"
+                  height="40px"
+                  onClick={() => setShowSendFields(true)}
+                  _hover={{ bg: '#005080' }}
+                >
+                  Enviar Asset
+                </Button>
+              )}
+            </Box>
+          </Grid>
+        </Box>
         {!isOwner && (
           <Center flexDirection="column" width="100%">
             {message && (
