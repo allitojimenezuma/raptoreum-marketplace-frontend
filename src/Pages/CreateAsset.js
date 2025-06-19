@@ -105,7 +105,10 @@ const CreateAsset = () => {
                 body: formData,
             });
 
-            if (!response.ok) throw new Error('Error al crear el asset');
+            if (!response.ok){
+                const errorData = await response.json();
+                throw new Error(errorData.details);
+            }
 
             setNombre('');
             setDescripcion('');
@@ -122,10 +125,13 @@ const CreateAsset = () => {
             });
 
         } catch (err) {
+            //BACKEND  res.status(500).json({ error: 'Internal server error during asset creation', details: error.message });
+
             toaster.dismiss(loadingToast);
+            console.error('Error al crear el asset:', err);
             toaster.error({
                 title: 'Error',
-                description: 'No se pudo crear el asset',
+                description: 'No se pudo crear el asset' + (err.message ? `: ${err.message}` : ''),
                 duration: 7000,
             });
         } finally {
