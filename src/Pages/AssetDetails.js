@@ -473,7 +473,7 @@ const AssetDetail = () => {
         )}
         {/* Grid SIEMPRE visible, 3 filas x 2 columnas, cada celda cambia según estado */}
         <Box width="100%" mt={2}>
-          <Grid templateColumns="1fr 180px" gap={2} alignItems="center" width="100%">
+          <Grid templateColumns={isOwner ? "1fr 180px" : "1fr"} gap={2} alignItems="center" width="100%">
             {/* Fila 1: Precio y Modificar Precio */}
             {showEditPrice ? (
               <>
@@ -644,24 +644,26 @@ const AssetDetail = () => {
             {/* Fila 3: Mensaje de dueño y Enviar Asset */}
             {!showSendFields ? (
               <>
-                <Box textAlign="center">
-                  <Text fontSize="md" color="green.600" fontWeight="bold">¡Eres el dueño de este asset!</Text>
-                </Box>
-                <Box>
-                  {isOwner && (
-                    <Button
-                      bg="#003459"
-                      color="#fff"
-                      borderRadius="10px"
-                      width="160px"
-                      height="40px"
-                      onClick={() => setShowSendFields(true)}
-                      _hover={{ bg: '#005080' }}
-                    >
-                      Enviar Asset
-                    </Button>
-                  )}
-                </Box>
+                {isOwner && (
+                  <>
+                    <Box textAlign="center">
+                      <Text fontSize="md" color="green.600" fontWeight="bold">¡Eres el dueño de este asset!</Text>
+                    </Box>
+                    <Box>
+                      <Button
+                        bg="#003459"
+                        color="#fff"
+                        borderRadius="10px"
+                        width="160px"
+                        height="40px"
+                        onClick={() => setShowSendFields(true)}
+                        _hover={{ bg: '#005080' }}
+                      >
+                        Enviar Asset
+                      </Button>
+                    </Box>
+                  </>
+                )}
               </>
             ) : (
               <>
