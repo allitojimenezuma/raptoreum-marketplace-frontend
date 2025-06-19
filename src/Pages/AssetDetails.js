@@ -857,7 +857,7 @@ const AssetDetail = () => {
             bg="#003459"
             color="#fff"
             borderRadius="10px"
-            width="50%"
+            width={{ base: '95%', sm: '70%', md: '50%' }}
             onClick={() => navigate(`/asset/${asset.asset_id}/history`)}
             isLoading={offerLoading}
             _hover={{ bg: '#005080' }}
