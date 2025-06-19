@@ -217,6 +217,14 @@ function Account() {
                         });
                         setIsImporting(false);
                     }
+                } else {
+                    // No missing assets found
+                    toaster.create({
+                        title: "No se encontraron assets para importar.",
+                        type: "info",
+                        duration: 3000
+                    });
+                    setIsImporting(false);
                 }
             } else {
                 throw new Error(responseData.message || 'Error al actualizar el estado de listado.');
