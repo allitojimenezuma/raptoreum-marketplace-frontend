@@ -471,8 +471,12 @@ const AssetDetail = () => {
             Propietario: {asset.ownerName} -  {asset.Wallet.direccion}
           </Text>
         )}
-        <Box display="flex" alignItems="center" justifyContent="center" width="100%" mt={2}>
-          <Text style={{ color: '#007ea7', fontWeight: 'bold' }} fontSize="xl">
+        <Box width="100%" mt={2}
+          display={isOwner && !showEditPrice ? "flex" : "block"}
+          alignItems={isOwner && !showEditPrice ? "center" : undefined}
+          justifyContent={isOwner && !showEditPrice ? "center" : undefined}
+        >
+          <Text style={{ color: '#007ea7', fontWeight: 'bold' }} fontSize="xl" mr={isOwner && !showEditPrice ? 4 : 0} mb={isOwner && !showEditPrice ? 0 : 2}>
             Precio: {precio} RTM
             {isFetchingRate && <Spinner size="xs" ml={2} />}
             {usdPrice && !isFetchingRate && ` (${usdPrice} USD)`}
@@ -482,7 +486,7 @@ const AssetDetail = () => {
           </Text>
           {isOwner && (
             showEditPrice ? (
-              <Box display="flex" alignItems="center" ml={4}>
+              <VStack spacing={2} mt={2} align="center" width="100%">
                 <Input
                   type="number"
                   min="0"
@@ -495,36 +499,38 @@ const AssetDetail = () => {
                   color="#003459"
                   width="110px"
                   fontSize="md"
-                  mr={2}
+                  textAlign="center"
                 />
-                <Button
-                  bg="#003459"
-                  color="#fff"
-                  borderRadius="10px"
-                  isLoading={isUpdatingPrice}
-                  onClick={handleUpdatePrice}
-                  _hover={{ bg: '#005080' }}
-                  width="70px"
-                  fontSize="sm"
-                  mr={1}
-                  height="40px"
-                >
-                  Guardar
-                </Button>
-                <Button
-                  variant="ghost"
-                  color="#003459"
-                  borderRadius="10px"
-                  bg="#fff"
-                  border="1px solid #003459"
-                  onClick={() => { setShowEditPrice(false); setNewPrice(precio); }}
-                  fontSize="sm"
-                  height="40px"
-                  _hover={{ bg: '#e2e8f0' }}
-                >
-                  Cancelar
-                </Button>
-              </Box>
+                <HStack justifyContent="center">
+                  <Button
+                    bg="#003459"
+                    color="#fff"
+                    borderRadius="10px"
+                    isLoading={isUpdatingPrice}
+                    onClick={handleUpdatePrice}
+                    _hover={{ bg: '#005080' }}
+                    width="120px"
+                    fontSize="sm"
+                    height="40px"
+                  >
+                    Guardar
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    color="#003459"
+                    borderRadius="10px"
+                    bg="#fff"
+                    border="1px solid #003459"
+                    onClick={() => { setShowEditPrice(false); setNewPrice(precio); }}
+                    fontSize="sm"
+                    height="40px"
+                    width="120px"
+                    _hover={{ bg: '#e2e8f0' }}
+                  >
+                    Cancelar
+                  </Button>
+                </HStack>
+              </VStack>
             ) : (
               <Button
                 bg="#003459"
@@ -565,6 +571,7 @@ const AssetDetail = () => {
                   _hover={{ bg: '#005080' }}
                   size="sm"
                   height="40px"
+                  width="120px"
                 >
                   Guardar
                 </Button>
@@ -577,6 +584,7 @@ const AssetDetail = () => {
                   onClick={() => setShowEditDescription(false)}
                   size="sm"
                   height="40px"
+                  width="120px"
                   _hover={{ bg: '#e2e8f0' }}
                 >
                   Cancelar
@@ -685,6 +693,7 @@ const AssetDetail = () => {
                           onClick={() => { setShowConfirmDialog(false); sendAsset(); }}
                           _hover={{ bg: '#005080' }}
                           height="40px"
+                          width="120px"
                         >
                           Sí, enviar
                         </Button>
@@ -697,6 +706,7 @@ const AssetDetail = () => {
                           borderRadius="10px"
                           onClick={() => setShowConfirmDialog(false)}
                           height="40px"
+                          width="120px"
                           _hover={{ bg: '#e2e8f0' }}
                         >
                           Cancelar
@@ -758,7 +768,7 @@ const AssetDetail = () => {
                   <DialogHeader>
                     <DialogTitle style={{ color: '#003459' }}>Hacer una Oferta</DialogTitle>
                     <DialogCloseTrigger>
-                      <Button variant="ghost" size="sm" float="right" color="#003459" _hover={{ bg: '#e2e8f0' }} height="40px">Cancelar</Button>
+                      <Button variant="ghost" size="sm" float="right" color="#003459" _hover={{ bg: '#e2e8f0' }} height="40px" width="120px">Cancelar</Button>
                     </DialogCloseTrigger>
                   </DialogHeader>
                   <DialogBody>
