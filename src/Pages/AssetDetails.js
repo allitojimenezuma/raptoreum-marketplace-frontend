@@ -475,168 +475,210 @@ const AssetDetail = () => {
         <Box width="100%" mt={2}>
           <Grid templateColumns="1fr 180px" gap={2} alignItems="center" width="100%">
             {/* Fila 1: Precio y Modificar Precio */}
-            <Box textAlign="center">
-              {showEditPrice ? (
-                <VStack spacing={2} align="center" width="100%">
-                  <Input
-                    type="number"
-                    min="0"
-                    step="any"
-                    value={newPrice}
-                    onChange={e => setNewPrice(e.target.value)}
-                    placeholder="Nuevo precio (RTM)"
-                    borderColor="#003459"
-                    focusBorderColor="#007ea7"
-                    color="#003459"
-                    width="110px"
-                    fontSize="md"
-                    textAlign="center"
-                  />
-                </VStack>
-              ) : (
-                <Text style={{ color: '#007ea7', fontWeight: 'bold' }} fontSize="xl">
-                  Precio: {precio} RTM
-                  {isFetchingRate && <Spinner size="xs" ml={2} />}
-                  {usdPrice && !isFetchingRate && ` (${usdPrice} USD)`}
-                  {!rtmToUsdRate && !isFetchingRate && precio !== null && (
-                    <Text as="span" fontSize="sm" color="gray.500" ml={1}>(No se pudo cargar precio en USD)</Text>
-                  )}
-                </Text>
-              )}
-            </Box>
-            <Box>
-              {showEditPrice ? (
-                <HStack>
-                  <Button
-                    bg="#003459"
-                    color="#fff"
-                    borderRadius="10px"
-                    isLoading={isUpdatingPrice}
-                    onClick={handleUpdatePrice}
-                    _hover={{ bg: '#005080' }}
-                    width="120px"
-                    fontSize="sm"
-                    height="40px"
-                  >
-                    Guardar
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    color="#003459"
-                    borderRadius="10px"
-                    bg="#fff"
-                    border="1px solid #003459"
-                    onClick={() => { setShowEditPrice(false); setNewPrice(precio); }}
-                    fontSize="sm"
-                    height="40px"
-                    width="120px"
-                    _hover={{ bg: '#e2e8f0' }}
-                  >
-                    Cancelar
-                  </Button>
-                </HStack>
-              ) : (
-                isOwner && <Button
-                  bg="#003459"
-                  color="#fff"
-                  borderRadius="10px"
-                  fontSize="sm"
-                  width="160px"
-                  height="40px"
-                  mb={2}
-                  onClick={() => { setShowEditPrice(true); setNewPrice(precio); }}
-                  _hover={{ bg: '#005080' }}
-                >
-                  Modificar Precio
-                </Button>
-              )}
-            </Box>
-            {/* Fila 2: Descripción y Editar Descripción */}
-            <Box textAlign="center">
-              {showEditDescription ? (
-                <Textarea
-                  value={newDescription}
-                  onChange={(e) => setNewDescription(e.target.value)}
-                  placeholder="Nueva descripción"
-                  borderColor="#003459"
-                  focusBorderColor="#007ea7"
-                  color="#003459"
-                />
-              ) : (
-                <Text fontSize="md" color="gray.700">{descripcion || 'Sin descripción.'}</Text>
-              )}
-            </Box>
-            <Box>
-              {showEditDescription ? (
-                <HStack>
-                  <Button
-                    bg="#003459"
-                    color="#fff"
-                    borderRadius="10px"
-                    isLoading={isUpdatingDescription}
-                    onClick={handleUpdateDescription}
-                    _hover={{ bg: '#005080' }}
-                    size="sm"
-                    height="40px"
-                    width="120px"
-                  >
-                    Guardar
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    color="#003459"
-                    borderRadius="10px"
-                    bg="#fff"
-                    border="1px solid #003459"
-                    onClick={() => setShowEditDescription(false)}
-                    size="sm"
-                    height="40px"
-                    width="120px"
-                    _hover={{ bg: '#e2e8f0' }}
-                  >
-                    Cancelar
-                  </Button>
-                </HStack>
-              ) : (
-                isOwner && <Button
-                  bg="#003459"
-                  color="#fff"
-                  borderRadius="10px"
-                  fontSize="sm"
-                  width="160px"
-                  height="40px"
-                  mb={2}
-                  onClick={() => {
-                    setShowEditDescription(true);
-                    setNewDescription(descripcion);
-                  }}
-                  _hover={{ bg: '#005080' }}
-                >
-                  Editar Descripción
-                </Button>
-              )}
-            </Box>
-            {/* Fila 3: Mensaje de dueño y Enviar Asset */}
-            <Box textAlign="center">
-              {showSendFields ? (
-                <Box width="100%" display="flex" flexDirection="column" alignItems="center" gap={2}>
-                  <Input
-                    placeholder="Dirección de destino Raptoreum"
-                    value={destinationAddress}
-                    onChange={(e) => setDestinationAddress(e.target.value)}
-                    borderColor="#003459"
-                    focusBorderColor="#007ea7"
-                    mb={2}
-                  />
-                  <Text fontSize="sm" color="red.600" fontWeight="bold">Si lo transfieres, el asset desaparecerá de la wallet del sistema</Text>
+            {showEditPrice ? (
+              <>
+                <Box gridColumn="1 / span 2" textAlign="center">
+                  <Text style={{ color: '#007ea7', fontWeight: 'bold' }} fontSize="xl">
+                    Precio: {precio} RTM
+                    {isFetchingRate && <Spinner size="xs" ml={2} />}
+                    {usdPrice && !isFetchingRate && ` (${usdPrice} USD)`}
+                    {!rtmToUsdRate && !isFetchingRate && precio !== null && (
+                      <Text as="span" fontSize="sm" color="gray.500" ml={1}>(No se pudo cargar precio en USD)</Text>
+                    )}
+                  </Text>
                 </Box>
-              ) : (
-                <Text fontSize="md" color="green.600" fontWeight="bold">¡Eres el dueño de este asset!</Text>
-              )}
-            </Box>
-            <Box>
-              {showSendFields ? (
-                <>
+                <Box gridColumn="1 / span 2" mt={2}>
+                  <VStack spacing={2} align="center" width="100%">
+                    <Input
+                      type="number"
+                      min="0"
+                      step="any"
+                      value={newPrice}
+                      onChange={e => setNewPrice(e.target.value)}
+                      placeholder="Nuevo precio (RTM)"
+                      borderColor="#003459"
+                      focusBorderColor="#007ea7"
+                      color="#003459"
+                      width="110px"
+                      fontSize="md"
+                      textAlign="center"
+                    />
+                    <HStack justifyContent="center">
+                      <Button
+                        bg="#003459"
+                        color="#fff"
+                        borderRadius="10px"
+                        isLoading={isUpdatingPrice}
+                        onClick={handleUpdatePrice}
+                        _hover={{ bg: '#005080' }}
+                        width="120px"
+                        fontSize="sm"
+                        height="40px"
+                      >
+                        Guardar
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        color="#003459"
+                        borderRadius="10px"
+                        bg="#fff"
+                        border="1px solid #003459"
+                        onClick={() => { setShowEditPrice(false); setNewPrice(precio); }}
+                        fontSize="sm"
+                        height="40px"
+                        width="120px"
+                        _hover={{ bg: '#e2e8f0' }}
+                      >
+                        Cancelar
+                      </Button>
+                    </HStack>
+                  </VStack>
+                </Box>
+              </>
+            ) : (
+              <>
+                <Box textAlign="center">
+                  <Text style={{ color: '#007ea7', fontWeight: 'bold' }} fontSize="xl">
+                    Precio: {precio} RTM
+                    {isFetchingRate && <Spinner size="xs" ml={2} />}
+                    {usdPrice && !isFetchingRate && ` (${usdPrice} USD)`}
+                    {!rtmToUsdRate && !isFetchingRate && precio !== null && (
+                      <Text as="span" fontSize="sm" color="gray.500" ml={1}>(No se pudo cargar precio en USD)</Text>
+                    )}
+                  </Text>
+                </Box>
+                <Box>
+                  {isOwner && (
+                    <Button
+                      bg="#003459"
+                      color="#fff"
+                      borderRadius="10px"
+                      fontSize="sm"
+                      width="160px"
+                      height="40px"
+                      mb={2}
+                      onClick={() => { setShowEditPrice(true); setNewPrice(precio); }}
+                      _hover={{ bg: '#005080' }}
+                    >
+                      Modificar Precio
+                    </Button>
+                  )}
+                </Box>
+              </>
+            )}
+            {/* Fila 2: Descripción y Editar Descripción */}
+            {showEditDescription ? (
+              <>
+                <Box gridColumn="1 / span 2" textAlign="center">
+                  <Text fontSize="md" color="gray.700">Descripción: {descripcion || 'Sin descripción.'}</Text>
+                </Box>
+                <Box gridColumn="1 / span 2" mt={2}>
+                  <VStack spacing={2} align="center" width="100%">
+                    <Textarea
+                      value={newDescription}
+                      onChange={(e) => setNewDescription(e.target.value)}
+                      placeholder="Nueva descripción"
+                      borderColor="#003459"
+                      focusBorderColor="#007ea7"
+                      color="#003459"
+                    />
+                    <HStack justifyContent="center">
+                      <Button
+                        bg="#003459"
+                        color="#fff"
+                        borderRadius="10px"
+                        isLoading={isUpdatingDescription}
+                        onClick={handleUpdateDescription}
+                        _hover={{ bg: '#005080' }}
+                        size="sm"
+                        height="40px"
+                        width="120px"
+                      >
+                        Guardar
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        color="#003459"
+                        borderRadius="10px"
+                        bg="#fff"
+                        border="1px solid #003459"
+                        onClick={() => setShowEditDescription(false)}
+                        size="sm"
+                        height="40px"
+                        width="120px"
+                        _hover={{ bg: '#e2e8f0' }}
+                      >
+                        Cancelar
+                      </Button>
+                    </HStack>
+                  </VStack>
+                </Box>
+              </>
+            ) : (
+              <>
+                <Box textAlign="center">
+                  <Text fontSize="md" color="gray.700">Descripción: {descripcion || 'Sin descripción.'}</Text>
+                </Box>
+                <Box>
+                  {isOwner && (
+                    <Button
+                      bg="#003459"
+                      color="#fff"
+                      borderRadius="10px"
+                      fontSize="sm"
+                      width="160px"
+                      height="40px"
+                      mb={2}
+                      onClick={() => {
+                        setShowEditDescription(true);
+                        setNewDescription(descripcion);
+                      }}
+                      _hover={{ bg: '#005080' }}
+                    >
+                      Editar Descripción
+                    </Button>
+                  )}
+                </Box>
+              </>
+            )}
+            {/* Fila 3: Mensaje de dueño y Enviar Asset */}
+            {!showSendFields ? (
+              <>
+                <Box textAlign="center">
+                  <Text fontSize="md" color="green.600" fontWeight="bold">¡Eres el dueño de este asset!</Text>
+                </Box>
+                <Box>
+                  {isOwner && (
+                    <Button
+                      bg="#003459"
+                      color="#fff"
+                      borderRadius="10px"
+                      width="160px"
+                      height="40px"
+                      onClick={() => setShowSendFields(true)}
+                      _hover={{ bg: '#005080' }}
+                    >
+                      Enviar Asset
+                    </Button>
+                  )}
+                </Box>
+              </>
+            ) : (
+              <>
+                <Box gridColumn="1 / span 2" textAlign="center">
+                  <Box width="100%" display="flex" flexDirection="column" alignItems="center" gap={2}>
+                    <Input
+                      placeholder="Dirección de destino Raptoreum"
+                      value={destinationAddress}
+                      onChange={(e) => setDestinationAddress(e.target.value)}
+                      borderColor="#003459"
+                      focusBorderColor="#007ea7"
+                      mb={2}
+                    />
+                    <Text fontSize="sm" color="red.600" fontWeight="bold">Si lo transfieres, el asset desaparecerá de la wallet del sistema</Text>
+                  </Box>
+                </Box>
+                <Box gridColumn="1 / span 2" mt={2}>
                   <HStack mt={2} width="100%" justifyContent="center">
                     <Button
                       bg="#003459"
@@ -647,7 +689,7 @@ const AssetDetail = () => {
                       _hover={{ bg: '#005080' }}
                       height="40px"
                     >
-                      Confirmar
+                      Enviar Asset
                     </Button>
                     <Button
                       variant="ghost"
@@ -705,21 +747,9 @@ const AssetDetail = () => {
                       </DialogContent>
                     </DialogPositioner>
                   </DialogRoot>
-                </>
-              ) : (
-                isOwner && <Button
-                  bg="#003459"
-                  color="#fff"
-                  borderRadius="10px"
-                  width="160px"
-                  height="40px"
-                  onClick={() => setShowSendFields(true)}
-                  _hover={{ bg: '#005080' }}
-                >
-                  Enviar Asset
-                </Button>
-              )}
-            </Box>
+                </Box>
+              </>
+            )}
           </Grid>
         </Box>
         {!isOwner && (
