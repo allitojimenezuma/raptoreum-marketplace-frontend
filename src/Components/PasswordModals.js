@@ -1,7 +1,6 @@
 import React from 'react';
 import { Dialog, Button, Text, Input, VStack, Portal } from '@chakra-ui/react';
 
-// Generic modal for info
 export function InfoModal({ isOpen, onClose, title, message }) {
   if (!isOpen) return null;
   return (
@@ -27,7 +26,6 @@ export function InfoModal({ isOpen, onClose, title, message }) {
   );
 }
 
-// Modal for requesting email to reset password
 export function RequestEmailModal({ isOpen, onClose, onSend }) {
   const [email, setEmail] = React.useState('');
   const [loading, setLoading] = React.useState(false);
@@ -36,10 +34,9 @@ export function RequestEmailModal({ isOpen, onClose, onSend }) {
     setLoading(true);
     await onSend(email);
     setLoading(false);
-    // setEmail(''); // Optionally reset email field after send
   };
 
-  if (!isOpen) return null; // Ensure modal doesn't render if not open
+  if (!isOpen) return null;
 
   return (
     <Portal>

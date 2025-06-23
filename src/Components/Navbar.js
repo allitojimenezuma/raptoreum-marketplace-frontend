@@ -22,14 +22,14 @@ import RaptoreumLogo from '../data/Raptoreum-rtm-logo.png';
 const Navbar = () => {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [balance, setBalance] = useState(null); // Nuevo estado para el balance
-  const closeBtnRef = useRef(null); // Referencia al botón de cierre
+  const [balance, setBalance] = useState(null);
+  const closeBtnRef = useRef(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     setIsLoggedIn(!!token);
-    // Solo redirigir a login si NO estamos en /signup
+    // Solo redirige a login si NO estamos en /signup
     if (!token && window.location.pathname !== '/signup') {
       navigate('/login');
     }

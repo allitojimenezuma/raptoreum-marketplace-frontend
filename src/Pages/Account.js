@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Heading, Text, VStack, List, Button, Flex, Spacer, createToaster } from '@chakra-ui/react';
 import { jwtDecode } from 'jwt-decode';
-import { InfoModal } from '../Components/PasswordModals'; // Asegúrate que la ruta es correcta
+import { InfoModal } from '../Components/PasswordModals';
 import { useNavigate } from 'react-router-dom';
 import { toaster } from '../Components/ui/toaster'
 import "../Account.mobile.css";
@@ -21,13 +21,10 @@ const getUserData = async (token) => {
         if (!response.ok) throw new Error('No se pudo obtener el usuario');
         return await response.json();
     } catch (error) {
-        console.error("Error en getUserData:", error); // Añadido console.error para depuración
+        console.error("Error en getUserData:", error);
         return null;
     }
 };
-
-
-
 
 function Account() {
     const [userData, setUserData] = useState(null);
@@ -36,7 +33,7 @@ function Account() {
     const [infoMessage, setInfoMessage] = React.useState('');
     const navigate = useNavigate();
     const [updatingAssetId, setUpdatingAssetId] = useState(null);
-    const [isImporting, setIsImporting] = useState(false); // New state for import button
+    const [isImporting, setIsImporting] = useState(false);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -63,7 +60,7 @@ function Account() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    // Si tu endpoint está protegido y requiere autenticación (ej. JWT token):
+                    // Si el endpoint está protegido y requiere autenticación (ej. JWT token):
                     // 'Authorization': `Bearer ${localStorage.getItem('token')}`, 
                 },
                 body: JSON.stringify({ email: userEmail }),
@@ -90,7 +87,6 @@ function Account() {
         setUpdatingAssetId(assetDbId);
         const token = localStorage.getItem('token');
         if (!token) {
-            // Updated toast call
             toaster.create({
                 title: "Por favor, inicia sesión.",
                 type: "error",
@@ -113,7 +109,6 @@ function Account() {
             const responseData = await response.json();
 
             if (response.ok) {
-                // Updated toast call
                 toaster.create({
                     title: "Estado de listado actualizado.",
                     type: "success",
@@ -137,7 +132,6 @@ function Account() {
             }
         } catch (error) {
             console.error("Error en handleToggleListing:", error);
-            // Updated toast call
             toaster.create({
                 title: "Error al actualizar el estado de listado.",
                 type: "error",
@@ -151,7 +145,6 @@ function Account() {
     const handleImportAssets = async () => {
         const token = localStorage.getItem('token');
         if (!token) {
-            // Updated toast call
             toaster.create({
                 title: "Por favor, inicia sesión.",
                 type: "error",
@@ -171,7 +164,6 @@ function Account() {
             });
 
             const responseData = await response.json();
-            //{"message":"Se encontraron assets en su wallet que no están registrados en la plataforma.","missingAssets":[{"name":"RAPTOREUM_GOLD","balance":"100000000","assetId":"6374692e684ff30709a1f60f2fb49faf2f5611f3c1cdbb9e3d6c1ed14532425e","referenceHash":"QmeuniM6dGq91RngUGZgLiaY3YWFreAWV2H9QwtnYwAdzS"},{"name":"WATERFALL","balance":"100000000","assetId":"a78d5203ea684b3779c356214c2c7c987114471023d4e7c57c0c54fbbfce11d2","referenceHash":"QmZsxDpJm6N9DirQbtdEwpTpEnefJj5Dx4x8QUdbo2sKvu"}]}
 
             if (response.ok) {
                 //confirmar que quiere importar los assets
@@ -179,7 +171,7 @@ function Account() {
                     const missingAssets = responseData.missingAssets.map(asset => `${asset.name}`).join(', ');
                     const confirmImport = window.confirm(`Se encontraron los siguientes assets que no están registrados en la plataforma: ${missingAssets}. ¿Deseas importarlos?`);
                     if (confirmImport) {
-                        // Step 2: If confirmed, call the import endpoint
+                        // Paso 2: Si el usuario confirma, hacemos la llamada a la API para importar los assets
                         const importApiCall = fetch(`https://rtm.api.test.unknowngravity.com/assets/importMissingAssets`, {
                             method: 'POST',
                             headers: {
@@ -197,7 +189,7 @@ function Account() {
                         toaster.promise(importApiCall, {
                             loading: 'Importando assets, por favor espera...',
                             success: (data) => {
-                                // Refresh user data to show new assets
+                                // Refrescamos los datos del usuario para reflejar los cambios
                                 getUserData(token).then((newUserData) => {
                                     setUserData(newUserData);
                                 });
@@ -206,10 +198,9 @@ function Account() {
                             error: (err) => err.message || 'Ocurrió un error durante la importación.'
                         });
 
-                        // Ensure loading state is reset after promise settles
                         importApiCall.finally(() => setIsImporting(false));
                     } else {
-                        // User cancelled the import
+                        // El usuario canceló la importación
                         toaster.create({
                             title: "Importación cancelada.",
                             type: "info",
@@ -218,7 +209,7 @@ function Account() {
                         setIsImporting(false);
                     }
                 } else {
-                    // No missing assets found
+                    // No se encontraron assets faltantes
                     toaster.create({
                         title: "No se encontraron assets para importar.",
                         type: "info",
@@ -231,7 +222,7 @@ function Account() {
             }
         } catch (error) {
             console.error("Error en handleToggleListing:", error);
-            // Updated toast call
+            // Llamada a toast actualizada
             toaster.create({
                 title: "Error al actualizar el estado de listado.",
                 type: "error",
@@ -248,7 +239,7 @@ function Account() {
         return <Text>Cargando...</Text>;
     }
 
-    if (!userData || !userData.user) { // Check for user object as well
+    if (!userData || !userData.user) {
         return <Text>No se pudo cargar la información del usuario. Por favor, inicia sesión.</Text>;
     }
 
@@ -285,7 +276,6 @@ function Account() {
                     >
                         Ver historial de la cuenta
                     </Button>
-
                 </Flex>
 
             </VStack>
@@ -300,7 +290,6 @@ function Account() {
                     type="button"
                 >
                     Importar Assets Externos
-
                 </Button>
             </Flex>
 
@@ -316,7 +305,6 @@ function Account() {
                                 {!wallet.assets || wallet.assets.length === 0 ? (
                                     <Text color="gray.500" fontSize="sm">No hay assets en esta wallet.</Text>
                                 ) : null}
-
 
                             </Box>
                             {wallet.assets && wallet.assets.length > 0 ? (

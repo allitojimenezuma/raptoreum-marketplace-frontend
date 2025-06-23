@@ -20,7 +20,7 @@ const getAsset = async (id) => {
 
 const AssetDetail = () => {
   const { id } = useParams();
-  const navigate = useNavigate(); // <-- Añadido para redirección
+  const navigate = useNavigate();
   const [asset, setAsset] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loggedInUserId, setLoggedInUserId] = useState(null);
@@ -28,8 +28,8 @@ const AssetDetail = () => {
   const [userBalance, setUserBalance] = useState(null);
   const [isCheckingBalance, setIsCheckingBalance] = useState(false);
   const [message, setMessage] = useState('');
-  const [rtmToUsdRate, setRtmToUsdRate] = useState(null); // State for RTM to USD rate
-  const [isFetchingRate, setIsFetchingRate] = useState(false); // State for rate fetching
+  const [rtmToUsdRate, setRtmToUsdRate] = useState(null);
+  const [isFetchingRate, setIsFetchingRate] = useState(false);
   const [offerAmount, setOfferAmount] = useState('');
   const [offerLoading, setOfferLoading] = useState(false);
   const [isOfferDialogOpen, setIsOfferDialogOpen] = useState(false);
@@ -49,7 +49,6 @@ const AssetDetail = () => {
     if (token) {
       try {
         const decodedToken = jwtDecode(token);
-        // Fetch user info to get the ID, similar to Account.js
         const response = await fetch('https://rtm.api.test.unknowngravity.com/user/info', {
           method: 'POST',
           headers: {
@@ -202,7 +201,7 @@ const AssetDetail = () => {
           if (data.balanceRTM !== undefined) {
             setUserBalance(data.balanceRTM);
           } else {
-            setUserBalance(null); // Or some error state
+            setUserBalance(null);
             console.error('Balance RTM not found in response');
           }
         } else {
@@ -216,39 +215,40 @@ const AssetDetail = () => {
         setIsCheckingBalance(false);
       }
     } else {
-      setUserBalance(null); // No token, no balance
+      setUserBalance(null);
     }
   };
 
   const fetchRtmToUsdRate = async () => {
     setIsFetchingRate(true);
-    // Use your backend endpoint
+    // Usar aqui URL de tu backend que devuelve el precio de RTM a USD
     const url = `https://rtm.api.test.unknowngravity.com/get-rtm-price`;
 
     try {
-      // No API key or special headers needed for this call to your backend
+      // No API key ni autenticación necesaria para este endpoint
       const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
-          // If your backend endpoint for getting the price requires authentication,
-          // you might need to add an Authorization header here, e.g.:
+          // Si tu backend requiere autenticación,
+          // es posible que debas agregar un encabezado de autorización aquí,
+          // por ejemplo:
           // 'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
       });
 
       if (response.ok) {
         const data = await response.json();
-        // Expecting format: { "usd_price": 0.000288... }
+        // Formato esperado: { "usd_price": 0.000288... }
         if (data.usd_price !== undefined) {
           setRtmToUsdRate(data.usd_price);
         } else {
-          console.error('Could not find usd_price in backend response:', data);
+          console.error('No se encontró usd_price en la respuesta del backend:', data);
           setRtmToUsdRate(null);
         }
       } else {
-        const errorData = await response.json().catch(() => ({ message: 'Failed to fetch RTM to USD rate from backend and could not parse error response.' }));
-        console.error('Failed to fetch RTM to USD rate from backend:', response.status, errorData);
+        const errorData = await response.json().catch(() => ({ message: 'Error al obtener la tasa de RTM a USD del backend y no se pudo analizar la respuesta de error.' }));
+        console.error('Error al obtener la tasa de RTM a USD del backend:', response.status, errorData);
         setRtmToUsdRate(null);
       }
     } catch (error) {
@@ -276,7 +276,7 @@ const AssetDetail = () => {
     }
 
     const requestBody = {
-      assetId: asset.id, // Use the database ID of the asset
+      assetId: asset.id, // Usa el ID de la base de datos del asset
       offerPrice: parseFloat(offerAmount),
     };
 
@@ -289,10 +289,10 @@ const AssetDetail = () => {
       requestBody.expiresAt = expires;
     }
 
-    setOfferLoading(true); // Keep this for the button's loading state
+    setOfferLoading(true); // Mantener el loading hasta que se complete la llamada a la API
 
 
-    const apiCall = fetch(`https://rtm.api.test.unknowngravity.com/offers/makeOffer`, { // Updated endpoint
+    const apiCall = fetch(`https://rtm.api.test.unknowngravity.com/offers/makeOffer`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -319,11 +319,6 @@ const AssetDetail = () => {
         return { title: err.message || 'Error al enviar la oferta.' };
       },
     });
-
-    // The finally block for setOfferLoading is handled by the promise toast completion
-    // apiCall.finally(() => {
-    //   setOfferLoading(false);
-    // });
   };
 
   // Handler para actualizar el precio
@@ -357,7 +352,7 @@ const AssetDetail = () => {
     }
   };
 
-  // Handler to update the description
+  // Handler para actualizar la descripción
   const handleUpdateDescription = async () => {
     if (newDescription.trim() === '') {
       toaster.create({ title: 'La descripción no puede estar vacía.', type: 'error', duration: 6000 });
@@ -380,7 +375,7 @@ const AssetDetail = () => {
       }
       toaster.create({ title: data.message || 'Descripción actualizada correctamente', type: 'success', duration: 6000 });
       setShowEditDescription(false);
-      // Update local state to show the change immediately
+      // Actualizar el asset en el estado
       setAsset({ ...asset, description: newDescription, descripcion: newDescription });
     } catch (err) {
       toaster.create({ title: err.message || 'Error al actualizar la descripción', type: 'error', duration: 6000 });
@@ -389,14 +384,11 @@ const AssetDetail = () => {
     }
   };
 
-
-
-
-  useEffect(() => {
+    useEffect(() => {
     setLoading(true);
     fetchLoggedInUser();
     fetchUserBalance();
-    fetchRtmToUsdRate(); // Fetch conversion rate
+    fetchRtmToUsdRate();
 
     getAsset(id).then((data) => {
       setAsset(data);
@@ -432,9 +424,9 @@ const AssetDetail = () => {
   if (precio && rtmToUsdRate) {
     const calculatedUsdPrice = parseFloat(precio) * rtmToUsdRate;
     if (calculatedUsdPrice < 5) {
-      usdPrice = calculatedUsdPrice.toFixed(4); // Show 4 decimal places if less than 5 USD
+      usdPrice = calculatedUsdPrice.toFixed(4); // Mostramos 4 decimales si es menos de 5 USD
     } else {
-      usdPrice = calculatedUsdPrice.toFixed(2); // Otherwise, show 2 decimal places
+      usdPrice = calculatedUsdPrice.toFixed(2); // De lo contrario, mostramos 2 decimales
     }
   }
 
@@ -471,7 +463,6 @@ const AssetDetail = () => {
             Propietario: {asset.ownerName} -  {asset.Wallet.direccion}
           </Text>
         )}
-        {/* Grid SIEMPRE visible, 3 filas x 2 columnas, cada celda cambia según estado */}
         <Box width="100%" mt={2}>
           <Grid templateColumns={isOwner ? "1fr 180px" : "1fr"} gap={2} alignItems="center" width="100%">
             {/* Fila 1: Precio y Modificar Precio */}
@@ -641,7 +632,7 @@ const AssetDetail = () => {
                 </Box>
               </>
             )}
-            {/* Fila 3: Mensaje de dueño y Enviar Asset */}
+            {/* Fila 3: Mensaje de dueño */}
             {!showSendFields ? (
               <>
                 {isOwner && (
@@ -707,7 +698,7 @@ const AssetDetail = () => {
                       Cancelar
                     </Button>
                   </HStack>
-                  {/* Dialog de confirmación usando Chakra UI v3 */}
+                  {/* Diálogo de confirmación usando Chakra UI v3 */}
                   <DialogRoot open={showConfirmDialog} onOpenChange={(details) => setShowConfirmDialog(details.open)}>
                     <DialogPositioner>
                       <DialogContent>
@@ -776,7 +767,7 @@ const AssetDetail = () => {
             >
               {isBuying ? <Spinner size="sm" /> : isCheckingBalance ? <Spinner size="sm" /> : 'Comprar Asset'}
             </Button>
-            {/* Dialog para hacer oferta usando Chakra UI v3 */}
+            {/* Diálogo para hacer oferta usando Chakra UI v3 */}
             <DialogRoot open={isOfferDialogOpen}
               onOpenChange={(details) => setIsOfferDialogOpen(details.open)}
             >
@@ -871,26 +862,21 @@ const AssetDetail = () => {
         </Center>
 
 
-        {/* Sección de enlaces a RRSS de Unknown Gravity con iconos mejorados y más reconocibles */}
+        {/* Sección de enlaces a RRSS de Unknown Gravity */}
         <Box mt={6} mb={2} display="flex" flexDirection="row" justifyContent="center" gap="22px" alignItems="center">
           <a href="https://www.unknowngravity.com/" target="_blank" rel="noopener noreferrer" title="Web">
-            {/* Icono Web (globo) */}
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="14" stroke="#003459" strokeWidth="2.5" /><ellipse cx="16" cy="16" rx="6" ry="14" stroke="#003459" strokeWidth="2.5" /><path d="M2 16h28" stroke="#003459" strokeWidth="2.5" /></svg>
           </a>
           <a href="https://www.linkedin.com/company/unknowngravity" target="_blank" rel="noopener noreferrer" title="LinkedIn">
-            {/* Icono LinkedIn mejorado (cuadro + 'in') */}
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="4" y="4" width="24" height="24" rx="5" fill="#003459" /><text x="10" y="23" fontFamily="Arial, Helvetica, sans-serif" fontWeight="bold" fontSize="14" fill="#fff">in</text></svg>
           </a>
           <a href="https://twitter.com/unknowngravity_" target="_blank" rel="noopener noreferrer" title="Twitter">
-            {/* Icono Twitter (pájaro) */}
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M28 10.5c-.8.4-1.6.7-2.4.8.9-.6 1.5-1.3 1.8-2.2-.9.5-1.8.9-2.7 1.1-1-1-2.3-1.3-3.6-.9-1.8.5-2.9 2.4-2.4 4.2-3.6-.1-6.8-1.9-9-4.6-.4.8-.5 1.7-.3 2.6.4.9 1.1 1.6 2 2-.7 0-1.4-.2-2-.5v.1c0 2 1.4 3.7 3.2 4.1-.5.2-1.1.2-1.6.1.4 1.4 1.8 2.4 3.3 2.4-1.3 1-2.9 1.6-4.5 1.6-.3 0-.6 0-.9-.1C8.7 25 11 25.7 13.5 25.7c8.2 0 12.7-6.7 12.7-12.7v-.5c1-.7 1.7-1.5 2.3-2.3z" fill="#003459" /></svg>
           </a>
           <a href="https://www.instagram.com/unknown.gravity/" target="_blank" rel="noopener noreferrer" title="Instagram">
-            {/* Icono Instagram (cámara) */}
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="4" y="4" width="24" height="24" rx="7" stroke="#003459" strokeWidth="2.5" fill="none" /><circle cx="16" cy="16" r="7" stroke="#003459" strokeWidth="2.5" fill="none" /><circle cx="23" cy="9" r="1.5" fill="#003459" /></svg>
           </a>
           <a href="https://www.tiktok.com/@unknown.gravity" target="_blank" rel="noopener noreferrer" title="TikTok">
-            {/* Icono TikTok mejorado (nota musical doble trazo) */}
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="4" y="4" width="24" height="24" rx="7" fill="#003459" /><path d="M22 11v8a5 5 0 1 1-5-5" stroke="#fff" strokeWidth="2.5" fill="none" /><path d="M22 11c1.2 0 2.2-1 2.2-2.2S23.2 6.6 22 6.6" stroke="#fff" strokeWidth="1.2" fill="none" /><circle cx="22" cy="11" r="1.5" fill="#fff" /></svg>
           </a>
         </Box>

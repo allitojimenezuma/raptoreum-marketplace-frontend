@@ -28,7 +28,6 @@ const AssetCard = ({ asset, loggedInUserId }) => {
     <LinkBox
       className="asset-card" // Keep if other non-conflicting styles in App.css depend on it
       role="group"
-      // Chakra UI style props (migrated from your inline style prop)
       p={0} // padding: 0
       m="10px" // margin: '10px'
       display="flex"
@@ -36,21 +35,18 @@ const AssetCard = ({ asset, loggedInUserId }) => {
       alignItems="stretch"
       overflow="hidden"
       cursor="pointer"
-      borderWidth="3px" // Corresponds to 'border: 3px solid ...'
-      borderStyle="solid" // Corresponds to 'border: 3px solid ...'
-      borderRadius="24px" // borderRadius: '24px'
-      boxShadow="0 6px 32px 0 rgba(0,52,89,0.13), 0 2px 8px 0 #949494" // boxShadow: '...'
+      borderWidth="3px"
+      borderStyle="solid"
+      borderRadius="24px"
+      boxShadow="0 6px 32px 0 rgba(0,52,89,0.13), 0 2px 8px 0 #949494"
       transition="box-shadow 0.3s cubic-bezier(.25,.8,.25,1), transform 0.2s, background-color 0.3s, border-color 0.3s" // transition: '...' (added bg and border)
       
       bg={isOwner ? 'green.100' : '#f7fafc'} 
       borderColor={isOwner ? 'green.500' : '#003459'} 
 
-      // Remove the inline 'style' prop as its properties are now handled by Chakra props above
-      // style={{ border: '3px solid #003459', borderRadius: '24px', ... }} 
-
       _hover={{ // Chakra prop for hover styles
-        boxShadow: "0 12px 40px 0 rgba(0,52,89,0.22), 0 4px 16px 0 #007ea7", // Example hover shadow
-        transform: "translateY(-4px) scale(1.03)" // Example hover transform
+        boxShadow: "0 12px 40px 0 rgba(0,52,89,0.22), 0 4px 16px 0 #007ea7",
+        transform: "translateY(-4px) scale(1.03)"
       }}
       onClick={handleCardClick}
     >
@@ -96,7 +92,7 @@ const AssetCard = ({ asset, loggedInUserId }) => {
             fontSize={fitFontSize}
             maxWidth="220px"
             width="100%"
-            minHeight="32px" // fuerza altura mínima para alinear
+            minHeight="32px"
             lineHeight="1.2"
             whiteSpace="nowrap"
             overflow="hidden"

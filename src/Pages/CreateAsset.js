@@ -50,7 +50,7 @@ const CreateAsset = () => {
         e.preventDefault();
         setError('');
 
-        if (isSubmitting) return; // Prevent multiple submissions
+        if (isSubmitting) return; // Previene múltiples envíos
 
         setIsSubmitting(true);
 
@@ -136,7 +136,7 @@ const CreateAsset = () => {
             });
         } finally {
             setIsSubmitting(false);
-            toaster.dismiss(loadingToast); // Dismiss the loading toast
+            toaster.dismiss(loadingToast);
         }
     };
 
@@ -214,11 +214,6 @@ const CreateAsset = () => {
                             </Box>
                         )}
                     </FieldRoot>
-                    {/* {error && (
-                        <Box color="red.500" fontSize="sm" mt={-2}>
-                            {error}
-                        </Box>
-                    )} */}
                     <Button
                         bg="#003459"
                         color="white"

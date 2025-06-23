@@ -18,7 +18,7 @@ const getAssets = async () => {
 
 const Home = () => {
   const [assets, setAssets] = useState([]);
-  const [loggedInUserId, setLoggedInUserId] = useState(null); // State for logged-in user's ID
+  const [loggedInUserId, setLoggedInUserId] = useState(null);
 
   useEffect(() => {
     const fetchLoggedInUser = async () => {
@@ -26,7 +26,7 @@ const Home = () => {
       if (token) {
         try {
           const decodedToken = jwtDecode(token);
-          // Fetch user info to get the ID, similar to Account.
+          // Fetch información del usuario para obtener el ID, similar a Account.
           const response = await fetch('https://rtm.api.test.unknowngravity.com/user/info', {
             method: 'POST',
             headers: {
@@ -40,10 +40,10 @@ const Home = () => {
               setLoggedInUserId(data.user.id);
             }
           } else {
-            console.error('Failed to fetch user info for Home page');
+            console.error('Error al obtener información del usuario para la página de inicio');
           }
         } catch (error) {
-          console.error('Error fetching logged-in user ID for Home page:', error);
+          console.error('Error al obtener el ID del usuario conectado para la página de inicio:', error);
         }
       }
     };

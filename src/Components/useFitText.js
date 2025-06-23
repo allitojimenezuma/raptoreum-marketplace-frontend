@@ -2,7 +2,7 @@ import { useRef, useLayoutEffect, useState } from 'react';
 
 /**
  * Hook para ajustar el tamaño de fuente de un texto para que quepa en una sola línea dentro de su contenedor.
- * Si cabe con el máximo, usar el tamaño dos unidades menor. Si no cabe, reducir como antes.
+ * Si no cabe, reducir.
  * Compatible con Chakra UI v3 y sin efectos colaterales en el DOM.
  * @param {number} maxFontSize Tamaño máximo de fuente en px
  * @param {number} minFontSize Tamaño mínimo de fuente en px
@@ -22,7 +22,6 @@ export function useFitText(maxFontSize = 24, minFontSize = 12) {
     const fontWeight = window.getComputedStyle(node).fontWeight;
     const fontStyle = window.getComputedStyle(node).fontStyle;
     const parentWidth = parent.getBoundingClientRect().width;
-    // Medir primero con maxFontSize-2
     const measure = document.createElement('span');
     measure.style.visibility = 'hidden';
     measure.style.position = 'absolute';
@@ -39,7 +38,7 @@ export function useFitText(maxFontSize = 24, minFontSize = 12) {
       document.body.removeChild(measure);
       return;
     }
-    // Si no cabe, reducir más
+    // Si no cabe, reducir el tamaño de fuente
     let currentFont = maxFontSize - 2;
     let fits = false;
     while (currentFont >= minFontSize) {

@@ -27,7 +27,7 @@ const Login = () => {
       localStorage.setItem('token', data.token);
       navigate('/');
     } else {
-      let errorMsg = 'Error al iniciar sesión. Verifica tus credenciales.';
+      let errorMsg = 'Error al iniciar sesión. Verifica usuario y contraseña.';
       try {
         const errorData = await response.json();
         if (errorData && errorData.message) {
