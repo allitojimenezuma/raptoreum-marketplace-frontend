@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   Box,
   Heading,
@@ -16,73 +16,75 @@ const Offers = () => {
   const [loadingReceived, setLoadingReceived] = useState(true);
   const [loadingSent, setLoadingSent] = useState(true);
   const [actionLoading, setActionLoading] = useState(null); // To track loading state for accept/reject buttons
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchReceivedOffers = async () => {
-      setLoadingReceived(true);
-      const token = localStorage.getItem('token');
-      if (!token) {
-        toaster.error("No autenticado. Por favor, inicia sesión.", { title: "Error" });
-        setLoadingReceived(false);
+  // Refactor: extrae los fetch para poder llamarlos tras aceptar/rechazar
+  const fetchReceivedOffers = useCallback(async () => {
+    setLoadingReceived(true);
+    const token = localStorage.getItem('token');
+    if (!token) {
+      toaster.error("No autenticado. Por favor, inicia sesión.", { title: "Error" });
+      setLoadingReceived(false);
+      setReceivedOffers([]);
+      return;
+    }
+    try {
+      const response = await fetch('https://rtm.api.test.unknowngravity.com/offers/my/received', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setReceivedOffers(data || []);
+      } else {
+        const errorData = await response.json().catch(() => ({ message: "Error al cargar ofertas recibidas." }));
+        toaster.error(errorData.message, { title: "Error" });
         setReceivedOffers([]);
-        return;
       }
-      try {
-        const response = await fetch('https://rtm.api.test.unknowngravity.com/offers/my/received', { // Updated endpoint
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setReceivedOffers(data || []); // Backend returns an array directly
-        } else {
-          const errorData = await response.json().catch(() => ({ message: "Error al cargar ofertas recibidas." }));
-          toaster.error(errorData.message, { title: "Error" });
-          setReceivedOffers([]);
-        }
-      } catch (err) {
-        toaster.error("Error de red al cargar ofertas recibidas.", { title: "Error" });
-        setReceivedOffers([]);
-      } finally {
-        setLoadingReceived(false);
-      }
-    };
-
-    const fetchSentOffers = async () => {
-      setLoadingSent(true);
-      const token = localStorage.getItem('token');
-      if (!token) {
-        // No need to toast again if already toasted by fetchReceivedOffers
-        setLoadingSent(false);
-        setSentOffers([]);
-        return;
-      }
-      try {
-        const response = await fetch('https://rtm.api.test.unknowngravity.com/offers/my/made', { // Updated endpoint
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setSentOffers(data || []); // Backend returns an array directly
-        } else {
-          const errorData = await response.json().catch(() => ({ message: "Error al cargar ofertas enviadas." }));
-          toaster.error(errorData.message, { title: "Error" });
-          setSentOffers([]);
-        }
-      } catch (err) {
-        toaster.error("Error de red al cargar ofertas enviadas.", { title: "Error" });
-        setSentOffers([]);
-      } finally {
-        setLoadingSent(false);
-      }
-    };
-
-    fetchReceivedOffers();
-    fetchSentOffers();
+    } catch (err) {
+      toaster.error("Error de red al cargar ofertas recibidas.", { title: "Error" });
+      setReceivedOffers([]);
+    } finally {
+      setLoadingReceived(false);
+    }
   }, []);
 
+  const fetchSentOffers = useCallback(async () => {
+    setLoadingSent(true);
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setLoadingSent(false);
+      setSentOffers([]);
+      return;
+    }
+    try {
+      const response = await fetch('https://rtm.api.test.unknowngravity.com/offers/my/made', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setSentOffers(data || []);
+      } else {
+        const errorData = await response.json().catch(() => ({ message: "Error al cargar ofertas enviadas." }));
+        toaster.error(errorData.message, { title: "Error" });
+        setSentOffers([]);
+      }
+    } catch (err) {
+      toaster.error("Error de red al cargar ofertas enviadas.", { title: "Error" });
+      setSentOffers([]);
+    } finally {
+      setLoadingSent(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchReceivedOffers();
+    fetchSentOffers();
+  }, [fetchReceivedOffers, fetchSentOffers]);
+
   const handleAction = async (offerId, action) => {
-    setActionLoading(offerId); // Set loading state for the specific offer being actioned
+    setActionLoading(offerId);
+    setError('');
     const token = localStorage.getItem('token');
     if (!token) {
       toaster.error("No autenticado. Por favor, inicia sesión.", { title: "Error" });
@@ -91,14 +93,50 @@ const Offers = () => {
     }
 
     if (action === 'accept') {
-      // Lógica de compra igual que buyAsset en AssetDetails.js
       if (!window.confirm('¿Estás seguro de que deseas aceptar esta oferta? Se realizará la transacción en blockchain y el asset cambiará de propietario.')) {
         setActionLoading(null);
         return;
       }
       toaster.create({ title: 'Procesando compra en blockchain', description: 'Espere unos minutos antes de recargar la página.', type: 'info', duration: 12000 });
+      // Timeout manual (30 segundos)
+      const controller = new AbortController();
+      const timeout = setTimeout(() => {
+        controller.abort();
+        toaster.create({
+          title: 'La transacción está tardando más de lo habitual, pero sigue en proceso.',
+          description: 'Te notificaremos al completarse.',
+          type: 'info',
+          duration: 12000
+        });
+        setActionLoading(null);
+      }, 30000);
+      try {
+        const response = await fetch(`https://rtm.api.test.unknowngravity.com/offers/${offerId}/accept`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+          signal: controller.signal,
+        });
+        clearTimeout(timeout);
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ message: `Error al aceptar la oferta.` }));
+          throw new Error(errorData.message);
+        }
+        await fetchReceivedOffers(); // Refresca la lista tras aceptar
+        await fetchSentOffers();
+        toaster.create({ title: '¡Oferta aceptada y asset transferido correctamente!', type: 'success', duration: 10000 });
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          setError('Ocurrió un error al aceptar la oferta. Intenta nuevamente.');
+          toaster.create({ title: err.message || 'Error al aceptar la oferta.', type: 'error', duration: 10000 });
+        }
+      } finally {
+        clearTimeout(timeout);
+        setActionLoading(null);
+      }
+      return;
     }
 
+    // Para rechazar
     const apiCall = fetch(`https://rtm.api.test.unknowngravity.com/offers/${offerId}/${action}`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
@@ -112,8 +150,9 @@ const Offers = () => {
 
     toaster.promise(apiCall, {
       loading: { title: "Procesando oferta...", description: "La transacción está en curso. Por favor, espere unos minutos." },
-      success: (data) => {
-        setReceivedOffers(prevOffers => prevOffers.filter(o => o.id !== offerId));
+      success: async (data) => {
+        await fetchReceivedOffers();
+        await fetchSentOffers();
         if (action === 'accept') {
           return { title: '¡Oferta aceptada y asset transferido correctamente!' };
         }
@@ -125,23 +164,19 @@ const Offers = () => {
     });
 
     apiCall.finally(() => {
-      setActionLoading(null); // Clear loading state for the specific offer
+      setActionLoading(null);
     });
   };
 
   // Handler para cancelar oferta enviada
   const handleCancelSentOffer = async (offerId) => {
-    console.log('[Cancelar Oferta] Iniciando cancelación para offerId:', offerId);
     setActionLoading(offerId);
     const token = localStorage.getItem('token');
-    console.log('[Cancelar Oferta] Token obtenido:', token);
     if (!token) {
       toaster.error("No autenticado. Por favor, inicia sesión.", { title: "Error" });
       setActionLoading(null);
       return;
     }
-    const offer = sentOffers.find(o => o.id === offerId);
-    console.log('[Cancelar Oferta] Objeto offer:', offer);
     const apiCall = fetch(`https://rtm.api.test.unknowngravity.com/offers/${offerId}/cancel`, {
       method: 'POST',
       headers: {
@@ -149,31 +184,24 @@ const Offers = () => {
       }
     })
       .then((response) => {
-        console.log('[Cancelar Oferta] Respuesta fetch:', response);
         if (!response.ok) {
           return response.json()
             .then((errorData) => {
-              console.log('[Cancelar Oferta] Error en respuesta:', errorData);
               throw new Error(errorData.message);
             })
             .catch(() => {
-              console.log('[Cancelar Oferta] Error en respuesta: sin JSON');
               throw new Error('Error al cancelar la oferta.');
             });
         }
-        return response.json().then((data) => {
-          console.log('[Cancelar Oferta] Respuesta OK:', data);
-          return data;
-        });
+        return response.json();
       })
       .catch((err) => {
-        console.log('[Cancelar Oferta] Catch error:', err);
         throw err;
       });
     toaster.promise(apiCall, {
       loading: `Cancelando oferta...`,
-      success: (data) => {
-        setSentOffers(prevOffers => prevOffers.filter(o => o.id !== offerId));
+      success: async (data) => {
+        await fetchSentOffers();
         return { title: data.message || `Oferta cancelada correctamente` };
       },
       error: (err) => {
@@ -182,12 +210,13 @@ const Offers = () => {
     });
     apiCall.finally(() => {
       setActionLoading(null);
-      console.log('[Cancelar Oferta] Finalizado');
     });
   };
 
   return (
     <Box className="asset-card" style={{ border: '3px solid #003459', borderRadius: '24px', background: '#fff', boxShadow: '0 8px 32px 0 rgba(0,52,89,0.25), 0 3px 12px 0 #003459', transition: 'box-shadow 0.3s cubic-bezier(.25,.8,.25,1), transform 0.2s', padding: 0, margin: '32px auto', display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: '800px', overflow: 'hidden' }}>
+      {/* Mensajes de error globales (solo error, timeout va por toaster) */}
+      {error && <Text color="red.500" fontWeight="bold" mb={2}>{error}</Text>}
       <Box p={6} width="100%" textAlign="center" bg="#f7fafc" display="flex" flexDirection="column" alignContent="center" alignItems="center" gap="10px" style={{ borderBottomLeftRadius: '21px', borderBottomRightRadius: '21px' }}>
         <Heading mb={4} color="#003459" fontWeight="bold" fontSize="2xl" fontFamily="inherit">Ofertas Recibidas</Heading>
         {loadingReceived ? (
