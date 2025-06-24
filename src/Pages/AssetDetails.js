@@ -262,16 +262,20 @@ const AssetDetail = () => {
 
   const handleSendOffer = async () => {
     if (!offerAmount || isNaN(offerAmount) || Number(offerAmount) <= 0) {
-      // toast.error('Introduce una cantidad válida para la oferta.', { title: 'Error de Oferta' });
+      toaster.create({ title: 'Introduce una cantidad válida para la oferta.', type: 'error', duration: 6000 });
       return;
     }
     if (!asset || !asset.id) {
-      // toast.error('No se pudo obtener la información del asset para la oferta.', { title: 'Error de Asset' });
+      toaster.create({ title: 'No se pudo obtener la información del asset para la oferta.', type: 'error', duration: 6000 });
+      return;
+    }
+    if (userBalance !== null && Number(offerAmount) > Number(userBalance)) {
+      toaster.create({ title: 'No tienes suficiente balance para realizar esta oferta.', type: 'error', duration: 8000 });
       return;
     }
     const token = localStorage.getItem('token');
     if (!token) {
-      // toast.error('No estás autenticado. Por favor, inicia sesión.', { title: 'Error de Autenticación' });
+      toaster.create({ title: 'No estás autenticado. Por favor, inicia sesión.', type: 'error', duration: 6000 });
       return;
     }
 
