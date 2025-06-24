@@ -239,7 +239,7 @@ const Offers = () => {
                     <Text color={new Date(offer.expiresAt) < new Date() ? 'red.500' : '#949494'} fontSize="sm">
                       {new Date(offer.expiresAt) < new Date()
                         ? 'Oferta Expirada'
-                        : `Expira: ${new Date(offer.expiresAt).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}`}
+                        : `Fecha de Expiración: ${new Date(offer.expiresAt).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}`}
                     </Text>
                   )}
                 </Box>
