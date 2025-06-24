@@ -231,35 +231,43 @@ const Offers = () => {
                   <Text fontWeight="bold" color="#003459">Asset: {offer.asset?.name || 'N/A'}</Text>
                   <Text color="#003459">Ofertante: {offer.offerer?.name || 'N/A'}</Text>
                   <Text color="#003459">Cantidad ofertada: <b>{Number(offer.offerPrice) % 1 === 0 ? Number(offer.offerPrice) : Number(offer.offerPrice).toFixed(2)} RTM</b></Text>
-                  {offer.expiresAt && (
-                    <Text color={offer.status === 'pending' && new Date(offer.expiresAt) < new Date() ? 'red.500' : '#949494'} fontSize="sm">
-                      {offer.status === 'pending' && new Date(offer.expiresAt) < new Date()
+                  {offer.status === 'accepted' ? (
+                    <Text color="green.600" fontWeight="bold" fontSize="sm">
+                      Aceptada el: {new Date(offer.updatedAt).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}
+                    </Text>
+                  ) : offer.status === 'pending' && offer.expiresAt && (
+                    <Text color={new Date(offer.expiresAt) < new Date() ? 'red.500' : '#949494'} fontSize="sm">
+                      {new Date(offer.expiresAt) < new Date()
                         ? 'Oferta Expirada'
                         : `Expira: ${new Date(offer.expiresAt).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}`}
                     </Text>
                   )}
                 </Box>
                 <VStack spacing={2} align="end">
-                  <Button
-                    bg="green.500"
-                    color="#fff"
-                    borderRadius="10px"
-                    border="2px solid #003459"
-                    width="120px"
-                    isLoading={actionLoading === offer.id}
-                    onClick={() => handleAction(offer.id, 'accept')}
-                    _hover={{ bg: 'green.600' }}
-                  >Aceptar</Button>
-                  <Button
-                    bg="red.500"
-                    color="#fff"
-                    borderRadius="10px"
-                    border="2px solid #003459"
-                    width="120px"
-                    isLoading={actionLoading === offer.id}
-                    onClick={() => handleAction(offer.id, 'reject')}
-                    _hover={{ bg: 'red.600' }}
-                  >Rechazar</Button>
+                  {offer.status === 'pending' && (!offer.expiresAt || new Date(offer.expiresAt) >= new Date()) && (
+                    <>
+                      <Button
+                        bg="green.500"
+                        color="#fff"
+                        borderRadius="10px"
+                        border="2px solid #003459"
+                        width="120px"
+                        isLoading={actionLoading === offer.id}
+                        onClick={() => handleAction(offer.id, 'accept')}
+                        _hover={{ bg: 'green.600' }}
+                      >Aceptar</Button>
+                      <Button
+                        bg="red.500"
+                        color="#fff"
+                        borderRadius="10px"
+                        border="2px solid #003459"
+                        width="120px"
+                        isLoading={actionLoading === offer.id}
+                        onClick={() => handleAction(offer.id, 'reject')}
+                        _hover={{ bg: 'red.600' }}
+                      >Rechazar</Button>
+                    </>
+                  )}
                   <Button
                     bg="#fff"
                     color="#003459"
@@ -282,46 +290,61 @@ const Offers = () => {
           <Text color="gray.500">No has enviado ninguna oferta.</Text>
         ) : (
           <VStack spacing={6} align="stretch" width="100%">
-            {sentOffers.map(offer => (
-              <Box key={offer.id} p={4} borderWidth={1} borderRadius="16px" borderColor="#00345933" bg="#fff" boxShadow="0 2px 8px 0 rgba(0,52,89,0.10)" display="flex" flexDirection="row" alignItems="center" justifyContent="space-between" gap="16px">
-                <Box textAlign="left">
-                  <Text fontWeight="bold" color="#003459">Asset: {offer.asset?.name || 'N/A'}</Text>
-                  <Text color="#003459">Propietario del Asset de la oferta: {offer.assetOwnerAtTimeOfOffer?.name || 'N/A'}</Text>
-                  <Text color="#003459">Cantidad ofertada: <b>{Number(offer.offerPrice) % 1 === 0 ? Number(offer.offerPrice) : Number(offer.offerPrice).toFixed(2)} RTM</b></Text>
-                  <Text color="#003459">Estado: <b>{offer.status === 'pending' ? 'Pendiente' : offer.status === 'accepted' ? 'Aceptada' : offer.status === 'rejected' ? 'Rechazada' : offer.status}</b></Text>
-                  {offer.expiresAt && (
-                    <Text color={offer.status === 'pending' && new Date(offer.expiresAt) < new Date() ? 'red.500' : '#949494'} fontSize="sm">
-                      {offer.status === 'pending' && new Date(offer.expiresAt) < new Date()
-                        ? 'Oferta Expirada'
-                        : `Expira: ${new Date(offer.expiresAt).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}`}
-                    </Text>
-                  )}
-                </Box>
-                <VStack spacing={2} align="end">
-                  {offer.status === 'pending' && (
+            {sentOffers.map(offer => {
+              // Determinar el estado visual
+              let estadoTexto = '';
+              let estadoColor = '#003459';
+              if (offer.status === 'pending' && offer.expiresAt && new Date(offer.expiresAt) < new Date()) {
+                estadoTexto = 'Expirada';
+                estadoColor = 'red.500';
+              } else if (offer.status === 'pending') {
+                estadoTexto = 'Pendiente';
+              } else if (offer.status === 'accepted') {
+                estadoTexto = 'Aceptada';
+              } else if (offer.status === 'rejected') {
+                estadoTexto = 'Rechazada';
+              } else {
+                estadoTexto = offer.status;
+              }
+              return (
+                <Box key={offer.id} p={4} borderWidth={1} borderRadius="16px" borderColor="#00345933" bg="#fff" boxShadow="0 2px 8px 0 rgba(0,52,89,0.10)" display="flex" flexDirection="row" alignItems="center" justifyContent="space-between" gap="16px">
+                  <Box textAlign="left">
+                    <Text fontWeight="bold" color="#003459">Asset: {offer.asset?.name || 'N/A'}</Text>
+                    <Text color="#003459">Propietario del Asset de la oferta: {offer.assetOwnerAtTimeOfOffer?.name || 'N/A'}</Text>
+                    <Text color="#003459">Cantidad ofertada: <b>{Number(offer.offerPrice) % 1 === 0 ? Number(offer.offerPrice) : Number(offer.offerPrice).toFixed(2)} RTM</b></Text>
+                    <Text color={estadoColor} fontWeight="bold">Estado: <b>{estadoTexto}</b></Text>
+                    {offer.expiresAt && !(offer.status === 'pending' && new Date(offer.expiresAt) < new Date()) && (
+                      <Text color="#949494" fontSize="sm">
+                        {`Fecha de Expiración: ${new Date(offer.expiresAt).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}`}
+                      </Text>
+                    )}
+                  </Box>
+                  <VStack spacing={2} align="end">
+                    {offer.status === 'pending' && (!offer.expiresAt || new Date(offer.expiresAt) >= new Date()) && (
+                      <Button
+                        bg="red.500"
+                        color="#fff"
+                        borderRadius="10px"
+                        border="2px solid #003459"
+                        width="120px"
+                        isLoading={actionLoading === offer.id}
+                        onClick={() => handleCancelSentOffer(offer.id)}
+                        _hover={{ bg: 'red.600' }}
+                      >Cancelar</Button>
+                    )}
                     <Button
-                      bg="red.500"
-                      color="#fff"
+                      bg="#fff"
+                      color="#003459"
                       borderRadius="10px"
                       border="2px solid #003459"
                       width="120px"
-                      isLoading={actionLoading === offer.id}
-                      onClick={() => handleCancelSentOffer(offer.id)}
-                      _hover={{ bg: 'red.600' }}
-                    >Cancelar</Button>
-                  )}
-                  <Button
-                    bg="#fff"
-                    color="#003459"
-                    borderRadius="10px"
-                    border="2px solid #003459"
-                    width="120px"
-                    onClick={() => navigate(`/asset/${offer.AssetId}`)}
-                    _hover={{ bg: '#e2e8f0' }}
-                  >Ver Asset</Button>
-                </VStack>
-              </Box>
-            ))}
+                      onClick={() => navigate(`/asset/${offer.AssetId}`)}
+                      _hover={{ bg: '#e2e8f0' }}
+                    >Ver Asset</Button>
+                  </VStack>
+                </Box>
+              );
+            })}
           </VStack>
         )}
       </Box>
