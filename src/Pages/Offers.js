@@ -225,61 +225,72 @@ const Offers = () => {
           <Text color="gray.500">No tienes ofertas recibidas pendientes.</Text>
         ) : (
           <VStack spacing={6} align="stretch" width="100%">
-            {receivedOffers.map(offer => (
-              <Box key={offer.id} p={4} borderWidth={1} borderRadius="16px" borderColor="#00345933" bg="#fff" boxShadow="0 2px 8px 0 rgba(0,52,89,0.10)" display="flex" flexDirection="row" alignItems="center" justifyContent="space-between" gap="16px">
-                <Box textAlign="left">
-                  <Text fontWeight="bold" color="#003459">Asset: {offer.asset?.name || 'N/A'}</Text>
-                  <Text color="#003459">Ofertante: {offer.offerer?.name || 'N/A'}</Text>
-                  <Text color="#003459">Cantidad ofertada: <b>{Number(offer.offerPrice) % 1 === 0 ? Number(offer.offerPrice) : Number(offer.offerPrice).toFixed(2)} RTM</b></Text>
-                  {offer.status === 'accepted' ? (
-                    <Text color="green.600" fontWeight="bold" fontSize="sm">
-                      Aceptada el: {new Date(offer.updatedAt).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}
+            {receivedOffers.map(offer => {
+              return (
+                <Box key={offer.id} p={4} borderWidth={1} borderRadius="16px" borderColor="#00345933" bg="#fff" boxShadow="0 2px 8px 0 rgba(0,52,89,0.10)" display="flex" alignItems="center" className="asset-list-item">
+                  <Box textAlign="left" flexGrow={1}>
+                    <Text
+                      as="span"
+                      fontWeight="bold"
+                      color="blue.600"
+                      cursor="pointer"
+                      _hover={{ textDecoration: "underline" }}
+                      onClick={() => navigate(`/asset/${offer.AssetId}`)}
+                    >
+                      {offer.asset?.name || 'N/A'}
                     </Text>
-                  ) : offer.status === 'pending' && offer.expiresAt && (
-                    <Text color={new Date(offer.expiresAt) < new Date() ? 'red.500' : '#949494'} fontSize="sm">
-                      {new Date(offer.expiresAt) < new Date()
-                        ? 'Oferta Expirada'
-                        : `Fecha de Expiración: ${new Date(offer.expiresAt).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}`}
-                    </Text>
-                  )}
+                    <Text color="#003459">Ofertante: {offer.offerer?.name || 'N/A'}</Text>
+                    <Text color="#003459">Cantidad ofertada: <b>{Number(offer.offerPrice) % 1 === 0 ? Number(offer.offerPrice) : Number(offer.offerPrice).toFixed(2)} RTM</b></Text>
+                    {offer.status === 'accepted' ? (
+                      <Text color="green.600" fontWeight="bold" fontSize="sm">
+                        Aceptada el: {new Date(offer.updatedAt).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}
+                      </Text>
+                    ) : offer.status === 'pending' && offer.expiresAt && (
+                      <Text color={new Date(offer.expiresAt) < new Date() ? 'red.500' : '#949494'} fontSize="sm">
+                        {new Date(offer.expiresAt) < new Date()
+                          ? 'Oferta Expirada'
+                          : `Fecha de Expiración: ${new Date(offer.expiresAt).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}`}
+                      </Text>
+                    )}
+                  </Box>
+                  <VStack spacing={2} align="end">
+                    {offer.status === 'pending' && (!offer.expiresAt || new Date(offer.expiresAt) >= new Date()) && (
+                      <>
+                        <Button
+                          bg="green.500"
+                          color="#fff"
+                          borderRadius="10px"
+                          border="2px solid #003459"
+                          width="120px"
+                          isLoading={actionLoading === offer.id}
+                          onClick={() => handleAction(offer.id, 'accept')}
+                          _hover={{ bg: 'green.600' }}
+                        >Aceptar</Button>
+                        <Button
+                          bg="red.500"
+                          color="#fff"
+                          borderRadius="10px"
+                          border="2px solid #003459"
+                          width="120px"
+                          isLoading={actionLoading === offer.id}
+                          onClick={() => handleAction(offer.id, 'reject')}
+                          _hover={{ bg: 'red.600' }}
+                        >Rechazar</Button>
+                      </>
+                    )}
+                    <Button
+                      bg="#fff"
+                      color="#003459"
+                      borderRadius="10px"
+                      border="2px solid #003459"
+                      width="120px"
+                      onClick={() => navigate(`/asset/${offer.AssetId}`)}
+                      _hover={{ bg: '#e2e8f0' }}
+                    >Ver Asset</Button>
+                  </VStack>
                 </Box>
-                <VStack spacing={2} align="end">
-                  {offer.status === 'pending' && (!offer.expiresAt || new Date(offer.expiresAt) >= new Date()) && (
-                    <>
-                      <Button
-                        bg="green.500"
-                        color="#fff"
-                        borderRadius="10px"
-                        border="2px solid #003459"
-                        width="120px"
-                        isLoading={actionLoading === offer.id}
-                        onClick={() => handleAction(offer.id, 'accept')}
-                        _hover={{ bg: 'green.600' }}
-                      >Aceptar</Button>
-                      <Button
-                        bg="red.500"
-                        color="#fff"
-                        borderRadius="10px"
-                        border="2px solid #003459"
-                        width="120px"
-                        isLoading={actionLoading === offer.id}
-                        onClick={() => handleAction(offer.id, 'reject')}
-                        _hover={{ bg: 'red.600' }}
-                      >Rechazar</Button>
-                    </>
-                  )}
-                  <Button
-                    bg="#fff"
-                    color="#003459"
-                    borderRadius="10px"
-                    border="2px solid #003459"
-                    width="120px"
-                    onClick={() => navigate(`/asset/${offer.AssetId}`)}
-                    _hover={{ bg: '#e2e8f0' }}
-                  >Ver Asset</Button>
-                </VStack>
-              </Box>
-            ))}
+              );
+            })}
           </VStack>
         )}
 
@@ -307,9 +318,18 @@ const Offers = () => {
                 estadoTexto = offer.status;
               }
               return (
-                <Box key={offer.id} p={4} borderWidth={1} borderRadius="16px" borderColor="#00345933" bg="#fff" boxShadow="0 2px 8px 0 rgba(0,52,89,0.10)" display="flex" flexDirection="row" alignItems="center" justifyContent="space-between" gap="16px">
-                  <Box textAlign="left">
-                    <Text fontWeight="bold" color="#003459">Asset: {offer.asset?.name || 'N/A'}</Text>
+                <Box key={offer.id} p={4} borderWidth={1} borderRadius="16px" borderColor="#00345933" bg="#fff" boxShadow="0 2px 8px 0 rgba(0,52,89,0.10)" display="flex" alignItems="center" className="asset-list-item">
+                  <Box textAlign="left" flexGrow={1}>
+                    <Text
+                      as="span"
+                      fontWeight="bold"
+                      color="blue.600"
+                      cursor="pointer"
+                      _hover={{ textDecoration: "underline" }}
+                      onClick={() => navigate(`/asset/${offer.AssetId}`)}
+                    >
+                      {offer.asset?.name || 'N/A'}
+                    </Text>
                     <Text color="#003459">Propietario del Asset de la oferta: {offer.assetOwnerAtTimeOfOffer?.name || 'N/A'}</Text>
                     <Text color="#003459">Cantidad ofertada: <b>{Number(offer.offerPrice) % 1 === 0 ? Number(offer.offerPrice) : Number(offer.offerPrice).toFixed(2)} RTM</b></Text>
                     <Text color={estadoColor} fontWeight="bold">Estado: <b>{estadoTexto}</b></Text>
