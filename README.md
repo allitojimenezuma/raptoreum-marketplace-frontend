@@ -1,70 +1,114 @@
-# Getting Started with Create React App
+# Raptoreum OpenSea Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Índice
+1. [Introducción](#introducción)
+2. [Características Principales](#características-principales)
+3. [Tecnologías Utilizadas](#tecnologías-utilizadas)
+4. [Estructura del Proyecto](#estructura-del-proyecto)
+5. [Configuración e Instalación](#configuración-e-instalación)
+6. [Personalización](#personalización)
+7. [Contribución](#contribución)
+8. [Licencia](#licencia)
+9. [Contacto](#contacto)
 
-## Available Scripts
+## Introducción
+Raptoreum OpenSea Frontend es una interfaz moderna para un marketplace de NFTs sobre la blockchain de Raptoreum, desarrollada con React y Chakra UI. Permite a los usuarios crear, importar, visualizar, comprar, vender y gestionar activos digitales (NFTs) en la red Raptoreum, priorizando la usabilidad, seguridad y una experiencia fluida.
 
-In the project directory, you can run:
+## Características Principales
 
-### `npm start`
+### Autenticación y Gestión de Usuarios
+- **Registro**: Crea una cuenta con email, contraseña y nombre.
+- **Inicio de sesión**: Acceso seguro mediante autenticación JWT.
+- **Restablecimiento de contraseña**: Solicita un enlace de recuperación y establece una nueva contraseña.
+- **Gestión de sesión**: Validación automática y redirección si el token es inválido o expirado.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Gestión de Activos (NFTs)
+- **Página principal**: Galería de todos los NFTs disponibles con tarjetas detalladas (nombre, precio, imagen).
+- **Detalles del activo**: Información completa de cada NFT (propietario, precio, descripción, imagen). Los propietarios pueden editar precio y descripción, transferir el activo o aceptar ofertas.
+- **Crear activo**: Sube un nuevo NFT con nombre, descripción, precio e imagen (con previsualización).
+- **Importar activo**: Importa un NFT existente proporcionando sus datos.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Ofertas y Transacciones
+- **Realizar ofertas**: Haz ofertas de compra sobre NFTs, indicando precio y expiración.
+- **Ver ofertas**: Consulta todas las ofertas enviadas y recibidas. Acepta o rechaza desde la misma interfaz.
+- **Historial de transacciones**: Visualiza el historial completo de tus transacciones y el de cada NFT.
 
-### `npm test`
+### Navegación y UI
+- **Navbar responsiva**: Barra de navegación dinámica con login/logout, balance y acceso rápido a todas las páginas.
+- **Toasts y modales**: Notificaciones personalizadas (éxito, error, info, carga) y modales para información y flujos de recuperación.
+- **Modo oscuro/claro**: Alterna entre temas usando Chakra UI.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Seguridad
+- **Validación JWT**: Todas las rutas protegidas validan el token localmente y contra el backend.
+- **Integración API**: Toda la información se obtiene de una API backend segura, con manejo de errores y feedback al usuario.
 
-### `npm run build`
+## Tecnologías Utilizadas
+- **React** (con hooks)
+- **Chakra UI** (componentes UI modernos y accesibles)
+- **React Router** (ruteo SPA)
+- **JWT** (autenticación)
+- **Toasts y modales personalizados**
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Estructura del Proyecto
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```
+raptoreum-opensea-frontend/
+  ├── public/                # Recursos estáticos
+  ├── src/
+  │   ├── Components/        # Componentes reutilizables (Navbar, AssetCard, Modals, Toasts, etc.)
+  │   ├── Pages/             # Páginas principales (Home, Login, Signup, Account, AssetDetails, etc.)
+  │   ├── data/              # Datos e imágenes estáticas
+  │   ├── App.js             # App principal con ruteo y lógica de autenticación
+  │   ├── index.js           # Punto de entrada
+  │   └── ...
+  ├── package.json
+  └── README.md
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Configuración e Instalación
 
-### `npm run eject`
+### Requisitos previos
+- Node.js (recomendado v16+)
+- npm o yarn
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Instalación
+```bash
+npm install
+# o
+yarn install
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Ejecución en desarrollo
+```bash
+npm start
+# o
+yarn start
+```
+La app estará disponible en `http://localhost:3000` por defecto.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### Compilación para producción
+```bash
+npm run build
+# o
+yarn build
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Variables de entorno
+- El frontend espera que la API backend esté disponible en `https://rtm.api.test.unknowngravity.com/`.
+- Si tu backend está en otra URL, ajusta los endpoints en el código.
 
-## Learn More
+## Personalización
+- **Tema UI**: Cambia fácilmente entre modo oscuro y claro.
+- **Endpoints API**: Modifica las URLs de la API en el código para apuntar a tu backend.
+- **Branding**: Reemplaza logos y colores en `/public` y `/src/data` según tu marca.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Contribución
+¡Las pull requests son bienvenidas! Para cambios mayores, abre primero un issue para discutir lo que te gustaría modificar.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Licencia
+[MIT](LICENSE)
 
-### Code Splitting
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Contacto
+Para dudas o soporte, abre un issue o contacta al mantenedor.
