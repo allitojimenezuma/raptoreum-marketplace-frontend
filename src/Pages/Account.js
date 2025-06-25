@@ -253,8 +253,7 @@ function Account() {
                 <Text><b>Nombre:</b> {user.name}</Text>
                 <Text><b>Email:</b> {user.email}</Text>
                 <Text><b>ID:</b> {user.id}</Text>
-                <Flex width="100%" alignItems="center" justifyContent="space-between">
-
+                <Flex width="100%" alignItems="center" justifyContent="space-between" direction={{ base: "column", md: "row" }}>
                     <Button
                         bg="#003459"
                         color="white"
@@ -262,17 +261,20 @@ function Account() {
                         _hover={{ bg: '#005080', color: 'white' }}
                         onClick={handleChangePassword}
                         type="button"
+                        mb={{ base: 2, md: 0 }}
                     >
                         Cambiar contraseña
                     </Button>
 
-                     <Button
+                    <Button
                         bg="#003459"
                         color="white"
                         borderRadius="10px"
                         _hover={{ bg: '#005080', color: 'white' }}
                         onClick={ () => navigate('/history') }
                         type="button"
+                        ml={{ base: 0, md: 4 }}
+                        width={{ base: '100%', md: 'auto' }}
                     >
                         Ver historial de la cuenta
                     </Button>
