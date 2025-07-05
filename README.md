@@ -1,4 +1,4 @@
-# Raptoreum OpenSea Frontend
+# Raptoreum Marketplace Frontend
 
 ## Índice
 1. [Introducción](#introducción)
@@ -12,7 +12,7 @@
 9. [Contacto](#contacto)
 
 ## Introducción
-Raptoreum OpenSea Frontend es una interfaz moderna para un marketplace de NFTs sobre la blockchain de Raptoreum, desarrollada con React y Chakra UI. Permite a los usuarios crear, importar, visualizar, comprar, vender y gestionar activos digitales (NFTs) en la red Raptoreum, priorizando la usabilidad, seguridad y una experiencia fluida.
+Raptoreum Marketplace Frontend es una interfaz moderna para un marketplace de NFTs sobre la blockchain de Raptoreum, desarrollada con React y Chakra UI. Permite a los usuarios crear, importar, visualizar, comprar, vender y gestionar activos digitales (NFTs) en la red Raptoreum, priorizando la usabilidad, seguridad y una experiencia fluida.
 
 ## Características Principales
 
